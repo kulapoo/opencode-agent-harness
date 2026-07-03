@@ -23,7 +23,7 @@ them; link to them.
 Adjacent common rules remain in their own files:
 [testing.md](testing.md) (F.I.R.S.T.),
 [patterns.md](patterns.md) (SRP, DI, boundaries, repository),
-[security.md](security.md), [performance.md](performance.md).
+[security.md](security.md).
 
 ## How language-specific stacks compose
 

@@ -1,11 +1,13 @@
-# Rules
+# Stacks
+
+Codable rulesets for the OpenCode Agent Harness. A **common** baseline of
+universal principles plus **language/framework-specific** stacks that extend it
+with idioms, tooling, and code examples.
 
 ## Structure
 
-Rules are organized into a **common** layer plus **language-specific** directories:
-
 ```
-rules/
+stacks/
 ├── common/          # Language-agnostic baselines + workflow rules (always install)
 │   # ── Baseline files (single-concern, referenced by stacks) ──
 │   ├── principles.md          # Boy Scout, KISS/DRY/YAGNI, Law of Demeter, emergence
@@ -21,148 +23,126 @@ rules/
 │   ├── testing.md             # Coverage, TDD, F.I.R.S.T.
 │   ├── patterns.md            # SRP, DI, boundaries, repository
 │   ├── git-workflow.md
-│   ├── performance.md
 │   ├── security.md
 │   ├── development-workflow.md
-│   ├── hooks.md
 │   └── agents.md
-├── typescript/      # TypeScript/JavaScript specific
-├── angular/         # Angular specific
-├── vue/             # Vue 3 specific
-├── nuxt/            # Nuxt 4 specific
-├── python/          # Python specific
-├── golang/          # Go specific
-├── web/             # Web and frontend specific
-├── react-native/    # React Native / Expo specific
-├── swift/           # Swift specific
-├── php/             # PHP specific
-├── ruby/            # Ruby / Rails specific
-└── arkts/           # HarmonyOS / ArkTS specific
+│
+├── typescript/      # TypeScript / JavaScript
+├── react/           # React
+├── react-native/    # React Native / Expo
+├── vue/             # Vue 3
+├── nuxt/            # Nuxt 4
+├── angular/         # Angular
+├── web/             # Web / frontend (framework-agnostic)
+├── python/          # Python (+ FastAPI)
+├── golang/          # Go
+├── rust/            # Rust
+├── ruby/            # Ruby / Rails
+├── php/             # PHP
+├── java/            # Java
+├── kotlin/          # Kotlin
+├── swift/           # Swift
+├── arkts/           # HarmonyOS / ArkTS
+├── csharp/          # C# / .NET
+├── fsharp/          # F#
+├── cpp/             # C / C++
+├── dart/            # Dart / Flutter
+└── perl/            # Perl
 ```
 
-- **common/** contains universal principles — no language-specific code examples.
-- **Language directories** extend the common rules with framework-specific patterns, tools, and code examples. Each file references its common counterpart.
+- **common/** holds universal principles — no language-specific code examples.
+- **Each stack** ships a consistent set of five files:
+  `coding-style.md`, `testing.md`, `patterns.md`, `hooks.md`, `security.md`.
+- A few stacks add domain-specific extras, e.g. `python/fastapi.md`,
+  `react-native/{accessibility,performance,production-readiness}.md`,
+  `web/{design-quality,performance}.md`.
 
 ## Installation
 
-### Option 1: Install Script (Recommended)
+There is no install script — copy the directories you need. Pick a destination
+that matches how you want the rules consumed (project-local vs. user-global).
+
+> **Important:** Copy entire directories — do NOT flatten with `/*`. Common and
+> stack directories contain files with the same names; flattening lets a stack
+> overwrite the common rules and breaks the relative `../common/` references
+> each stack uses.
+
+### Project-local (recommended for this harness)
+
+Place rules alongside the agent config so they travel with the repo:
 
 ```bash
-# Install common + one or more language-specific rule sets
-./install.sh typescript
-./install.sh angular
-./install.sh vue
-./install.sh nuxt
-./install.sh python
-./install.sh golang
-./install.sh web
-./install.sh react-native
-./install.sh swift
-./install.sh php
-./install.sh ruby
-./install.sh arkts
+# Common is required by every stack
+mkdir -p .opencode/rules
+cp -r stacks/common .opencode/rules/
 
-# Install multiple languages at once
-./install.sh typescript python
+# Then add the stacks your project actually uses
+cp -r stacks/typescript .opencode/rules/
+cp -r stacks/rust      .opencode/rules/
 ```
 
-### Option 2: Manual Installation
+### User-global
 
-> **Important:** Copy entire directories — do NOT flatten with `/*`.
-> Common and language-specific directories contain files with the same names.
-> Flattening them into one directory causes language-specific files to overwrite
-> common rules, and breaks the relative `../common/` references used by
-> language-specific files.
->
-> Use the ECC-owned namespace below for user-level opencode installs. Flat
-> package-level destinations can collide with non-ECC rule packs and do not
-> match the main README guidance.
+Share rules across all your OpenCode projects from a single namespace:
 
 ```bash
-# Create the ECC rule namespace once.
-mkdir -p ~/.opencode/rules/ecc
-
-# Install common rules (required for all projects)
-cp -r rules/common ~/.opencode/rules/ecc/
-
-# Install language-specific rules based on your project's tech stack
-cp -r rules/typescript ~/.opencode/rules/ecc/
-cp -r rules/angular ~/.opencode/rules/ecc/
-cp -r rules/vue ~/.opencode/rules/ecc/
-cp -r rules/nuxt ~/.opencode/rules/ecc/
-cp -r rules/python ~/.opencode/rules/ecc/
-cp -r rules/golang ~/.opencode/rules/ecc/
-cp -r rules/web ~/.opencode/rules/ecc/
-cp -r rules/react-native ~/.opencode/rules/ecc/
-cp -r rules/swift ~/.opencode/rules/ecc/
-cp -r rules/php ~/.opencode/rules/ecc/
-cp -r rules/ruby ~/.opencode/rules/ecc/
-cp -r rules/arkts ~/.opencode/rules/ecc/
-
-# Attention ! ! ! Configure according to your actual project requirements; the configuration here is for reference only.
+mkdir -p ~/.opencode/rules
+cp -r stacks/common    ~/.opencode/rules/
+cp -r stacks/typescript ~/.opencode/rules/
 ```
 
-For project-local rules, use the same namespace under the project root:
-
-```bash
-mkdir -p .opencode/rules/ecc
-cp -r rules/common .opencode/rules/ecc/
-cp -r rules/typescript .opencode/rules/ecc/
-```
+> Configure according to your actual project requirements; the examples above
+> are for reference only.
 
 ## Rules vs Skills
 
-- **Rules** define standards, conventions, and checklists that apply broadly (e.g., "80% test coverage", "no hardcoded secrets").
-- **Skills** (`skills/` directory) provide deep, actionable reference material for specific tasks (e.g., `python-patterns`, `golang-testing`).
+This harness pairs two kinds of guidance:
 
-Language-specific rule files reference relevant skills where appropriate. Rules tell you _what_ to do; skills tell you _how_ to do it.
+- **Stacks** (this directory) define standards, conventions, and checklists that
+  apply broadly within a language/framework (e.g. "80% test coverage", "no
+  hardcoded secrets").
+- **Skills** (`skills/` at the repo root) provide deep, task-oriented workflows
+  loaded on demand via the skill tool — e.g. `test-driven-development`,
+  `frontend-ui-engineering`, `security-and-hardening`,
+  `performance-optimization`, `code-review-and-quality`.
 
-## Adding a New Language
-
-To add support for a new language (e.g., `rust/`):
-
-1. Create a `rules/rust/` directory
-2. Add files that extend the common rules:
-   - `coding-style.md` — formatting tools, idioms, error handling patterns
-   - `testing.md` — test framework, coverage tools, test organization
-   - `patterns.md` — language-specific design patterns
-   - `hooks.md` — PostToolUse hooks for formatters, linters, type checkers
-   - `security.md` — secret management, security scanning tools
-3. Each file should start with a **RELEVANT baselines** header that links
-   the baselines it depends on (see "Composition — Referencing Baselines"
-   below), then add only language-specific deltas.
-4. Reference existing skills if available, or create new ones under `skills/`.
-
-For non-language domains like `web/`, follow the same layered pattern when there is enough reusable domain-specific guidance to justify a standalone ruleset.
+Stack files reference relevant skills where appropriate. Rules tell you _what_
+to do; skills tell you _how_ to do it.
 
 ## Rule Priority
 
-When language-specific rules and common rules conflict, **language-specific rules take precedence** (specific overrides general). This follows the standard layered configuration pattern (similar to CSS specificity or `.gitignore` precedence).
+When a stack and `common/` conflict, **the stack wins** (specific overrides
+general) — the same layered-precedence pattern as CSS specificity or
+`.gitignore`.
 
-- `rules/common/` defines universal defaults applicable to all projects.
-- `rules/golang/`, `rules/python/`, `rules/swift/`, `rules/php/`, `rules/typescript/`, `rules/react-native/`, etc. override those defaults where language idioms differ.
+- `stacks/common/` defines universal defaults.
+- `stacks/<lang>/` overrides those defaults wherever language idioms differ.
 
 ### Example
 
-`common/coding-style.md` recommends immutability as a default principle. A language-specific `golang/coding-style.md` can override this:
+`common/coding-style.md` recommends immutability as a default. A stack may
+override it:
 
-> Idiomatic Go uses pointer receivers for struct mutation — see [common/coding-style.md](../common/coding-style.md) for the general principle, but Go-idiomatic mutation is preferred here.
+> Idiomatic Go uses pointer receivers for struct mutation — see
+> [common/coding-style.md](common/coding-style.md) for the general principle,
+> but Go-idiomatic mutation is preferred here.
 
 ### Common rules with override notes
 
-Rules in `rules/common/` that may be overridden by language-specific files are marked with:
+Baselines in `common/` that languages may legitimately override are marked:
 
-> **Language note**: This rule may be overridden by language-specific rules for languages where this pattern is not idiomatic.
+> **Language note**: This rule may be overridden by language-specific rules for
+> languages where this pattern is not idiomatic.
 
 ## Composition — Referencing Baselines
 
 The baseline files in `common/` (`principles.md`, `naming.md`, `functions.md`,
 `formatting.md`, `comments.md`, `error-handling.md`, `code-smells.md`) hold
-universal guidance. **Language-specific files reference them instead of restating
-them**, then add only the deltas (tooling, idioms, conventions).
+universal guidance. **Stack files reference them instead of restating them**,
+then add only their deltas (tooling, idioms, conventions).
 
-A language-specific file declares which baselines are **RELEVANT** in a header
-block, then continues with language-specific content:
+A stack file declares which baselines are **RELEVANT** in a header block, then
+continues with language-specific content:
 
 ```md
 # Rust Coding Style
@@ -193,6 +173,27 @@ See [`rust/coding-style.md`](rust/coding-style.md) for the reference implementat
   type, a borrow-checker idiom — these are deltas. "Functions should be small"
   is not; it lives in `common/functions.md`.
 - **Specific overrides general.** When a baseline and a language idiom genuinely
-  conflict, the language rule wins (see Rule Priority above).
-- **Common rules with override notes**: baseline files that languages may
-  override are marked with the `Language note` callout shown above.
+  conflict, the stack wins (see Rule Priority above).
+- **Common rules with override notes**: baseline files that stacks may override
+  are marked with the `Language note` callout shown above.
+
+## Adding a New Stack
+
+To add support for a new language or framework (e.g. `elixir/`):
+
+1. Create a `stacks/elixir/` directory.
+2. Add the standard five files, each extending the common rules:
+   - `coding-style.md` — formatter, idioms, error-handling patterns
+   - `testing.md` — test framework, coverage tools, test organization
+   - `patterns.md` — language-specific design patterns
+   - `hooks.md` — PostToolUse hooks for formatters, linters, type checkers
+   - `security.md` — secret management, security scanning tools
+3. Each file starts with a **RELEVANT baselines** header linking the baselines
+   it depends on (see "Composition — Referencing Baselines" above), then adds
+   only language-specific deltas.
+4. Reference existing skills if available, or propose new ones under `skills/`.
+5. Add the new directory to the tree listing at the top of this README.
+
+For non-language domains (like `web/`), follow the same layered pattern when
+there is enough reusable domain-specific guidance to justify a standalone
+stack.

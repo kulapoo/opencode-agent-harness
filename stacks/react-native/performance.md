@@ -5,8 +5,6 @@ paths:
 ---
 # React Native / Expo Performance
 
-> This file extends [common/performance.md](../common/performance.md) with React Native / Expo specific content.
-
 ## Rendering
 
 - Memoize expensive components with `React.memo`; memoize callbacks/values passed to children with `useCallback`/`useMemo` only where they prevent real re-renders.

@@ -17,23 +17,9 @@ Design stable, well-documented interfaces that are hard to misuse. Good interfac
 - Establishing database schema that informs API shape
 - Changing existing public interfaces
 
-## Load Stack Conventions First
-
-This skill is language-agnostic: the *principles* below are universal, but the
-*syntax* for declaring contracts, errors, validation, and variant types depends
-on the project's stack. Before writing or reviewing interface code:
-
-1. **Detect the stack** from the project manifest (`package.json`, `go.mod`,
-   `Cargo.toml`, `pyproject.toml`, `Gemfile`, `composer.json`,
-   `pom.xml`/`build.gradle`, etc.). For JS/TS, check `dependencies` for a
-   framework (react, angular, vue, nuxt).
-2. **Read `stacks/<stack>/patterns.md`** — it carries the stack-specific
-   expression of every section name referenced below.
-3. **Read `stacks/common/patterns.md`** for generic cross-stack design patterns
-   (e.g. Repository).
-
-If a stack file is missing, fall back to the conceptual guidance here and write
-in the target language's idioms.
+> **Prerequisite:** `<stack>` below is resolved by `rules/load-stack-conventions.md`.
+> If not yet loaded this session, `Read` it and apply Steps 1–4 before following
+> the `→ <stack>/...` pointers here.
 
 ## Core Principles
 
