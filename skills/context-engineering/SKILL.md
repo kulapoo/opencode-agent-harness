@@ -39,7 +39,7 @@ Structure context from most persistent to most transient:
 
 Create a rules file that persists across sessions. This is the highest-leverage context you can provide.
 
-**AGENTS.md** (for OpenCode):
+**AGENTS.md**
 ```markdown
 # Project: [Name]
 
