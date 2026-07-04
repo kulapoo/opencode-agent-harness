@@ -25,7 +25,7 @@ project's tech. This file is injected into the system prompt via `opencode.json`
    directory: `Read skills/init-tech-declaration/detect-tech.md`.
 2. Map detected tech to dir names (e.g. `Cargo.toml` → `rust`, `package.json`
    with `react` dep → `react`). JS/TS framework detection is inlined in
-   detect-tech.md; non-JS/TS uses `tech/MANIFESTS.md`.
+   detect-tech.md; non-JS/TS uses the manifest → tech-dir table inlined there.
 3. Write the result to `rules/tech.md`:
    ```
    ## Tech
