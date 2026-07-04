@@ -17,16 +17,15 @@ Design stable, well-documented interfaces that are hard to misuse. Good interfac
 - Establishing database schema that informs API shape
 - Changing existing public interfaces
 
-## Conventions Context
+## Tech Context
 
-Tech conventions are declared in `rules/tech-conventions.md`. Each name maps
-directly to `conventions/<name>/` (e.g. `rust` → `conventions/rust/`, `react`
-→ `conventions/react/`), then read:
+Tech is declared in `rules/tech.md`. Each name maps directly to `tech/<name>/`
+(e.g. `rust` → `tech/rust/`, `react` → `tech/react/`), then read:
 
 - `<name>/patterns.md`
 - `common/patterns.md`
 
-`common/` is always loaded alongside the conventions dir. Inline examples use TypeScript for illustration — apply the underlying pattern in `<name>`'s idioms, not the literal syntax.
+`common/` is always loaded alongside the tech dir. Inline examples use TypeScript for illustration — apply the underlying pattern in `<name>`'s idioms, not the literal syntax.
 
 ## Core Principles
 

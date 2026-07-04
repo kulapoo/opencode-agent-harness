@@ -1,9 +1,8 @@
 # Coding Style
 
 This file is a **thin index**. Coding-style concerns are decomposed into
-single-concern baseline files below — each small, reusable, and
-referenced independently by language-specific conventions. Restate none of
-them; link to them.
+single-concern baseline files below — each small, reusable, and referenced
+independently by language-specific tech. Restate none of them; link to them.
 
 > **For a quick checklist before marking work complete**, see the
 > consolidated Code Quality Checklist in `code-review.md`.
@@ -25,7 +24,7 @@ Adjacent common rules remain in their own files:
 `patterns.md` (SRP, DI, boundaries, repository),
 `security.md`.
 
-## How language-specific conventions compose
+## How language-specific tech composes
 
 A language-specific `<name>/coding-style.md` does **not** restate these
 baselines. It declares which are RELEVANT and then adds only the

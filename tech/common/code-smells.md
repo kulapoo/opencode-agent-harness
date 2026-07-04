@@ -7,9 +7,8 @@ rename, an extract, or a delete. Language-specific files note local
 manifestations and the tooling (clippy, eslint, ruff) that catches them
 automatically.
 
-> **Language note**: Many of these are enforced by linters — see the
-> conventions dir's `hooks.md`. This file describes what to *recognize* by
-> eye.
+> **Language note**: Many of these are enforced by linters — see the tech
+> dir's `hooks.md`. This file describes what to *recognize* by eye.
 
 ## Comments
 

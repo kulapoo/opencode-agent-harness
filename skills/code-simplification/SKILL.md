@@ -25,14 +25,13 @@ Simplify code by reducing complexity while preserving exact behavior. The goal i
 - The code is performance-critical and the "simpler" version would be measurably slower
 - You're about to rewrite the module entirely — simplifying throwaway code wastes effort
 
-## Conventions Context
+## Tech Context
 
-Tech conventions are declared in `rules/tech-conventions.md`. Each name maps
-directly to `conventions/<name>/` (e.g. `rust` → `conventions/rust/`, `react`
-→ `conventions/react/`). This skill draws on `common/` and
-`<name>/coding-style.md` — read them by task in Step 2, not all at once.
-Inline examples use TypeScript for illustration — apply the underlying pattern
-in `<name>`'s idioms, not the literal syntax.
+Tech is declared in `rules/tech.md`. Each name maps directly to `tech/<name>/`
+(e.g. `rust` → `tech/rust/`, `react` → `tech/react/`). This skill draws on
+`common/` and `<name>/coding-style.md` — read them by task in Step 2, not all
+at once. Inline examples use TypeScript for illustration — apply the
+underlying pattern in `<name>`'s idioms, not the literal syntax.
 
 ## The Five Principles
 
@@ -91,15 +90,15 @@ If you can't answer these, you're not ready to simplify. Read more context first
 
 ### Step 2: Identify Simplification Opportunities
 
-Scan for the concrete patterns cataloged in the convention files. Each entry there is a signal, not an automatic verdict — investigate before acting. **Read the row matching the task — one or two files, not all of them.**
+Scan for the concrete patterns cataloged in the tech files. Each entry there is a signal, not an automatic verdict — investigate before acting. **Read the row matching the task — one or two files, not all of them.**
 
 | Concern                                                                                                       | Where the catalog lives                                         |
 | ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| Deep nesting, long functions, flag args, dead code, duplication, magic numbers, obscured intent               | common/code-smells.md (../../conventions/common/code-smells.md)     |
-| Small functions, do-one-thing, argument count, no side effects, no flag arguments                             | common/functions.md (../../conventions/common/functions.md)         |
-| Intention-revealing names, no encodings, side-effect-honest names, one-word-per-concept                       | common/naming.md (../../conventions/common/naming.md)               |
-| Self-documenting code first; "why" comments kept, "what" comments deleted                                      | common/comments.md (../../conventions/common/comments.md)           |
-| DRY/YAGNI/KISS, emergent design, command-query separation                                                      | common/principles.md (../../conventions/common/principles.md)       |
+| Deep nesting, long functions, flag args, dead code, duplication, magic numbers, obscured intent               | common/code-smells.md (../../tech/common/code-smells.md)     |
+| Small functions, do-one-thing, argument count, no side effects, no flag arguments                             | common/functions.md (../../tech/common/functions.md)         |
+| Intention-revealing names, no encodings, side-effect-honest names, one-word-per-concept                       | common/naming.md (../../tech/common/naming.md)               |
+| Self-documenting code first; "why" comments kept, "what" comments deleted                                      | common/comments.md (../../tech/common/comments.md)           |
+| DRY/YAGNI/KISS, emergent design, command-query separation                                                      | common/principles.md (../../tech/common/principles.md)       |
 
 Language-specific manifestations (clippy, eslint, ruff rules) and the idiomatic fix for each pattern:
 
@@ -137,7 +136,7 @@ If the "simplified" version is harder to understand or review, revert. Not every
 
 ## Language-Specific Guidance
 
-The skill is language-agnostic; the syntax for each simplification (removing redundant `async`/`await`, replacing manual array building with `filter`, dict comprehensions, early-return guard clauses, conditional JSX rendering) is owned by the convention files. Apply `<name>/coding-style.md` for the target language's idioms and tooling rather than restating them here.
+The skill is language-agnostic; the syntax for each simplification (removing redundant `async`/`await`, replacing manual array building with `filter`, dict comprehensions, early-return guard clauses, conditional JSX rendering) is owned by the tech files. Apply `<name>/coding-style.md` for the target language's idioms and tooling rather than restating them here.
 
 ## Common Rationalizations
 

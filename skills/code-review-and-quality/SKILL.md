@@ -19,12 +19,11 @@ Multi-dimensional code review with quality gates. Every change gets reviewed bef
 - When refactoring existing code
 - After any bug fix (review both the fix and the regression test)
 
-## Conventions Context
+## Tech Context
 
-Tech conventions are declared in `rules/tech-conventions.md`. Each name maps
-directly to `conventions/<name>/` (e.g. `rust` → `conventions/rust/`, `react`
-→ `conventions/react/`). Read the catalog matching the review need —
-one or two, not all:
+Tech is declared in `rules/tech.md`. Each name maps directly to `tech/<name>/`
+(e.g. `rust` → `tech/rust/`, `react` → `tech/react/`). Read the catalog
+matching the review need — one or two, not all:
 
 - consolidated pre-complete checklist (default) → `common/code-review.md`
 - readability: names, clarity, comments          → `common/naming.md`, `common/comments.md`
@@ -297,7 +296,7 @@ When reviewing code — whether written by you, another agent, or a human:
 Part of code review is dependency review:
 
 **Before adding any dependency:**
-1. Does the existing convention set solve this? (Often it does.)
+1. Does the existing tech solve this? (Often it does.)
 2. How large is the dependency? (Check bundle impact.)
 3. Is it actively maintained? (Check last commit, open issues.)
 4. Does it have known vulnerabilities? (`npm audit`)

@@ -1,9 +1,8 @@
 # Common Patterns
 
 The generic, language-agnostic baseline. No language syntax (see
-`<name>/patterns.md`), no HTTP/transport detail — only patterns every
-conventions dir may extend. Language-specific files extend these with
-idiomatic shapes.
+`<name>/patterns.md`), no HTTP/transport detail — only patterns every tech
+dir may extend. Language-specific files extend these with idiomatic shapes.
 
 ## Single Responsibility (SRP)
 

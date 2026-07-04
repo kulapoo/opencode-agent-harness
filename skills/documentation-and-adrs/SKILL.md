@@ -91,7 +91,7 @@ PROPOSED → ACCEPTED → (SUPERSEDED or DEPRECATED)
 
 ## Inline Documentation
 
-Comment guidance — the "why" over "what" rule, what to keep, what to delete — lives in common/comments.md (../../conventions/common/comments.md). Apply it when writing inline comments, API docs (below), and known-gotcha annotations.
+Comment guidance — the "why" over "what" rule, what to keep, what to delete — lives in common/comments.md (../../tech/common/comments.md). Apply it when writing inline comments, API docs (below), and known-gotcha annotations.
 
 ### Document Known Gotchas
 

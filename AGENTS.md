@@ -6,12 +6,11 @@ coding agents effective — skill-driven workflows, subagent orchestration,
 memory persistence, and verification-first development. One harness, one
 target, no multi-harness fragmentation.
 
-## Conventions
+## Tech
 
-The project's tech conventions are declared in `rules/tech-conventions.md`.
-Each name maps directly to `conventions/<name>/` (e.g. `rust` →
-`conventions/rust/`). Skills use this declaration to load language-specific
-conventions.
+The project's tech is declared in `rules/tech.md`. Each name maps directly to
+`tech/<name>/` (e.g. `rust` → `tech/rust/`). Skills use this declaration to
+load language-specific conventions.
 
-Before writing or editing code, confirm the relevant conventions are in
-recent context. If unsure, re-read the appropriate `conventions/<name>/` files.
+Before writing or editing code, confirm the relevant tech is in recent
+context. If unsure, re-read the appropriate `tech/<name>/` files.

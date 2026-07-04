@@ -1,12 +1,11 @@
 # Principles
 
 The foundational, language-agnostic worldview. No syntax here — only the
-meta-principles every conventions dir builds on. Language-specific files
-refine these with idioms, never contradict them.
+meta-principles every tech dir builds on. Language-specific files refine
+these with idioms, never contradict them.
 
-> **Language note**: These are universal. A conventions dir may show how a
-> principle is expressed idiomatically, but the principle itself is never
-> overridden.
+> **Language note**: These are universal. A tech dir may show how a principle
+> is expressed idiomatically, but the principle itself is never overridden.
 
 ## Professional Mindset
 

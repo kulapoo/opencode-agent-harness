@@ -1,3 +1,3 @@
-## Conventions
+## Tech
 - python
 - react

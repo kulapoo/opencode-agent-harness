@@ -18,12 +18,11 @@ Build in thin vertical slices — implement one piece, test it, verify it, then 
 
 **When NOT to use:** Single-file, single-function changes where the scope is already minimal.
 
-## Conventions Context
+## Tech Context
 
-Tech conventions are declared in `rules/tech-conventions.md`. Each name maps
-directly to `conventions/<name>/` (e.g. `rust` → `conventions/rust/`, `react`
-→ `conventions/react/`). Read the catalog matching the concern —
-one, not all:
+Tech is declared in `rules/tech.md`. Each name maps directly to `tech/<name>/`
+(e.g. `rust` → `tech/rust/`, `react` → `tech/react/`). Read the catalog
+matching the concern — one, not all:
 
 - simplicity, earning abstractions (Rule 0) → `common/principles.md` (KISS/YAGNI), `common/code-smells.md` (over-engineering)
 - language idioms / lint tooling            → `<name>/coding-style.md`
@@ -57,7 +56,7 @@ For each slice:
 
 ### Vertical Slices (Preferred)
 
-Build one complete path through the conventions:
+Build one complete path through the tech:
 
 ```
 Slice 1: Create a task (DB + API + basic UI)

@@ -21,12 +21,11 @@ Write a failing test before writing the code that makes it pass. For bug fixes, 
 
 **Related:** For browser-based changes, combine TDD with runtime verification using Chrome DevTools MCP — see the Browser Testing section below.
 
-## Conventions Context
+## Tech Context
 
-Tech conventions are declared in `rules/tech-conventions.md`. Each name maps
-directly to `conventions/<name>/` (e.g. `rust` → `conventions/rust/`, `react`
-→ `conventions/react/`). Read the catalog matching the phase —
-one or two, not all:
+Tech is declared in `rules/tech.md`. Each name maps directly to `tech/<name>/`
+(e.g. `rust` → `tech/rust/`, `react` → `tech/react/`). Read the catalog
+matching the phase — one or two, not all:
 
 - REFACTOR: what to extract / clean up    → `common/code-smells.md`, `common/functions.md`
 - test code quality (F.I.R.S.T., DAMP)     → `common/testing.md`
