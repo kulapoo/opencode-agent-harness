@@ -17,7 +17,7 @@ GOOD:  try { deletePage(page) } catch (e) { ... }   // cannot be ignored
 
 Use the language's idiomatic channel — exceptions, `Result<T, E>`,
 `Either<Error, Value>`, errors-as-values — so a failure cannot be silently
-dropped. The happy path stays linear. See [functions.md](functions.md).
+dropped. The happy path stays linear.
 
 ## Write the Try Block First
 
@@ -63,8 +63,7 @@ At the edge of your code, translate foreign errors into your own domain
 errors. A service that calls a Postgres driver should not surface
 `org.postgresql.util.PSQLException` to its callers — it surfaces
 `UserRepositoryError`. This insulates callers from your dependencies and
-makes the boundary replaceable. See [patterns.md](patterns.md) on
-boundaries.
+makes the boundary replaceable.
 
 ## Never Return Null
 
@@ -118,12 +117,4 @@ rare.
 
 Error handling tangles the happy path. Extract error handling to its own
 function or boundary so the happy path reads as a clean narrative. A
-function that does both *compute* and *defend* is doing two things; see
-[functions.md](functions.md).
-
-## See Also
-
-- [functions.md](functions.md) — exceptions over error codes, one thing per function.
-- [patterns.md](patterns.md) — boundary wrapping of third-party errors.
-- [code-smells.md](code-smells.md) — dead code hiding in swallowed catch blocks.
-- [security.md](security.md) — error messages must not leak secrets.
+function that does both *compute* and *defend* is doing two things.

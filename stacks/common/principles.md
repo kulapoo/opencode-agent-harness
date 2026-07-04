@@ -74,7 +74,7 @@ A method should either:
 - **Query** — answer a question / return data, changing nothing.
 
 Asking a question should not change the answer. Splitting these makes
-code predictable and testable. See [functions.md](functions.md).
+code predictable and testable.
 
 ### Law of Demeter
 
@@ -87,7 +87,7 @@ A method may call methods only on:
 
 Avoid "train wrecks" like `a.b().c().d()` — they couple a caller to the
 internal shape of distant objects. Hide that navigation behind a method
-on the object you actually hold. See [code-smells.md](code-smells.md).
+on the object you actually hold.
 
 ## Emergent Design
 

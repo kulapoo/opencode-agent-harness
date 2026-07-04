@@ -21,7 +21,7 @@
 ### 3. Performance
 
 - Run Lighthouse or equivalent against meaningful pages
-- Keep CWV targets from [performance.md](performance.md)
+- Keep CWV targets
 
 ### 4. Cross-Browser
 

@@ -124,10 +124,4 @@ to extract the enclosing structure.
 
 If a function has a side effect, the name must say so. `getPassword()`
 that writes an audit log, sends a notification, and rotates a token is a
-lie. Name it for what it *does*: `rotatePasswordAndAudit()`. See
-[functions.md](functions.md) on side effects.
-
-## See Also
-
-- [functions.md](functions.md) — verb-phrase function names, flag-argument naming.
-- [code-smells.md](code-smells.md) — selector arguments, obscured intent.
+lie. Name it for what it *does*: `rotatePasswordAndAudit()`.

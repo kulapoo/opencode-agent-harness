@@ -41,8 +41,7 @@ descends one level of abstraction at a time, never forced to jump.
 ## Descriptive Names
 
 A long, descriptive name beats a short, cryptic one. Use a verb phrase
-(see [naming.md](naming.md)) that describes exactly what the function
-does — including side effects. If a function is hard to name, it is
+that describes exactly what the function does — including side effects. If a function is hard to name, it is
 probably doing more than one thing.
 
 ## Function Arguments
@@ -80,16 +79,15 @@ the call site.
 A function promises to do what its name says — nothing more. If
 `checkPassword(user, pw)` also initializes a session, it is lying. Side
 effects create **temporal couplings** the caller cannot see at the call
-site. If a side effect is genuine, put it in the name (see
-[naming.md](naming.md)) and prefer the [command-query
-separation](principles.md) discipline.
+site. If a side effect is genuine, put it in the name and prefer the
+command-query separation discipline.
 
 ## Prefer Exceptions to Error Codes
 
 Returning an error code mixes the happy path with control flow and tempts
 the caller to ignore the result. Prefer the language's idiomatic
 signaling mechanism (exceptions, `Result`/`Either`, errors-as-values)
-which keeps the happy path linear. See [error-handling.md](error-handling.md).
+which keeps the happy path linear.
 
 > Define errors in terms of the **caller's** needs, not the implementation's.
 > Callers care about *whether* they can recover, not *which* line of yours
@@ -106,11 +104,5 @@ new implementation, not edits to every dispatcher.
 
 Functions are never right the first time. Write them long, then split;
 extract until each does one thing; rename until each name is honest. The
-emergent-design rules in [principles.md](principles.md) hold throughout:
-keep tests green, remove duplication, express intent, minimize.
-
-## See Also
-
-- [naming.md](naming.md) — verb-phrase names, describing side effects.
-- [error-handling.md](error-handling.md) — exceptions vs error codes.
-- [code-smells.md](code-smells.md) — too many arguments, flag arguments, dead functions.
+emergent-design rules hold throughout: keep tests green, remove
+duplication, express intent, minimize.

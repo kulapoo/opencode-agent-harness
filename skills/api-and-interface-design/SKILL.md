@@ -17,9 +17,17 @@ Design stable, well-documented interfaces that are hard to misuse. Good interfac
 - Establishing database schema that informs API shape
 - Changing existing public interfaces
 
-> **Prerequisite:** `<stack>` below is resolved by `rules/load-stack-conventions.md`.
-> If not yet loaded this session, `Read` it and apply Steps 1–4 before following
-> the `→ <stack>/...` pointers here.
+## Stack Context
+
+Resolve `<stack>` from the target file's nearest manifest
+(`package.json`→`typescript` / `react` / `vue` / `angular`, `go.mod`→`golang`,
+`Cargo.toml`→`rust`, `pyproject.toml`→`python`; full table + polyglot rules
+in `rules/load-stack-conventions.md`), then read:
+
+- `<stack>/patterns.md`
+- `common/patterns.md`
+
+`common/` is always loaded alongside the stack dir. Inline examples use TypeScript for illustration — apply the underlying pattern in `<stack>`'s idioms, not the literal syntax.
 
 ## Core Principles
 

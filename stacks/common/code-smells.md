@@ -13,7 +13,7 @@ automatically.
 ## Comments
 
 - **Inappropriate information** — author tags, changelogs, TODOs without
-  owners in the source. See [comments.md](comments.md).
+  owners in the source.
 - **Obsolete comments** — drifts that no longer match the code. Worse
   than no comment.
 - **Redundant comments** — restating what the code already says clearly.
@@ -21,8 +21,7 @@ automatically.
 
 ## Functions
 
-- **Too many arguments** — see [functions.md](functions.md). Four or more
-  almost always wants a parameter object.
+- **Too many arguments** — four or more almost always wants a parameter object.
 - **Flag arguments** — a boolean that selects between two behaviors. Two
   functions in disguise.
 - **Output arguments** — arguments used to return values. Return a value
@@ -37,20 +36,18 @@ automatically.
 - **Non-standard nomenclature** — reinventing a term the ecosystem
   already uses for the same idea.
 - **Names that don't describe side effects** — `getUsers()` that mutates
-  state lies. See [naming.md](naming.md).
+  state lies.
 - **Encodings** — type/scope prefixes baked into the name.
 
 ## General — by frequency
 
 - **Duplication** — every copy is a latent bug. Extract when the
-  duplication is real, not speculative (see [principles.md](principles.md),
-  DRY).
+  duplication is real, not speculative (DRY).
 - **Dead code** — unreachable branches, unused imports, shadowed
   variables. Remove them.
 - **Deep nesting** — more than ~3 levels. Reach for early returns,
   guard clauses, or extraction.
 - **Long functions** — past ~20 lines, suspect multiple responsibilities.
-  See [functions.md](functions.md).
 - **Magic numbers** — unnamed literals. Bind them to a named constant
   with a unit (`RETRY_LIMIT = 3`, `TIMEOUT_MS = 5_000`).
 - **Inconsistency** — the same idea spelled three ways across the
@@ -60,8 +57,8 @@ automatically.
   plumbing.
 - **Feature envy** — a method more interested in another object's data
   than its own. Move the method.
-- **Train wrecks** — `a.b().c().d()`. Encapsulate the navigation. See
-  Law of Demeter in [principles.md](principles.md).
+- **Train wrecks** — `a.b().c().d()`. Encapsulate the navigation
+  (Law of Demeter).
 - **Selector / type arguments** — `doX(type, ...)` dispatching on a tag.
   Prefer polymorphism.
 - **Obscured intent** — clever one-liners, dense expressions that need a
@@ -83,7 +80,7 @@ automatically.
 ## Boundaries & Environment
 
 - **Boundary errors leak through** — a third-party exception surfacing
-  past a seam. Wrap at the boundary. See [patterns.md](patterns.md).
+  past a seam. Wrap at the boundary.
 - **Build requires more than one step** — a setup that cannot be
   reproduced by a single command.
 - **Tests require more than one step** — a test run that needs ceremony.
@@ -96,8 +93,7 @@ automatically.
   cases, empty, off-by-one, and saturation are where bugs live.
 - **Ignored tests** — an `xit`/`@Ignore` is a question about ambiguity,
   not a permanent fixture.
-- **Slow tests** — a slow suite is a suite that stops being run. See
-  [testing.md](testing.md) on the F.I.R.S.T. principles.
+- **Slow tests** — a slow suite is a suite that stops being run.
 
 ## Replace Magic with Named Constants
 
@@ -116,11 +112,3 @@ Prefer to make the wrong thing impossible over making the right thing
 conventional. An enum prevents the invalid value; a wrapper type
 prevents the unit mix-up; a factory prevents the half-built instance.
 When the structure forbids the bug, no one has to remember the rule.
-
-## See Also
-
-- [principles.md](principles.md) — KISS, DRY, YAGNI, Law of Demeter.
-- [naming.md](naming.md) — names that don't smell.
-- [functions.md](functions.md) — small, single-purpose functions.
-- [comments.md](comments.md) — comment-specific smells.
-- [testing.md](testing.md) — test-specific smells and F.I.R.S.T.

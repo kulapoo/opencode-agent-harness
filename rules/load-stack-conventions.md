@@ -90,7 +90,7 @@ Different skills read different stack files. Do **not** blindly read
 | `test-driven-development`             | `<stack>/testing.md`, `common/testing.md`                           |
 | `browser-testing-with-devtools`       | `<stack>/testing.md`                                              |
 | `code-review-and-quality`             | `<stack>/coding-style.md`, `<stack>/testing.md`, `common/code-review.md` |
-| `code-simplification`                 | `<stack>/coding-style.md`, `common/code-smells.md`                  |
+| `code-simplification`                 | `<stack>/coding-style.md`, `common/code-smells.md`, `common/naming.md`, `common/functions.md`, `common/comments.md`, `common/principles.md` |
 | `security-and-hardening`              | `<stack>/security.md`, `common/security.md`                         |
 | `ci-cd-and-automation`                | `<stack>/hooks.md`                                                 |
 | `git-workflow-and-versioning`         | `common/git-workflow.md`                                           |

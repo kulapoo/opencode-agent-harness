@@ -35,7 +35,6 @@ The Feature Implementation Workflow describes the development pipeline: research
 4. **Commit & Push**
    - Detailed commit messages
    - Follow conventional commits format
-   - See [git-workflow.md](./git-workflow.md) for commit message format and PR process
 
 5. **Pre-Review Checks**
    - Verify all automated checks (CI/CD) are passing

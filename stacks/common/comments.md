@@ -78,9 +78,3 @@ function, or introduce an explanatory variable that makes this comment
 unnecessary?* Almost always, the answer is yes — and the result is code
 that is clearer in every reader's editor, not just the one who reads the
 comment.
-
-## See Also
-
-- [naming.md](naming.md) — intention-revealing names eliminate most comments.
-- [functions.md](functions.md) — descriptive names beat function-header comments.
-- [code-smells.md](code-smells.md) — inappropriate/obsolete/redundant comments.

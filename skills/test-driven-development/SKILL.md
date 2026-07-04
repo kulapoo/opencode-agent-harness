@@ -21,6 +21,20 @@ Write a failing test before writing the code that makes it pass. For bug fixes, 
 
 **Related:** For browser-based changes, combine TDD with runtime verification using Chrome DevTools MCP — see the Browser Testing section below.
 
+## Stack Context
+
+Resolve `<stack>` from the target file's nearest manifest
+(`package.json`→`typescript` / `react` / `vue` / `angular`, `go.mod`→`golang`,
+`Cargo.toml`→`rust`, `pyproject.toml`→`python`; full table + polyglot rules
+in `rules/load-stack-conventions.md`). Read the catalog matching the phase —
+one or two, not all:
+
+- REFACTOR: what to extract / clean up    → `common/code-smells.md`, `common/functions.md`
+- test code quality (F.I.R.S.T., DAMP)     → `common/testing.md`
+- language test idioms / tooling           → `<stack>/testing.md`, `<stack>/coding-style.md`
+
+Inline examples use TypeScript for illustration — apply the underlying pattern in `<stack>`'s idioms, not the literal syntax.
+
 ## The TDD Cycle
 
 ```
@@ -342,9 +356,7 @@ then verifies the test passes.
 
 This separation ensures the test is written without knowledge of the fix, making it more robust.
 
-## See Also
-
-For detailed testing patterns, examples, and anti-patterns across frameworks, see `references/testing-patterns.md`.
+For detailed testing patterns, examples, and anti-patterns across frameworks, see `@rules/testing-patterns.md`.
 
 ## Common Rationalizations
 

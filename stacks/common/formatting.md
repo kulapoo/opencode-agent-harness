@@ -99,12 +99,6 @@ navigation and deletion easier.
 
 If the file you are editing already follows a convention, follow it —
 even if you disagree. Inconsistency within a file is worse than a
-suboptimal global rule. The [Boy Scout Rule](principles.md) applies: if
+suboptimal global rule. The Boy Scout Rule applies: if
 the file is inconsistent, leave it more consistent than you found it, in
 a separate commit if the cleanup is large.
-
-## See Also
-
-- [hooks.md](hooks.md) — tooling that enforces formatting automatically.
-- [code-smells.md](code-smells.md) — clutter, vertical separation, inconsistency.
-- [../README.md](../README.md) — rule precedence (formatter defaults win).

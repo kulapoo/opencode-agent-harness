@@ -74,29 +74,7 @@ export function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
 }
 ```
 
-**Separate data fetching from presentation:**
-
-```tsx
-// Container: handles data
-export function TaskListContainer() {
-  const { tasks, isLoading, error } = useTasks();
-
-  if (isLoading) return <TaskListSkeleton />;
-  if (error) return <ErrorState message="Failed to load tasks" retry={refetch} />;
-  if (tasks.length === 0) return <EmptyState message="No tasks yet" />;
-
-  return <TaskList tasks={tasks} />;
-}
-
-// Presentation: handles rendering
-export function TaskList({ tasks }: { tasks: Task[] }) {
-  return (
-    <ul role="list" className="divide-y">
-      {tasks.map(task => <TaskItem key={task.id} task={task} />)}
-    </ul>
-  );
-}
-```
+**Separate data fetching from presentation** — container components own data fetching, state, and side effects; presentational components receive props and render. See `react/patterns.md` → "Container / Presentational Split" for the pattern.
 
 ## State Management
 
@@ -292,9 +270,7 @@ function useToggleTask() {
 }
 ```
 
-## See Also
-
-For detailed accessibility requirements and testing tools, see `references/accessibility-checklist.md`.
+For detailed accessibility requirements and testing tools, see `@rules/accessibility-checklist.md`.
 
 ## Common Rationalizations
 

@@ -46,7 +46,7 @@ code. Every test suite must be:
 - Tests should not be coupled to implementation details. Verify behavior
   and contracts, not private method calls.
 - Treat test code with the same respect as production code: extract
-  helpers, remove duplication, keep them small (see [functions.md](functions.md)).
+  helpers, remove duplication, keep them small.
 
 ## Troubleshooting Test Failures
 

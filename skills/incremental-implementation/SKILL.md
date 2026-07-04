@@ -18,6 +18,19 @@ Build in thin vertical slices — implement one piece, test it, verify it, then 
 
 **When NOT to use:** Single-file, single-function changes where the scope is already minimal.
 
+## Stack Context
+
+Resolve `<stack>` from the target file's nearest manifest
+(`package.json`→`typescript` / `react` / `vue` / `angular`, `go.mod`→`golang`,
+`Cargo.toml`→`rust`, `pyproject.toml`→`python`; full table + polyglot rules
+in `rules/load-stack-conventions.md`). Read the catalog matching the concern —
+one, not all:
+
+- simplicity, earning abstractions (Rule 0) → `common/principles.md` (KISS/YAGNI), `common/code-smells.md` (over-engineering)
+- language idioms / lint tooling            → `<stack>/coding-style.md`
+
+Inline examples use TypeScript for illustration — apply the underlying pattern in `<stack>`'s idioms, not the literal syntax.
+
 ## The Increment Cycle
 
 ```
@@ -244,6 +257,4 @@ After completing all increments for a task:
 - [ ] The feature works end-to-end as specified
 - [ ] No uncommitted changes remain
 
-## See Also
-
-Per-increment verification is the local check. Before declaring a task done, apply the project-wide Definition of Done as the final gate, the standing bar every increment clears regardless of the task. See `references/definition-of-done.md`.
+Per-increment verification is the local check. Before declaring a task done, apply the project-wide Definition of Done as the final gate, the standing bar every increment clears regardless of the task. See `@rules/definition-of-done.md`.

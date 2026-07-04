@@ -19,6 +19,23 @@ Multi-dimensional code review with quality gates. Every change gets reviewed bef
 - When refactoring existing code
 - After any bug fix (review both the fix and the regression test)
 
+## Stack Context
+
+Resolve `<stack>` from the target file's nearest manifest
+(`package.json`→`typescript` / `react` / `vue` / `angular`, `go.mod`→`golang`,
+`Cargo.toml`→`rust`, `pyproject.toml`→`python`; full table + polyglot rules
+in `rules/load-stack-conventions.md`). Read the catalog matching the review need —
+one or two, not all:
+
+- consolidated pre-complete checklist (default) → `common/code-review.md`
+- readability: names, clarity, comments          → `common/naming.md`, `common/comments.md`
+- architecture: functions, abstractions          → `common/functions.md`, `common/principles.md`
+- dead code, smells, duplication                 → `common/code-smells.md`
+- test quality                                    → `common/testing.md`
+- language idioms / lint tooling                  → `<stack>/coding-style.md`, `<stack>/testing.md`
+
+Inline examples use TypeScript for illustration — apply the underlying pattern in `<stack>`'s idioms, not the literal syntax.
+
 ## The Five-Axis Review
 
 Every review evaluates code across these dimensions:
@@ -336,10 +353,7 @@ Part of code review is dependency review:
 - [ ] **Approve** — Ready to merge
 - [ ] **Request changes** — Issues must be addressed
 ```
-## See Also
-
-- For detailed security review guidance, see `references/security-checklist.md`
-- For performance review checks, see `references/performance-checklist.md`
+For domain-specific review guidance, consult `@rules/security-checklist.md` and `@rules/performance-checklist.md`.
 
 ## Common Rationalizations
 
