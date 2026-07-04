@@ -1,6 +1,8 @@
-# /test
+---
+description: Run TDD workflow — write failing tests, implement, verify. For bugs, use the Prove-It pattern.
+---
 
-Run TDD workflow — write failing tests, implement, verify. For bugs, use the Prove-It pattern.
+# /test
 
 Invoke the test-driven-development skill.
 
@@ -17,3 +19,5 @@ For bug fixes (Prove-It pattern):
 5. Run the full test suite for regressions
 
 For browser-related issues, also invoke browser-testing-with-devtools to verify with Chrome DevTools MCP.
+
+Apply the patterns in `rules/testing-patterns.md` when designing the suite — it covers naming, structure, coverage targets, and test-data conventions.

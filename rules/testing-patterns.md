@@ -225,7 +225,7 @@ test('user can create and complete a task', async ({ page }) => {
 ## Test Anti-Patterns
 
 | Anti-Pattern | Problem | Better Approach |
-|---|---|---|
+| :--- | :--- | :--- |
 | Testing implementation details | Breaks on refactor | Test inputs/outputs |
 | Snapshot everything | No one reviews snapshot diffs | Assert specific values |
 | Shared mutable state | Tests pollute each other | Setup/teardown per test |

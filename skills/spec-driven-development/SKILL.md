@@ -178,7 +178,7 @@ The spec is a living document, not a one-time artifact:
 ## Common Rationalizations
 
 | Rationalization | Reality |
-|---|---|
+| :--- | :--- |
 | "This is simple, I don't need a spec" | Simple tasks don't need *long* specs, but they still need acceptance criteria. A two-line spec is fine. |
 | "I'll write the spec after I code it" | That's documentation, not specification. The spec's value is in forcing clarity *before* code. |
 | "The spec will slow us down" | A 15-minute spec prevents hours of rework. Waterfall in 15 minutes beats debugging in 15 hours. |

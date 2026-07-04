@@ -1,6 +1,8 @@
-# /ship
+---
+description: Run the pre-launch checklist via parallel fan-out to specialist personas, then synthesize a go/no-go decision
+---
 
-Run the pre-launch checklist via parallel fan-out to specialist personas, then synthesize a go/no-go decision
+# /ship
 
 Invoke the shipping-and-launch skill.
 
@@ -21,19 +23,22 @@ If subagents are unavailable in the current CLI version, invoke each persona's s
 Constraints (from CLI's subagent model):
 - Subagents run in isolated context loops and return only their report to this main session.
 - Do not let one persona delegate to another — keep the fan-out flat.
-- For richer multi-agent collaboration where teammates talk to each other instead of just reporting back, see `references/orchestration-patterns.md`.
+- For richer multi-agent collaboration where teammates talk to each other instead of just reporting back, see `rules/orchestration-patterns.md`.
 
 **Persona resolution.** If you've defined your own `code-reviewer`, `security-auditor`, or `test-engineer` in `agents/` or your global configuration, those take precedence over this plugin's versions — `/ship` picks up your customizations automatically. This is intentional: plugin subagents sit at the bottom of the CLI's scope priority table, so user-level definitions win by design.
 
 ## Phase B — Merge in main context
 
+**Standing checklists.** These rules are the launch bar — read them before synthesizing, not from memory:
+`rules/security-checklist.md`, `rules/performance-checklist.md`, `rules/accessibility-checklist.md`, `rules/observability-checklist.md`, and `rules/definition-of-done.md`.
+
 Once all three reports are back, the main agent (not a sub-persona) synthesizes them:
 
-1. **Code Quality** — Aggregate Critical/Important findings from `code-reviewer` and any failing tests, lint, or build output. Resolve duplicates between reviewers.
-2. **Security** — Promote any Critical/High `security-auditor` findings to launch blockers. Cross-reference with `code-reviewer`'s security axis.
-3. **Performance** — Pull from `code-reviewer`'s performance axis; cross-check Core Web Vitals if applicable.
-4. **Accessibility** — Verify keyboard nav, screen reader support, contrast (not covered by the three personas — handle directly here, or invoke the accessibility checklist).
-5. **Infrastructure** — Env vars, migrations, monitoring, feature flags. Verify directly.
+1. **Code Quality** — Aggregate Critical/Important findings from `code-reviewer` and any failing tests, lint, or build output. Resolve duplicates between reviewers. Gate the overall verdict on `rules/definition-of-done.md`.
+2. **Security** — Promote any Critical/High `security-auditor` findings to launch blockers. Cross-reference with `code-reviewer`'s security axis and `rules/security-checklist.md`.
+3. **Performance** — Pull from `code-reviewer`'s performance axis; cross-check Core Web Vitals and `rules/performance-checklist.md` where applicable.
+4. **Accessibility** — Verify keyboard nav, screen reader support, and contrast against `rules/accessibility-checklist.md` (not covered by the three personas — handle directly here).
+5. **Infrastructure** — Env vars, migrations, monitoring, feature flags. Verify monitoring against `rules/observability-checklist.md`.
 6. **Documentation** — README, ADRs, changelog. Verify directly.
 
 ## Phase C — Decision and rollback

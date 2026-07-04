@@ -162,7 +162,3 @@ struct UserId { std::string value; };
 
 std::future<Task> get_task(TaskId id);
 ```
-
-## Reference
-
-See skill: `cpp-coding-standards` for comprehensive C++ patterns and anti-patterns.

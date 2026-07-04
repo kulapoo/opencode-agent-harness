@@ -45,7 +45,3 @@ bundle exec rspec spec/models/user_spec.rb
 
 - Use SimpleCov when coverage is enforced; keep thresholds in CI and avoid gaming branch coverage with low-value tests.
 - Add regression tests for bug fixes before changing production code.
-
-## Reference
-
-See skill: `tdd-workflow` for the repo-wide RED -> GREEN -> REFACTOR loop.

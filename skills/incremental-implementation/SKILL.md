@@ -224,7 +224,7 @@ After each increment, verify:
 ## Common Rationalizations
 
 | Rationalization | Reality |
-|---|---|
+| :--- | :--- |
 | "I'll test it all at the end" | Bugs compound. A bug in Slice 1 makes Slices 2-5 wrong. Test each slice. |
 | "It's faster to do it all at once" | It *feels* faster until something breaks and you can't find which of 500 changed lines caused it. |
 | "These changes are too small to commit separately" | Small commits are free. Large commits hide bugs and make rollbacks painful. |

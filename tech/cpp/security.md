@@ -45,7 +45,3 @@ paths:
   ```bash
   cppcheck --enable=all src/
   ```
-
-## Reference
-
-See skill: `cpp-coding-standards` for detailed security guidelines.

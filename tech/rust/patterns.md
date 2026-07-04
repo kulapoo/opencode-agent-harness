@@ -275,7 +275,3 @@ pub struct UserId(pub String);
 
 async fn get_task(id: TaskId) -> Result<Task, ApiError> { /* ... */ unimplemented!() }
 ```
-
-## References
-
-See skill: `rust-patterns` for comprehensive patterns including ownership, traits, generics, concurrency, and async.

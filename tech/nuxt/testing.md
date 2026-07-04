@@ -41,9 +41,3 @@ Import from `@nuxt/test-utils/e2e`.
 
 - Composables: mock auto-imports with `mockNuxtImport`, mount a host component via `mountSuspended` to exercise `useState` / `useFetch` in the Nuxt runtime.
 - Server routes: `registerEndpoint` to stub, or e2e `$fetch` / `fetch` against the real Nitro server.
-
-## Reference
-
-- ECC skills: `nuxt4-patterns`, `e2e-testing`, `vite-patterns`.
-- [Nuxt testing docs](https://nuxt.com/docs/getting-started/testing)
-- [@nuxt/test-utils npm](https://www.npmjs.com/package/@nuxt/test-utils)

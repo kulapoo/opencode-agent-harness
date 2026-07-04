@@ -125,7 +125,7 @@ Add explicit checkpoints:
 ## Task Sizing Guidelines
 
 | Size | Files | Scope | Example |
-|------|-------|-------|---------|
+| :--- | :--- | :--- | :--- |
 | **XS** | 1 | Single function or config change | Add a validation rule |
 | **S** | 1-2 | One component or endpoint | Add a new API endpoint |
 | **M** | 3-5 | One feature slice | User registration flow |
@@ -178,7 +178,7 @@ If a task is L or larger, it should be broken into smaller tasks. An agent perfo
 
 ## Risks and Mitigations
 | Risk | Impact | Mitigation |
-|------|--------|------------|
+| :--- | :--- | :--- |
 | [Risk] | [High/Med/Low] | [Strategy] |
 
 ## Open Questions
@@ -196,7 +196,7 @@ When multiple agents or sessions are available:
 ## Common Rationalizations
 
 | Rationalization | Reality |
-|---|---|
+| :--- | :--- |
 | "I'll figure it out as I go" | That's how you end up with a tangled mess and rework. 10 minutes of planning saves hours. |
 | "The tasks are obvious" | Write them down anyway. Explicit tasks surface hidden dependencies and forgotten edge cases. |
 | "Planning is overhead" | Planning is the task. Implementation without a plan is just typing. |

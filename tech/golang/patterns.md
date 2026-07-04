@@ -157,7 +157,3 @@ type UserID string
 
 func GetTask(ctx context.Context, id TaskID) (Task, error) { return Task{}, nil }
 ```
-
-## Reference
-
-See skill: `golang-patterns` for comprehensive Go patterns including concurrency, error handling, and package organization.

@@ -148,7 +148,3 @@ cargo test --lib                 # Unit tests only
 cargo test --test api_test       # Specific integration test (tests/api_test.rs)
 cargo test --doc                 # Doc tests only
 ```
-
-## References
-
-See skill: `rust-testing` for comprehensive testing patterns including property-based testing, fixtures, and benchmarking with Criterion.

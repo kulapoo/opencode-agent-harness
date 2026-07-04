@@ -218,7 +218,7 @@ Special consideration for AI agent context:
 ## Common Rationalizations
 
 | Rationalization | Reality |
-|---|---|
+| :--- | :--- |
 | "The code is self-documenting" | Code shows what. It doesn't show why, what alternatives were rejected, or what constraints apply. |
 | "We'll write docs when the API stabilizes" | APIs stabilize faster when you document them. The doc is the first test of the design. |
 | "Nobody reads docs" | Agents do. Future engineers do. Your 3-months-later self does. |

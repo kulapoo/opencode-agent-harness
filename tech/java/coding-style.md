@@ -115,8 +115,3 @@ Run after editing Java files:
 - **Format**: `google-java-format`
 - **Style**: `checkstyle` — Google or Sun style
 - **Compile**: `./mvnw compile` (Maven) or `./gradlew compileJava` (Gradle)
-
-## References
-
-See skill: `java-coding-standards` for full coding standards with examples.
-See skill: `jpa-patterns` for JPA/Hibernate entity design patterns.

@@ -161,7 +161,3 @@ UserId = NewType("UserId", str)
 
 async def get_task(id: TaskId) -> Task: ...
 ```
-
-## Reference
-
-See skill: `python-patterns` for comprehensive patterns including decorators, concurrency, and package organization.

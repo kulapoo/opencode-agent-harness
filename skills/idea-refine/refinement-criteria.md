@@ -95,10 +95,10 @@ Example: "Users will want to share their results with teammates" — a growth fe
 
 When choosing between directions, rank on this matrix:
 
-|                    | High Feasibility | Low Feasibility |
-|--------------------|-------------------|-----------------|
-| **High Value**     | Do this first     | Worth the risk   |
-| **Low Value**      | Only if trivial   | Don't do this    |
+| | High Feasibility | Low Feasibility |
+| :--- | :--- | :--- |
+| **High Value** | Do this first | Worth the risk |
+| **Low Value** | Only if trivial | Don't do this |
 
 Then use differentiation as the tiebreaker between options in the same quadrant.
 

@@ -188,7 +188,7 @@ Two questions in, the agent has discovered the actual ask isn't "a dashboard." I
 ## Common Rationalizations
 
 | Rationalization | Reality |
-|---|---|
+| :--- | :--- |
 | "The ask is clear enough" | If you can't write the user's desired outcome in one sentence right now, the ask isn't clear. Run Step 1 before deciding. |
 | "Asking too many questions wastes their time" | Time wasted by 4–6 targeted questions is small. Time wasted by building the wrong thing is enormous, and the user is the one bearing that cost. |
 | "I'll figure it out as I build" | Switching costs after code exists are 10x what they are now. Discovery during implementation is rework. |

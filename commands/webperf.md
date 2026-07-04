@@ -1,6 +1,8 @@
-# /webperf
+---
+description: Run a web performance audit via the web-performance-auditor persona
+---
 
-Run a web performance audit via the web-performance-auditor persona
+# /webperf
 
 /webperf targets web applications specifically. Do not use it for utility libraries, CLIs, or server-only code with no browser-facing output.
 

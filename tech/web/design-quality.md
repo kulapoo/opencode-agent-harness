@@ -1,3 +1,9 @@
+---
+paths:
+  - "**/*.html"
+  - "**/*.css"
+  - "**/*.scss"
+---
 > This file extends common/patterns.md (../common/patterns.md) with web-specific design-quality guidance.
 
 # Web Design Quality Standards
@@ -38,7 +44,6 @@ Every meaningful frontend surface should demonstrate at least four of these:
 2. Define a palette intentionally.
 3. Choose typography deliberately.
 4. Gather at least a small set of real references.
-5. Use ECC design/frontend skills where relevant.
 
 ## Worthwhile Style Directions
 

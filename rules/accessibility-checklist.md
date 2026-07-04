@@ -140,7 +140,7 @@ npx pa11y             # CLI accessibility checker
 ## Quick Reference: ARIA Live Regions
 
 | Value | Behavior | Use For |
-|-------|----------|---------|
+| :--- | :--- | :--- |
 | `aria-live="polite"` | Announced at next pause | Status updates, saved confirmations |
 | `aria-live="assertive"` | Announced immediately | Errors, time-sensitive alerts |
 | `role="status"` | Same as `polite` | Status messages |
@@ -149,7 +149,7 @@ npx pa11y             # CLI accessibility checker
 ## Common Anti-Patterns
 
 | Anti-Pattern | Problem | Fix |
-|---|---|---|
+| :--- | :--- | :--- |
 | `div` as button | Not focusable, no keyboard support | Use `<button>` |
 | Missing `alt` text | Images invisible to screen readers | Add descriptive `alt` |
 | Color-only states | Invisible to color-blind users | Add icons, text, or patterns |

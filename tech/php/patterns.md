@@ -159,8 +159,3 @@ final readonly class UserId
 
 public function getTask(TaskId $id): Task {}
 ```
-
-## Reference
-
-See skill: `api-design` for endpoint conventions and response-shape guidance.
-See skill: `laravel-patterns` for Laravel-specific architecture guidance.

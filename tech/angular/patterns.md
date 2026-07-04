@@ -244,7 +244,3 @@ Use Angular CDK for headless, accessible components (Accordion, Listbox, Combobo
 ```css
 [aria-selected="true"] { background: var(--color-selected); }
 ```
-
-## Skill Reference
-
-See skill: `angular-developer` for deep guidance on signals, forms, routing, DI, SSR, and accessibility patterns.

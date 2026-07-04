@@ -31,7 +31,3 @@ paths:
 - Use `password_hash()` / `password_verify()` for password storage.
 - Regenerate session identifiers after authentication and privilege changes.
 - Enforce CSRF protection on state-changing web requests.
-
-## Reference
-
-See skill: `laravel-security` for Laravel-specific security guidance.

@@ -1,6 +1,8 @@
-# /spec
+---
+description: Start spec-driven development — write a structured specification before writing code
+---
 
-Start spec-driven development — write a structured specification before writing code
+# /spec
 
 Invoke the spec-driven-development skill.
 

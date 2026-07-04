@@ -50,7 +50,3 @@ cppcheck src/                                         # additional analysis
 cmake --build build                                   # compilation
 ctest --test-dir build --output-on-failure            # tests
 ```
-
-## Reference
-
-See skill: `cpp-coding-standards` for comprehensive C++ coding standards and guidelines.

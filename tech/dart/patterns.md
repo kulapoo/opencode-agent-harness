@@ -369,8 +369,3 @@ extension type UserId(String value) {}
 
 Future<Task> getTask(TaskId id);
 ```
-
-## References
-
-See skill: `flutter-dart-code-review` for the comprehensive review checklist.
-See skill: `compose-multiplatform-patterns` for Kotlin Multiplatform/Flutter interop patterns.

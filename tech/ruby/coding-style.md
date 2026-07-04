@@ -41,10 +41,6 @@ bundle exec rubocop -A
 - Rescue specific exceptions. Avoid broad `rescue StandardError` blocks unless they re-raise or preserve enough context for operators.
 - Use `ActiveSupport::Notifications` or the app's logger for operational events; do not leave `puts`, `pp`, or `debugger` in committed application code.
 
-## Reference
-
-See skill: `backend-patterns` for broader service/repository layering guidance.
-
 ## Verification
 
 Run after editing Ruby/Rails files:

@@ -28,38 +28,38 @@ Use the file the skill is acting on to pick the row. "Deps" = a key in
 Mapping is 1:1 with the language — no framework branching.
 
 | Manifest / signal            | Tech dir     |
-| ---------------------------- | ------------ |
-| `go.mod`                       | `golang`      |
-| `Cargo.toml`                   | `rust`        |
+| :--------------------------- | :----------- |
+| `go.mod`                     | `golang`     |
+| `Cargo.toml`                 | `rust`       |
 | `pyproject.toml` / `requirements.txt` / `setup.py` | `python` |
-| `Gemfile`                       | `ruby`        |
-| `composer.json`                 | `php`         |
-| `pubspec.yaml` (Flutter/Dart)    | `dart`        |
-| `Package.swift`                  | `swift`       |
-| `*.csproj` (C#)                | `csharp`      |
-| `*.fsproj` or `.fs` files (F#)  | `fsharp`      |
-| `CMakeLists.txt` / `.c` / `.cpp` / `.h` | `cpp`    |
-| `build.gradle` + `.java`          | `java`      |
-| `build.gradle.kts` + `.kt`        | `kotlin`    |
+| `Gemfile`                    | `ruby`       |
+| `composer.json`              | `php`        |
+| `pubspec.yaml` (Flutter/Dart) | `dart`       |
+| `Package.swift`              | `swift`      |
+| `*.csproj` (C#)              | `csharp`     |
+| `*.fsproj` or `.fs` files (F#) | `fsharp`   |
+| `CMakeLists.txt` / `.c` / `.cpp` / `.h` | `cpp` |
+| `build.gradle` + `.java`     | `java`       |
+| `build.gradle.kts` + `.kt`   | `kotlin`     |
 | HarmonyOS project (`oh-package.json5`, `.ets` files) | `arkts` |
-| `Makefile.PL` / `cpanfile` / `.pl` | `perl`      |
+| `Makefile.PL` / `cpanfile` / `.pl` | `perl` |
 
 If a manifest signals a tech dir that does not exist, fall back to `common/`
 only and write in the target language's idioms.
 
 ### JS/TS (framework-aware — check `deps` in priority order)
 
-| Dep key (first match wins)   | Tech dir               | Notes                                  |
-| ---------------------------- | ---------------------- | -------------------------------------- |
-| `expo`, `react-native`         | `react-native`          | Also load `react/` for the web layer.   |
-| `nuxt`                         | `nuxt`                  |                                        |
-| `@angular/core`                | `angular`               |                                        |
-| `vue`                          | `vue`                   |                                        |
-| `next`, `remix`, `@remix-run` | `react` + `web`          | Next/Remix are React-meta; no own dir.  |
-| `react`, `react-dom`            | `react`                 |                                        |
-| `svelte`, `@sveltejs/kit`, `astro` | `web` (+ `typescript`) | No dedicated dir; `web` is closest. |
-| none of the above, TS present   | `typescript`            |                                        |
-| none of the above, JS only      | `typescript`            | Same file set as TS.                    |
+| Dep key (first match wins)       | Tech dir                     | Notes                                  |
+| :-------------------------------- | :--------------------------- | :------------------------------------- |
+| `expo`, `react-native`           | `react-native`               | Also load `react/` for the web layer.  |
+| `nuxt`                           | `nuxt`                       |                                        |
+| `@angular/core`                  | `angular`                    |                                        |
+| `vue`                            | `vue`                        |                                        |
+| `next`, `remix`, `@remix-run`    | `react` + `web`              | Next/Remix are React-meta; no own dir. |
+| `react`, `react-dom`             | `react`                      |                                        |
+| `svelte`, `@sveltejs/kit`, `astro` | `web` (+ `typescript`)     | No dedicated dir; `web` is closest.    |
+| none of the above, TS present    | `typescript`                 |                                        |
+| none of the above, JS only       | `typescript`                 | Same file set as TS.                    |
 
 **Always also load `common/`** — it holds the universal baselines every tech
 dir extends.

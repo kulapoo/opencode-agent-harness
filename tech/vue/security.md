@@ -39,8 +39,3 @@ paths:
 <!-- safe -->
 <div v-html="sanitize(userBio)" />
 ```
-
-## Reference
-
-- ECC skills: `frontend-patterns`, `vite-patterns`.
-- Docs: <https://vuejs.org/guide/best-practices/security.html> · <https://github.com/cure53/DOMPurify> · <https://github.com/braintree/sanitize-url>

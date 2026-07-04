@@ -1,3 +1,9 @@
+---
+paths:
+  - "**/*.html"
+  - "**/*.css"
+  - "**/*.scss"
+---
 # Web Performance Rules
 
 ## Core Web Vitals Targets

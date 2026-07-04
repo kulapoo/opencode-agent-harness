@@ -162,8 +162,3 @@ struct UserId: Hashable, Codable, RawRepresentable { let rawValue: String }
 
 func getTask(_ id: TaskId) async throws -> Task
 ```
-
-## References
-
-See skill: `swift-actor-persistence` for actor-based persistence patterns.
-See skill: `swift-protocol-di-testing` for protocol-based DI and testing.

@@ -182,7 +182,3 @@ subtype UserId => as Str;
 
 sub get_task { my ($self, $id) = @_; ... }
 ```
-
-## Reference
-
-See skill: `perl-patterns` for comprehensive modern Perl patterns and idioms.

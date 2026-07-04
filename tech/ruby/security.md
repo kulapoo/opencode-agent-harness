@@ -45,7 +45,3 @@ bundle exec brakeman --no-progress
 - Escape template output by default. Treat `html_safe`, `raw`, and custom sanitizers as security-sensitive code.
 - Validate file uploads by content type, extension, size, and storage destination.
 - Treat background jobs, webhooks, Action Cable messages, and Turbo Stream inputs as untrusted boundaries.
-
-## Reference
-
-See skill: `security-review` for secure-by-default review patterns.

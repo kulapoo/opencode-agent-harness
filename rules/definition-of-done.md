@@ -5,7 +5,7 @@ A standing, project-wide bar that every change must clear before it counts as do
 ## Definition of Done vs. Acceptance Criteria
 
 | | Acceptance Criteria | Definition of Done |
-|---|---|---|
+| :--- | :--- | :--- |
 | Scope | Specific to one task or spec | Applies to every increment |
 | Changes | Different for each item | Fixed and reused |
 | Answers | "Did we build *this thing*?" | "Is it *ready*?" |

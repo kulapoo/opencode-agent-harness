@@ -251,8 +251,3 @@ Use `@JvmInline value class` so distinct IDs are not interchangeable:
 
 suspend fun getTask(id: TaskId): Task
 ```
-
-## References
-
-See skill: `kotlin-coroutines-flows` for detailed coroutine patterns.
-See skill: `android-clean-architecture` for module and layer patterns.

@@ -48,7 +48,3 @@ Run after editing Perl files:
 - **Format**: `perltidy` on `.pl` and `.pm` files
 - **Lint**: `perlcritic` on `.pm` files
 - **Warning**: flag `print` in non-script `.pm` files — use `say` or a logging module (e.g. `Log::Any`)
-
-## Reference
-
-See skill: `perl-patterns` for comprehensive modern Perl idioms and best practices.

@@ -27,7 +27,7 @@ Controls bolted on without a threat model are guesses. Before hardening, spend f
 3. **Run STRIDE over each boundary** — a quick lens, not a ceremony:
 
 | Threat | Ask | Typical mitigation |
-|---|---|---|
+| :--- | :--- | :--- |
 | **S**poofing | Can someone impersonate a user/service? | Authentication, signature verification |
 | **T**ampering | Can data be altered in transit or at rest? | Integrity checks, parameterized queries, HTTPS |
 | **R**epudiation | Can an action be denied later? | Audit logging of security events |
@@ -417,7 +417,7 @@ container.textContent = await llm.reply(userMessage);
 ## Common Rationalizations
 
 | Rationalization | Reality |
-|---|---|
+| :--- | :--- |
 | "This is an internal tool, security doesn't matter" | Internal tools get compromised. Attackers target the weakest link. |
 | "We'll add security later" | Security retrofitting is 10x harder than building it in. Add it now. |
 | "No one would try to exploit this" | Automated scanners will find it. Security by obscurity is not security. |

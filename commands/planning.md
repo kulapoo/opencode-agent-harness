@@ -1,6 +1,8 @@
-# /planning
+---
+description: Break work into small verifiable tasks with acceptance criteria and dependency ordering
+---
 
-Break work into small verifiable tasks with acceptance criteria and dependency ordering
+# /planning
 
 Invoke the planning-and-task-breakdown skill.
 

@@ -1,6 +1,8 @@
-# /review
+---
+description: Conduct a five-axis code review — correctness, readability, architecture, security, performance
+---
 
-Conduct a five-axis code review — correctness, readability, architecture, security, performance
+# /review
 
 Invoke the code-review-and-quality skill.
 
@@ -14,3 +16,5 @@ Review the current changes (staged or recent commits) across all five axes:
 
 Categorize findings as Critical, Important, or Suggestion.
 Output a structured review with specific file:line references and fix recommendations.
+
+Gate the verdict on `rules/definition-of-done.md` — nothing merges until every item there is satisfied.

@@ -52,7 +52,3 @@ await connection.QueryAsync<Order>(sql, new { customerId });
 - Return safe client-facing messages
 - Log detailed exceptions with structured context server-side
 - Do not expose stack traces, SQL text, or filesystem paths in API responses
-
-## References
-
-See skill: `security-review` for broader application security review checklists.

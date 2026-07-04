@@ -45,7 +45,3 @@ Run after editing PHP files:
 - **Warnings**:
   - `var_dump`, `dd`, `dump`, or `die()` left in edited files
   - Edits that add raw SQL or disable CSRF/session protections
-
-## Reference
-
-See skill: `backend-patterns` for broader service/repository layering guidance.

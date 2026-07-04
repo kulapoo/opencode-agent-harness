@@ -154,7 +154,3 @@ src/
 - Default to private; use `pub(crate)` for internal sharing
 - Only mark `pub` what is part of the crate's public API
 - Re-export public API from `lib.rs`
-
-## References
-
-See skill: `rust-patterns` for comprehensive Rust idioms and patterns.

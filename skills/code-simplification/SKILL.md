@@ -93,12 +93,12 @@ If you can't answer these, you're not ready to simplify. Read more context first
 Scan for the concrete patterns cataloged in the tech files. Each entry there is a signal, not an automatic verdict — investigate before acting. **Read the row matching the task — one or two files, not all of them.**
 
 | Concern                                                                                                       | Where the catalog lives                                         |
-| ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| Deep nesting, long functions, flag args, dead code, duplication, magic numbers, obscured intent               | common/code-smells.md (../../tech/common/code-smells.md)     |
-| Small functions, do-one-thing, argument count, no side effects, no flag arguments                             | common/functions.md (../../tech/common/functions.md)         |
-| Intention-revealing names, no encodings, side-effect-honest names, one-word-per-concept                       | common/naming.md (../../tech/common/naming.md)               |
-| Self-documenting code first; "why" comments kept, "what" comments deleted                                      | common/comments.md (../../tech/common/comments.md)           |
-| DRY/YAGNI/KISS, emergent design, command-query separation                                                      | common/principles.md (../../tech/common/principles.md)       |
+| :----------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------- |
+| Deep nesting, long functions, flag args, dead code, duplication, magic numbers, obscured intent               | common/code-smells.md (../../tech/common/code-smells.md)       |
+| Small functions, do-one-thing, argument count, no side effects, no flag arguments                             | common/functions.md (../../tech/common/functions.md)           |
+| Intention-revealing names, no encodings, side-effect-honest names, one-word-per-concept                       | common/naming.md (../../tech/common/naming.md)                 |
+| Self-documenting code first; "why" comments kept, "what" comments deleted                                      | common/comments.md (../../tech/common/comments.md)             |
+| DRY/YAGNI/KISS, emergent design, command-query separation                                                      | common/principles.md (../../tech/common/principles.md)         |
 
 Language-specific manifestations (clippy, eslint, ruff rules) and the idiomatic fix for each pattern:
 
@@ -141,7 +141,7 @@ The skill is language-agnostic; the syntax for each simplification (removing red
 ## Common Rationalizations
 
 | Rationalization | Reality |
-|---|---|
+| :--- | :--- |
 | "It's working, no need to touch it" | Working code that's hard to read will be hard to fix when it breaks. Simplifying now saves time on every future change. |
 | "Fewer lines is always simpler" | A 1-line nested ternary is not simpler than a 5-line if/else. Simplicity is about comprehension speed, not line count. |
 | "I'll just quickly simplify this unrelated code too" | Unscoped simplification creates noisy diffs and risks regressions in code you didn't intend to change. Stay focused. |

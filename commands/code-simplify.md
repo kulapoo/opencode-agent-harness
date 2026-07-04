@@ -1,6 +1,8 @@
-# /code-simplify
+---
+description: Simplify code for clarity and maintainability — reduce complexity without changing behavior
+---
 
-Simplify code for clarity and maintainability — reduce complexity without changing behavior
+# /code-simplify
 
 Invoke the code-simplification skill.
 

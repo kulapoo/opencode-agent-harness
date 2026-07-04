@@ -48,7 +48,3 @@ cover -test
 
 - Always end test files with `done_testing`
 - Never forget the `-l` flag with `prove`
-
-## Reference
-
-See skill: `perl-testing` for detailed Perl TDD patterns with Test2::V0, prove, and Devel::Cover.

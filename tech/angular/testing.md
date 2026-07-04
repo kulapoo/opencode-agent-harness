@@ -158,7 +158,3 @@ describe('Login flow', () => {
 ## Coverage
 
 Target ≥80% for services and pipes. Components: test behaviour, not implementation details.
-
-## Skill Reference
-
-See skill: `angular-developer` for comprehensive testing patterns, harness usage, and async best practices.

@@ -34,7 +34,3 @@ Run after editing Go files:
 - **Format**: `gofmt`/`goimports` — mandatory
 - **Vet**: `go vet` — static analysis
 - **Extended checks**: `staticcheck` on modified packages
-
-## Reference
-
-See skill: `golang-patterns` for comprehensive Go idioms and patterns.

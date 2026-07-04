@@ -119,7 +119,7 @@ compatible only if every existing consumer keeps working without modification.
 ### 5. Predictable Naming
 
 | Pattern | Convention | Example |
-|---------|-----------|---------|
+| :--- | :--- | :--- |
 | REST endpoints | Plural nouns, no verbs | `GET /api/tasks`, `POST /api/tasks` |
 | Query params | camelCase | `?sortBy=createdAt&pageSize=20` |
 | Response fields | camelCase | `{ createdAt, updatedAt, taskId }` |
@@ -152,7 +152,7 @@ Use opaque/distinct types for IDs so a `UserId` cannot be passed where a
 ## Common Rationalizations
 
 | Rationalization | Reality |
-|---|---|
+| :--- | :--- |
 | "We'll document the API later" | The contract IS the documentation. Define it first. |
 | "PATCH is complicated, let's just use PUT" | PUT requires the full object every time. PATCH is what clients actually want. |
 | "We'll version the API when we need to" | Breaking changes without versioning break consumers. Design for extension from the start. |

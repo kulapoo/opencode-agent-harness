@@ -132,7 +132,7 @@ Small, focused changes are easier to review, faster to merge, and safer to deplo
 **Splitting strategies when a change is too large:**
 
 | Strategy | How | When |
-|----------|-----|------|
+| :--- | :--- | :--- |
 | **Stack** | Submit a small change, start the next one based on it | Sequential dependencies |
 | **By file group** | Separate changes for groups needing different reviewers | Cross-cutting concerns |
 | **Horizontal** | Create shared code/stubs first, then consumers | Layered architecture |
@@ -194,7 +194,7 @@ For each file changed:
 Label every comment with its severity so the author knows what's required vs optional:
 
 | Prefix | Meaning | Author Action |
-|--------|---------|---------------|
+| :--- | :--- | :--- |
 | *(no prefix)* | Required change | Must address before merge |
 | **Critical:** | Blocks merge | Security vulnerability, data loss, broken functionality |
 | **Nit:** | Minor, optional | Author may ignore — formatting, style preferences |
@@ -356,7 +356,7 @@ For domain-specific review guidance, consult `@rules/security-checklist.md` and 
 ## Common Rationalizations
 
 | Rationalization | Reality |
-|---|---|
+| :--- | :--- |
 | "It works, that's good enough" | Working code that's unreadable, insecure, or architecturally wrong creates debt that compounds. |
 | "I wrote it, so I know it's correct" | Authors are blind to their own assumptions. Every change benefits from another set of eyes. |
 | "We'll clean it up later" | Later never comes. The review is the quality gate — use it. Require cleanup before merge, not after. |

@@ -163,7 +163,3 @@ end
 sig { params(id: TaskId).returns(Task) }
 def get_task(id); end
 ```
-
-## Reference
-
-See skill: `backend-patterns` for service boundaries and adapter patterns.

@@ -57,8 +57,3 @@ Run after editing `.vue`/`.ts`/`.tsx` files:
 - **Typecheck**: `vue-tsc --noEmit` (plain `tsc` cannot read `.vue` SFCs). Project-wide — debounce or scope so save-storms don't stall
 - **Architecture (optional)**: enforce Feature-Sliced Design slice boundaries with `@feature-sliced/steiger` or `eslint-plugin-boundaries`
 - **Ordering**: lint-fix first (mutates the file), then the project-wide typecheck last so type errors reflect formatted source
-
-## Reference
-
-- ECC skills: `frontend-patterns`, `vite-patterns`.
-- Docs: <https://vuejs.org/api/sfc-script-setup.html> · <https://vuejs.org/guide/essentials/reactivity-fundamentals.html> · <https://eslint.vuejs.org/>

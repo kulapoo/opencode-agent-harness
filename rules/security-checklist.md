@@ -149,7 +149,7 @@ res.status(500).json({
 ## OWASP Top 10 Quick Reference
 
 | # | Vulnerability | Prevention |
-|---|---|---|
+| :--- | :--- | :--- |
 | 1 | Broken Access Control | Auth checks on every endpoint, ownership verification |
 | 2 | Cryptographic Failures | HTTPS, strong hashing, no secrets in code |
 | 3 | Injection | Parameterized queries, input validation |
@@ -166,7 +166,7 @@ res.status(500).json({
 For apps with LLM features. See the [OWASP GenAI Security Project](https://genai.owasp.org/llm-top-10/).
 
 | ID | Risk | Prevention |
-|---|---|---|
+| :--- | :--- | :--- |
 | LLM01 | Prompt Injection | Don't trust the system prompt as a boundary; enforce permissions in code |
 | LLM02 | Sensitive Information Disclosure | Keep secrets/PII out of prompts; filter outputs |
 | LLM03 | Supply Chain | Vet models, datasets, and plugins like any dependency |

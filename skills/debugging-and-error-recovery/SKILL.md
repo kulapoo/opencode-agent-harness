@@ -262,7 +262,7 @@ Add logging only when it helps. Remove it when done.
 ## Common Rationalizations
 
 | Rationalization | Reality |
-|---|---|
+| :--- | :--- |
 | "I know what the bug is, I'll just fix it" | You might be right 70% of the time. The other 30% costs hours. Reproduce first. |
 | "The failing test is probably wrong" | Verify that assumption. If the test is wrong, fix the test. Don't just skip it. |
 | "It works on my machine" | Environments differ. Check CI, check config, check dependencies. |

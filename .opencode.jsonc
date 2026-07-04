@@ -1,4 +1,11 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "instructions": ["rules/tech.md"]
+  "instructions": ["rules/tech.md"],
+  "mcp": {
+    "chrome-devtools": {
+      "type": "local",
+      "command": ["npx", "-y", "chrome-devtools-mcp@latest", "--isolated"],
+      "enabled": true
+    }
+  }
 }
