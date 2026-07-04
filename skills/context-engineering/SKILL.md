@@ -43,7 +43,7 @@ Create a rules file that persists across sessions. This is the highest-leverage 
 ```markdown
 # Project: [Name]
 
-## Tech Stack
+## Technologies
 - React 18, TypeScript 5, Vite, Tailwind CSS 4
 - Node.js 22, Express, PostgreSQL, Prisma
 

@@ -17,17 +17,16 @@ Design stable, well-documented interfaces that are hard to misuse. Good interfac
 - Establishing database schema that informs API shape
 - Changing existing public interfaces
 
-## Stack Context
+## Conventions Context
 
-Resolve `<stack>` from the target file's nearest manifest
-(`package.json`→`typescript` / `react` / `vue` / `angular`, `go.mod`→`golang`,
-`Cargo.toml`→`rust`, `pyproject.toml`→`python`; full table + polyglot rules
-in `rules/load-stack-conventions.md`), then read:
+Tech conventions are declared in `rules/tech-conventions.md`. Each name maps
+directly to `conventions/<name>/` (e.g. `rust` → `conventions/rust/`, `react`
+→ `conventions/react/`), then read:
 
-- `<stack>/patterns.md`
+- `<name>/patterns.md`
 - `common/patterns.md`
 
-`common/` is always loaded alongside the stack dir. Inline examples use TypeScript for illustration — apply the underlying pattern in `<stack>`'s idioms, not the literal syntax.
+`common/` is always loaded alongside the conventions dir. Inline examples use TypeScript for illustration — apply the underlying pattern in `<name>`'s idioms, not the literal syntax.
 
 ## Core Principles
 
@@ -59,7 +58,7 @@ Define the interface before implementing it. The contract is the spec — implem
 - Side effects and ordering guarantees
 - Nullability / optionality per field
 
-→ `<stack>/patterns.md` § "Contract Definition"
+→ `<name>/patterns.md` § "Contract Definition"
 
 ### 2. Consistent Error Semantics
 
@@ -72,7 +71,7 @@ validation failure). Never leak internal details in a `500`.
 **Structured error body** (one shape everywhere): `code` (machine-readable,
 e.g. `"VALIDATION_ERROR"`) + `message` (human-readable) + optional `details`.
 
-→ `<stack>/patterns.md` § "Error Representation"
+→ `<name>/patterns.md` § "Error Representation"
 
 ### 3. Validate at Boundaries
 
@@ -93,7 +92,7 @@ Trust internal code. Validate at system edges where external input enters.
 - In utility functions called by already-validated code
 - On data that just came from your own database
 
-→ `<stack>/patterns.md` § "Boundary Validation"
+→ `<name>/patterns.md` § "Boundary Validation"
 
 ### 4. Prefer Addition Over Modification
 
@@ -116,7 +115,7 @@ compatible only if every existing consumer keeps working without modification.
 - Tightening a constraint
 - Reordering required fields where positional
 
-→ `<stack>/patterns.md` § "Additive Evolution"
+→ `<name>/patterns.md` § "Additive Evolution"
 
 ### 5. Predictable Naming
 
@@ -149,7 +148,7 @@ system returns, including server-generated fields like `id`, `createdAt`,
 Use opaque/distinct types for IDs so a `UserId` cannot be passed where a
 `TaskId` is expected.
 
-→ `<stack>/patterns.md` § "Variant Types", § "Input/Output Separation", § "Opaque IDs"
+→ `<name>/patterns.md` § "Variant Types", § "Input/Output Separation", § "Opaque IDs"
 
 ## Common Rationalizations
 

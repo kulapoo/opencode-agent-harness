@@ -8,7 +8,8 @@ manifestations and the tooling (clippy, eslint, ruff) that catches them
 automatically.
 
 > **Language note**: Many of these are enforced by linters — see the
-> stack's `hooks.md`. This file describes what to *recognize* by eye.
+> conventions dir's `hooks.md`. This file describes what to *recognize* by
+> eye.
 
 ## Comments
 

@@ -6,8 +6,12 @@ coding agents effective — skill-driven workflows, subagent orchestration,
 memory persistence, and verification-first development. One harness, one
 target, no multi-harness fragmentation.
 
-## Load Stack Conventions First
+## Conventions
 
-Before writing or reviewing code, `Read` `rules/load-stack-conventions.md`
-and apply its steps (detect manifests → map to `stacks/<dir>/` → resolve
-polyglot by proximity → load the skill-specific stack files).
+The project's tech conventions are declared in `rules/tech-conventions.md`.
+Each name maps directly to `conventions/<name>/` (e.g. `rust` →
+`conventions/rust/`). Skills use this declaration to load language-specific
+conventions.
+
+Before writing or editing code, confirm the relevant conventions are in
+recent context. If unsure, re-read the appropriate `conventions/<name>/` files.

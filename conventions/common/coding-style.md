@@ -2,7 +2,7 @@
 
 This file is a **thin index**. Coding-style concerns are decomposed into
 single-concern baseline files below — each small, reusable, and
-referenced independently by language-specific stacks. Restate none of
+referenced independently by language-specific conventions. Restate none of
 them; link to them.
 
 > **For a quick checklist before marking work complete**, see the
@@ -25,9 +25,9 @@ Adjacent common rules remain in their own files:
 `patterns.md` (SRP, DI, boundaries, repository),
 `security.md`.
 
-## How language-specific stacks compose
+## How language-specific conventions compose
 
-A language-specific `<stack>/coding-style.md` does **not** restate these
+A language-specific `<name>/coding-style.md` does **not** restate these
 baselines. It declares which are RELEVANT and then adds only the
 language-specific deltas (tooling, idioms, conventions). See the
 "Composition" section of `../README.md` and the example in

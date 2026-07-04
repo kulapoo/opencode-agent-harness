@@ -19,12 +19,11 @@ Multi-dimensional code review with quality gates. Every change gets reviewed bef
 - When refactoring existing code
 - After any bug fix (review both the fix and the regression test)
 
-## Stack Context
+## Conventions Context
 
-Resolve `<stack>` from the target file's nearest manifest
-(`package.json`→`typescript` / `react` / `vue` / `angular`, `go.mod`→`golang`,
-`Cargo.toml`→`rust`, `pyproject.toml`→`python`; full table + polyglot rules
-in `rules/load-stack-conventions.md`). Read the catalog matching the review need —
+Tech conventions are declared in `rules/tech-conventions.md`. Each name maps
+directly to `conventions/<name>/` (e.g. `rust` → `conventions/rust/`, `react`
+→ `conventions/react/`). Read the catalog matching the review need —
 one or two, not all:
 
 - consolidated pre-complete checklist (default) → `common/code-review.md`
@@ -32,9 +31,9 @@ one or two, not all:
 - architecture: functions, abstractions          → `common/functions.md`, `common/principles.md`
 - dead code, smells, duplication                 → `common/code-smells.md`
 - test quality                                    → `common/testing.md`
-- language idioms / lint tooling                  → `<stack>/coding-style.md`, `<stack>/testing.md`
+- language idioms / lint tooling                  → `<name>/coding-style.md`, `<name>/testing.md`
 
-Inline examples use TypeScript for illustration — apply the underlying pattern in `<stack>`'s idioms, not the literal syntax.
+Inline examples use TypeScript for illustration — apply the underlying pattern in `<name>`'s idioms, not the literal syntax.
 
 ## The Five-Axis Review
 
@@ -298,7 +297,7 @@ When reviewing code — whether written by you, another agent, or a human:
 Part of code review is dependency review:
 
 **Before adding any dependency:**
-1. Does the existing stack solve this? (Often it does.)
+1. Does the existing convention set solve this? (Often it does.)
 2. How large is the dependency? (Check bundle impact.)
 3. Is it actively maintained? (Check last commit, open issues.)
 4. Does it have known vulnerabilities? (`npm audit`)

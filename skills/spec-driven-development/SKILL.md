@@ -87,7 +87,7 @@ Don't silently fill in ambiguous requirements. The spec's entire purpose is to s
 ## Objective
 [What we're building and why. User stories or acceptance criteria.]
 
-## Tech Stack
+## Technologies
 [Framework, language, key dependencies with versions]
 
 ## Commands

@@ -18,18 +18,17 @@ Build in thin vertical slices — implement one piece, test it, verify it, then 
 
 **When NOT to use:** Single-file, single-function changes where the scope is already minimal.
 
-## Stack Context
+## Conventions Context
 
-Resolve `<stack>` from the target file's nearest manifest
-(`package.json`→`typescript` / `react` / `vue` / `angular`, `go.mod`→`golang`,
-`Cargo.toml`→`rust`, `pyproject.toml`→`python`; full table + polyglot rules
-in `rules/load-stack-conventions.md`). Read the catalog matching the concern —
+Tech conventions are declared in `rules/tech-conventions.md`. Each name maps
+directly to `conventions/<name>/` (e.g. `rust` → `conventions/rust/`, `react`
+→ `conventions/react/`). Read the catalog matching the concern —
 one, not all:
 
 - simplicity, earning abstractions (Rule 0) → `common/principles.md` (KISS/YAGNI), `common/code-smells.md` (over-engineering)
-- language idioms / lint tooling            → `<stack>/coding-style.md`
+- language idioms / lint tooling            → `<name>/coding-style.md`
 
-Inline examples use TypeScript for illustration — apply the underlying pattern in `<stack>`'s idioms, not the literal syntax.
+Inline examples use TypeScript for illustration — apply the underlying pattern in `<name>`'s idioms, not the literal syntax.
 
 ## The Increment Cycle
 
@@ -58,7 +57,7 @@ For each slice:
 
 ### Vertical Slices (Preferred)
 
-Build one complete path through the stack:
+Build one complete path through the conventions:
 
 ```
 Slice 1: Create a task (DB + API + basic UI)

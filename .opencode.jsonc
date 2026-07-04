@@ -1,3 +1,4 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "instructions": ["rules/tech-conventions.md"]
 }

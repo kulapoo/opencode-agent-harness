@@ -25,14 +25,14 @@ Simplify code by reducing complexity while preserving exact behavior. The goal i
 - The code is performance-critical and the "simpler" version would be measurably slower
 - You're about to rewrite the module entirely — simplifying throwaway code wastes effort
 
-## Stack Context
+## Conventions Context
 
-Resolve `<stack>` from the target file's nearest manifest
-(`package.json`→`typescript` / `react` / `vue` / `angular`, `go.mod`→`golang`,
-`Cargo.toml`→`rust`, `pyproject.toml`→`python`; full table + polyglot rules
-in `rules/load-stack-conventions.md`). The catalogs this skill draws on live
-under `common/` and `<stack>/coding-style.md` — read them by task in Step 2,
-not all at once. Inline examples use TypeScript for illustration — apply the underlying pattern in `<stack>`'s idioms, not the literal syntax.
+Tech conventions are declared in `rules/tech-conventions.md`. Each name maps
+directly to `conventions/<name>/` (e.g. `rust` → `conventions/rust/`, `react`
+→ `conventions/react/`). This skill draws on `common/` and
+`<name>/coding-style.md` — read them by task in Step 2, not all at once.
+Inline examples use TypeScript for illustration — apply the underlying pattern
+in `<name>`'s idioms, not the literal syntax.
 
 ## The Five Principles
 
@@ -50,7 +50,7 @@ ASK BEFORE EVERY CHANGE:
 
 ### 2. Follow Project Conventions
 
-Simplification means making code more consistent with the codebase, not imposing external preferences. Match the project's import ordering, function declaration style, naming, error handling, and type annotation depth rather than your own defaults — the loaded `<stack>/` and `common/` files define what "consistent" means here.
+Simplification means making code more consistent with the codebase, not imposing external preferences. Match the project's import ordering, function declaration style, naming, error handling, and type annotation depth rather than your own defaults — the loaded `<name>/` and `common/` files define what "consistent" means here.
 
 Simplification that breaks project consistency is not simplification — it's churn.
 
@@ -91,19 +91,19 @@ If you can't answer these, you're not ready to simplify. Read more context first
 
 ### Step 2: Identify Simplification Opportunities
 
-Scan for the concrete patterns cataloged in the stack files. Each entry there is a signal, not an automatic verdict — investigate before acting. **Read the row matching the task — one or two files, not all of them.**
+Scan for the concrete patterns cataloged in the convention files. Each entry there is a signal, not an automatic verdict — investigate before acting. **Read the row matching the task — one or two files, not all of them.**
 
 | Concern                                                                                                       | Where the catalog lives                                         |
 | ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| Deep nesting, long functions, flag args, dead code, duplication, magic numbers, obscured intent               | common/code-smells.md (../../stacks/common/code-smells.md)     |
-| Small functions, do-one-thing, argument count, no side effects, no flag arguments                             | common/functions.md (../../stacks/common/functions.md)         |
-| Intention-revealing names, no encodings, side-effect-honest names, one-word-per-concept                       | common/naming.md (../../stacks/common/naming.md)               |
-| Self-documenting code first; "why" comments kept, "what" comments deleted                                      | common/comments.md (../../stacks/common/comments.md)           |
-| DRY/YAGNI/KISS, emergent design, command-query separation                                                      | common/principles.md (../../stacks/common/principles.md)       |
+| Deep nesting, long functions, flag args, dead code, duplication, magic numbers, obscured intent               | common/code-smells.md (../../conventions/common/code-smells.md)     |
+| Small functions, do-one-thing, argument count, no side effects, no flag arguments                             | common/functions.md (../../conventions/common/functions.md)         |
+| Intention-revealing names, no encodings, side-effect-honest names, one-word-per-concept                       | common/naming.md (../../conventions/common/naming.md)               |
+| Self-documenting code first; "why" comments kept, "what" comments deleted                                      | common/comments.md (../../conventions/common/comments.md)           |
+| DRY/YAGNI/KISS, emergent design, command-query separation                                                      | common/principles.md (../../conventions/common/principles.md)       |
 
 Language-specific manifestations (clippy, eslint, ruff rules) and the idiomatic fix for each pattern:
 
-→ `<stack>/coding-style.md`
+→ `<name>/coding-style.md`
 
 ### Step 3: Apply Changes Incrementally
 
@@ -137,7 +137,7 @@ If the "simplified" version is harder to understand or review, revert. Not every
 
 ## Language-Specific Guidance
 
-The skill is language-agnostic; the syntax for each simplification (removing redundant `async`/`await`, replacing manual array building with `filter`, dict comprehensions, early-return guard clauses, conditional JSX rendering) is owned by the stack files. Apply `<stack>/coding-style.md` for the target language's idioms and tooling rather than restating them here.
+The skill is language-agnostic; the syntax for each simplification (removing redundant `async`/`await`, replacing manual array building with `filter`, dict comprehensions, early-return guard clauses, conditional JSX rendering) is owned by the convention files. Apply `<name>/coding-style.md` for the target language's idioms and tooling rather than restating them here.
 
 ## Common Rationalizations
 

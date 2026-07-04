@@ -21,19 +21,18 @@ Write a failing test before writing the code that makes it pass. For bug fixes, 
 
 **Related:** For browser-based changes, combine TDD with runtime verification using Chrome DevTools MCP — see the Browser Testing section below.
 
-## Stack Context
+## Conventions Context
 
-Resolve `<stack>` from the target file's nearest manifest
-(`package.json`→`typescript` / `react` / `vue` / `angular`, `go.mod`→`golang`,
-`Cargo.toml`→`rust`, `pyproject.toml`→`python`; full table + polyglot rules
-in `rules/load-stack-conventions.md`). Read the catalog matching the phase —
+Tech conventions are declared in `rules/tech-conventions.md`. Each name maps
+directly to `conventions/<name>/` (e.g. `rust` → `conventions/rust/`, `react`
+→ `conventions/react/`). Read the catalog matching the phase —
 one or two, not all:
 
 - REFACTOR: what to extract / clean up    → `common/code-smells.md`, `common/functions.md`
 - test code quality (F.I.R.S.T., DAMP)     → `common/testing.md`
-- language test idioms / tooling           → `<stack>/testing.md`, `<stack>/coding-style.md`
+- language test idioms / tooling           → `<name>/testing.md`, `<name>/coding-style.md`
 
-Inline examples use TypeScript for illustration — apply the underlying pattern in `<stack>`'s idioms, not the literal syntax.
+Inline examples use TypeScript for illustration — apply the underlying pattern in `<name>`'s idioms, not the literal syntax.
 
 ## The TDD Cycle
 
