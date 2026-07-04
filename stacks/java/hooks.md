@@ -7,7 +7,7 @@ paths:
 ---
 # Java Hooks
 
-> This file extends [common/hooks.md](../common/hooks.md) with Java-specific content.
+> This file extends common/hooks.md (../common/hooks.md) with Java-specific content.
 
 ## Post-Edit Checks
 

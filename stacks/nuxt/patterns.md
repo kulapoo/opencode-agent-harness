@@ -10,8 +10,8 @@ paths:
 
 # Nuxt Patterns
 
-> This file extends [common/patterns.md](../common/patterns.md) with Nuxt specific content.
-> For language-level API/interface patterns (Contract Definition, Error Representation, Boundary Validation, Additive Evolution, Variant Types, Input/Output Separation, Opaque IDs), see [typescript/patterns.md](../typescript/patterns.md). This file covers only Nuxt-specific patterns.
+> This file extends common/patterns.md (../common/patterns.md) with Nuxt specific content.
+> For language-level API/interface patterns (Contract Definition, Error Representation, Boundary Validation, Additive Evolution, Variant Types, Input/Output Separation, Opaque IDs), see typescript/patterns.md (../typescript/patterns.md). This file covers only Nuxt-specific patterns.
 
 ## Data-fetch selection
 

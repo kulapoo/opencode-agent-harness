@@ -9,7 +9,7 @@ paths:
 ---
 # C# Hooks
 
-> This file extends [common/hooks.md](../common/hooks.md) with C#-specific content.
+> This file extends common/hooks.md (../common/hooks.md) with C#-specific content.
 
 ## Post-Edit Checks
 

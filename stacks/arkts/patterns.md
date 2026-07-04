@@ -5,7 +5,7 @@ paths:
 ---
 # HarmonyOS / ArkTS Patterns
 
-> This file extends [common/patterns.md](../common/patterns.md) with HarmonyOS and ArkTS-specific patterns.
+> This file extends common/patterns.md (../common/patterns.md) with HarmonyOS and ArkTS-specific patterns.
 
 ## State Management: V2 Only
 

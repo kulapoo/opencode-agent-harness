@@ -8,8 +8,8 @@ paths:
 ---
 # Angular Patterns
 
-> This file extends [common/patterns.md](../common/patterns.md) with Angular specific content.
-> For language-level API/interface patterns (Contract Definition, Error Representation, Boundary Validation, Additive Evolution, Variant Types, Input/Output Separation, Opaque IDs), see [typescript/patterns.md](../typescript/patterns.md). This file covers only Angular-specific patterns.
+> This file extends common/patterns.md (../common/patterns.md) with Angular specific content.
+> For language-level API/interface patterns (Contract Definition, Error Representation, Boundary Validation, Additive Evolution, Variant Types, Input/Output Separation, Opaque IDs), see typescript/patterns.md (../typescript/patterns.md). This file covers only Angular-specific patterns.
 
 ## Smart / Dumb Component Split
 

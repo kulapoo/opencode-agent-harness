@@ -8,7 +8,7 @@ paths:
 ---
 # HarmonyOS / ArkTS Coding Style
 
-> This file extends [common/coding-style.md](../common/coding-style.md) with HarmonyOS and ArkTS-specific content.
+> This file extends common/coding-style.md (../common/coding-style.md) with HarmonyOS and ArkTS-specific content.
 
 ## ArkTS Language Constraints
 

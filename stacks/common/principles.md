@@ -122,5 +122,5 @@ possible scope.
 When universal principles and language-specific idioms appear to conflict,
 the language idiom usually expresses the *same* principle in a different
 shape — resolve the apparent conflict in favor of idiomatic clarity. When
-a genuine contradiction cannot be reconciled, see [../README.md](../README.md)
+a genuine contradiction cannot be reconciled, see `../README.md`
 on rule precedence (specific overrides general).

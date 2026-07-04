@@ -5,9 +5,9 @@ paths:
 ---
 # React Native / Expo Patterns
 
-> This file extends [common/patterns.md](../common/patterns.md) with React Native / Expo specific patterns.
+> This file extends common/patterns.md (../common/patterns.md) with React Native / Expo specific patterns.
 > Note: Do NOT install the `web/` ruleset in a React Native project — those patterns assume the DOM (e.g. URL-as-state) and do not apply here.
-> For language-level API/interface patterns (Contract Definition, Error Representation, Boundary Validation, Additive Evolution, Variant Types, Input/Output Separation, Opaque IDs), see [typescript/patterns.md](../typescript/patterns.md). This file covers only React Native/Expo-specific patterns.
+> For language-level API/interface patterns (Contract Definition, Error Representation, Boundary Validation, Additive Evolution, Variant Types, Input/Output Separation, Opaque IDs), see typescript/patterns.md (../typescript/patterns.md). This file covers only React Native/Expo-specific patterns.
 
 ## Navigation (Expo Router)
 

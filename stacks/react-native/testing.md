@@ -5,7 +5,7 @@ paths:
 ---
 # React Native / Expo Testing
 
-> This file extends [common/testing.md](../common/testing.md) with React Native / Expo specific content.
+> This file extends common/testing.md (../common/testing.md) with React Native / Expo specific content.
 > Coverage target and TDD workflow are inherited from common/testing.md (80% minimum, RED-GREEN-REFACTOR).
 
 ## Tooling

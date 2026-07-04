@@ -6,12 +6,12 @@ paths:
 
 > **RELEVANT baselines** (apply universally — do not restate):
 >
-> - [../common/principles.md](../common/principles.md) — Boy Scout, KISS/DRY/YAGNI, immutability, Law of Demeter
-> - [../common/naming.md](../common/naming.md) — intention-revealing names
-> - [../common/functions.md](../common/functions.md) — small, do-one-thing, argument discipline
-> - [../common/formatting.md](../common/formatting.md) — newspaper metaphor, many-small-files, domain org
-> - [../common/error-handling.md](../common/error-handling.md) — signal over return codes, boundary wrapping
-> - [../common/code-smells.md](../common/code-smells.md) — heuristics catalog
+> - `../common/principles.md` — Boy Scout, KISS/DRY/YAGNI, immutability, Law of Demeter
+> - `../common/naming.md` — intention-revealing names
+> - `../common/functions.md` — small, do-one-thing, argument discipline
+> - `../common/formatting.md` — newspaper metaphor, many-small-files, domain org
+> - `../common/error-handling.md` — signal over return codes, boundary wrapping
+> - `../common/code-smells.md` — heuristics catalog
 >
 > This file adds **Rust-specific deltas** on top of those baselines.
 

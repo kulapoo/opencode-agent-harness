@@ -6,7 +6,7 @@ paths:
 ---
 # Go Hooks
 
-> This file extends [common/hooks.md](../common/hooks.md) with Go specific content.
+> This file extends common/hooks.md (../common/hooks.md) with Go specific content.
 
 ## Post-Edit Checks
 

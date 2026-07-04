@@ -6,7 +6,7 @@ paths:
 ---
 # HarmonyOS / ArkTS Testing
 
-> This file extends [common/testing.md](../common/testing.md) with HarmonyOS-specific testing practices.
+> This file extends common/testing.md (../common/testing.md) with HarmonyOS-specific testing practices.
 
 ## Test Framework
 

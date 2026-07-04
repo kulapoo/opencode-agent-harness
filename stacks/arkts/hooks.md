@@ -7,7 +7,7 @@ paths:
 ---
 # HarmonyOS / ArkTS Hooks
 
-> This file extends [common/hooks.md](../common/hooks.md) with HarmonyOS-specific build and validation hooks.
+> This file extends common/hooks.md (../common/hooks.md) with HarmonyOS-specific build and validation hooks.
 
 ## Build Commands
 

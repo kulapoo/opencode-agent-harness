@@ -7,7 +7,7 @@ paths:
 ---
 # PHP Testing
 
-> This file extends [common/testing.md](../common/testing.md) with PHP specific content.
+> This file extends common/testing.md (../common/testing.md) with PHP specific content.
 
 ## Framework
 

@@ -5,7 +5,7 @@ paths:
 ---
 # React Native / Expo Security
 
-> This file extends [common/security.md](../common/security.md) with React Native / Expo specific content.
+> This file extends common/security.md (../common/security.md) with React Native / Expo specific content.
 > The mandatory pre-commit checklist and Security Response Protocol from common/security.md still apply.
 
 ## The Bundle Is Public

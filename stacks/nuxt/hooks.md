@@ -8,7 +8,7 @@ paths:
 
 # Nuxt Hooks
 
-> This file extends [common/hooks.md](../common/hooks.md) with Nuxt specific content.
+> This file extends common/hooks.md (../common/hooks.md) with Nuxt specific content.
 
 These are the checks the harness runs around Nuxt edits (format / lint / typecheck).
 

@@ -1,4 +1,4 @@
-> This file extends [common/hooks.md](../common/hooks.md) with web-specific hook recommendations.
+> This file extends common/hooks.md (../common/hooks.md) with web-specific hook recommendations.
 
 # Web Hooks
 

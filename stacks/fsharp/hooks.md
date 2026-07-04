@@ -10,7 +10,7 @@ paths:
 ---
 # F# Hooks
 
-> This file extends [common/hooks.md](../common/hooks.md) with F#-specific content.
+> This file extends common/hooks.md (../common/hooks.md) with F#-specific content.
 
 ## Post-Edit Checks
 

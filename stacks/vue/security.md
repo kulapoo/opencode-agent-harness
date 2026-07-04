@@ -5,7 +5,7 @@ paths:
 
 # Vue Security
 
-> This file extends [common/security.md](../common/security.md) with Vue specific content.
+> This file extends common/security.md (../common/security.md) with Vue specific content.
 
 ## What Vue Escapes Automatically
 

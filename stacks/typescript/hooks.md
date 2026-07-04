@@ -7,7 +7,7 @@ paths:
 ---
 # TypeScript/JavaScript Hooks
 
-> This file extends [common/hooks.md](../common/hooks.md) with TypeScript/JavaScript specific content.
+> This file extends common/hooks.md (../common/hooks.md) with TypeScript/JavaScript specific content.
 
 ## Post-Edit Checks
 

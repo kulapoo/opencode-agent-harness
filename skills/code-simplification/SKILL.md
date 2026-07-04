@@ -95,11 +95,11 @@ Scan for the concrete patterns cataloged in the stack files. Each entry there is
 
 | Concern                                                                                                       | Where the catalog lives                                         |
 | ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| Deep nesting, long functions, flag args, dead code, duplication, magic numbers, obscured intent               | [common/code-smells.md](../../stacks/common/code-smells.md)     |
-| Small functions, do-one-thing, argument count, no side effects, no flag arguments                             | [common/functions.md](../../stacks/common/functions.md)         |
-| Intention-revealing names, no encodings, side-effect-honest names, one-word-per-concept                       | [common/naming.md](../../stacks/common/naming.md)               |
-| Self-documenting code first; "why" comments kept, "what" comments deleted                                      | [common/comments.md](../../stacks/common/comments.md)           |
-| DRY/YAGNI/KISS, emergent design, command-query separation                                                      | [common/principles.md](../../stacks/common/principles.md)       |
+| Deep nesting, long functions, flag args, dead code, duplication, magic numbers, obscured intent               | common/code-smells.md (../../stacks/common/code-smells.md)     |
+| Small functions, do-one-thing, argument count, no side effects, no flag arguments                             | common/functions.md (../../stacks/common/functions.md)         |
+| Intention-revealing names, no encodings, side-effect-honest names, one-word-per-concept                       | common/naming.md (../../stacks/common/naming.md)               |
+| Self-documenting code first; "why" comments kept, "what" comments deleted                                      | common/comments.md (../../stacks/common/comments.md)           |
+| DRY/YAGNI/KISS, emergent design, command-query separation                                                      | common/principles.md (../../stacks/common/principles.md)       |
 
 Language-specific manifestations (clippy, eslint, ruff rules) and the idiomatic fix for each pattern:
 
