@@ -7,6 +7,26 @@ verification-first development — into one drop-in configuration.
 
 One harness, one target, no multi-harness fragmentation.
 
+## Inspiration & credits
+
+This project stands on the shoulders of two excellent works, and consolidates
+their patterns into a single opencode-native harness:
+
+- **[agent-skills](https://github.com/addyosmani/agent-skills)** by
+  [@addyosmani](https://github.com/addyosmani) — a cross-framework library of
+  reusable agent skills. The skill-driven workflow thinking and the breadth of
+  the lifecycle coverage here are drawn directly from it.
+- **[ecc](https://github.com/affaan-m/ecc)** by
+  [@affaan-m](https://github.com/affaan-m) — an opinionated engineering
+  culture and conventions kit. The standing-rules, tech-aware conventions, and
+  verification-first stance trace back to ecc.
+
+The goal of this harness is to bring those ideas together in one place,
+purpose-built for [opencode](https://opencode.ai): one set of skills, agents,
+commands, and tech conventions — no multi-harness fragmentation. Full credit
+to both original projects for the underlying patterns; this repo is an
+opencode-native consolidation, not a replacement for either.
+
 ## What's in the box
 
 | Folder        | Purpose                                                                                          |

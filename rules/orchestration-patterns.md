@@ -61,7 +61,7 @@ Multiple personas operate on the same input concurrently, each producing an inde
 - The merge step is small enough to stay in the main context
 - Wall-clock latency matters
 
-**Examples in this repo:** `/ship`.
+**Examples in this repo:** `/ship`, `/webperf`.
 
 **Cost:** N parallel sub-agent contexts + one merge turn. Higher than direct invocation, but faster wall-clock and produces better reports because each sub-agent stays focused on its single perspective.
 
@@ -80,12 +80,12 @@ If any answer is "no," fall back to direct invocation or a single-persona comman
 The user runs slash commands in a defined order, carrying context (or commit history) between them. There is no orchestrator agent — the user IS the orchestrator.
 
 ```
-user runs:  /spec  →  /plan  →  /build  →  /test  →  /review  →  /ship
+user runs:  /spec  →  /planning  →  /build  →  /test  →  /review  →  /ship
 ```
 
 **Use when:** the workflow has dependencies (each step needs the previous step's output) and human judgment between steps adds value.
 
-**Examples in this repo:** the entire DEFINE → PLAN → BUILD → VERIFY → REVIEW → SHIP lifecycle.
+**Examples in this repo:** the entire DEFINE → PLAN → BUILD → VERIFY → REVIEW → SHIP lifecycle (`/spec`, `/planning`, `/build`, `/test`, `/review`, `/ship`).
 
 **Cost:** one sub-agent context per step. Free for the orchestration layer because there is no orchestrator agent.
 
@@ -110,70 +110,63 @@ main agent → research sub-agent (reads 50 files) → digest → main agent con
 
 **Cost:** one isolated sub-agent context. Worth it any time the alternative is loading hundreds of files into the main context.
 
-**On Claude Code, use the built-in `Explore` subagent** rather than defining a custom research persona. `Explore` runs on Haiku, is denied write/edit tools, and is purpose-built for this pattern. Define a custom research subagent only when `Explore` doesn't fit (e.g. you need a domain-specific system prompt the model wouldn't infer).
+**In opencode, use the built-in `explore` subagent type** (via the Task tool) rather than defining a custom research persona. `explore` is purpose-built for read-only codebase search and analysis — fast, no write/edit tools, exactly this pattern. Define a custom research subagent only when `explore` doesn't fit (e.g. you need a domain-specific system prompt the model wouldn't infer).
 
 ---
 
-## Claude Code compatibility
+## opencode compatibility
 
-This catalog is harness-agnostic, but most readers will run it on Claude Code. Here's how each pattern maps onto Claude Code's primitives — and where the platform enforces our rules for us.
+This catalog is harness-agnostic in spirit, but this repo targets opencode. Here's how each pattern maps onto opencode's primitives — and where the platform enforces our rules for us.
 
 ### Where personas live
 
-Plugin subagents go in `agents/` at the plugin root. This repo is a plugin (`.claude-plugin/plugin.json`), so `agents/code-reviewer.md`, `agents/security-auditor.md`, and `agents/test-engineer.md` are auto-discovered when the plugin is enabled. No path configuration needed.
+opencode auto-discovers `agents/*.md` by convention — no per-file registration, no plugin manifest. So `agents/code-reviewer.md`, `agents/security-auditor.md`, `agents/test-engineer.md`, and `agents/web-performance-auditor.md` are picked up automatically when opencode starts. Drop a new `agents/<name>.md` in, restart, and it's available. Same convention applies to `commands/*.md` and `skills/*/SKILL.md`.
 
-### Subagents vs. Agent Teams
+### Subagents are the only fan-out primitive
 
-Claude Code has two parallelism primitives. Pattern 3 (parallel fan-out with merge) maps to **subagents**. If you need teammates that talk to each other, use **Agent Teams** instead.
+opencode has one parallelism mechanism for this catalog: **subagents**. Pattern 3 (parallel fan-out with merge) maps to it directly. There is no separate "teammates that message each other" primitive — if you find yourself wanting one, see the "competing-hypothesis debugging" note below for how to fake the effect within the subagent model.
 
-| | Subagents | Agent Teams |
-|--|-----------|-------------|
-| Coordination | Main agent fans out, sub-agents only report back | Teammates message each other, share a task list |
-| Context | Own context window per subagent | Own context window per teammate |
-| When to use | Independent tasks producing reports | Collaborative work needing discussion |
-| Status | Stable | Experimental — requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` |
-| Cost | Lower | Higher — each teammate is a separate Claude instance |
-
-**The personas in this repo work in both modes.** When spawned as subagents (e.g. by `/ship`), they report findings to the main session. When spawned as teammates (`Spawn a teammate using the security-auditor agent type…`), they can challenge each other's findings directly. The persona definition is the same; only the spawning context changes.
-
-One subtlety: the `skills` and `mcpServers` frontmatter fields in a persona are honored when it runs as a subagent but **ignored when it runs as a teammate** — teammates load skills and MCP servers from your project and user settings, the same as a regular session. If a persona depends on a specific skill or MCP server being loaded, configure it at the session level so it's available in both modes.
+Each `agents/*.md` with `mode: subagent` is exposed by the CLI as a **tool with the same name**. That's what lets `/ship` and `/webperf` fan out: `code-reviewer.md` becomes a `code-reviewer` tool the main agent can call, and `@code-reviewer` works as an explicit invocation. Subagents run in isolated context loops and return only their final report to the calling session.
 
 ### Platform-enforced rules
 
-Two rules in this catalog aren't just convention — Claude Code enforces them:
+opencode's subagent model enforces parts of this catalog by construction:
 
-- **"Subagents cannot spawn other subagents"** (verbatim from the docs). Anti-pattern B (persona-calls-persona) and Anti-pattern D (deep persona trees) cannot exist on Claude Code by construction.
-- **"No nested teams"** — teammates cannot spawn their own teams. Same anti-patterns blocked at the team level.
+- **Subagents don't recurse arbitrarily.** A subagent is a tool the main agent invokes; the orchestration layer stays in the main session. Anti-pattern B (persona-calls-persona) and Anti-pattern D (deep persona trees) have no natural home in this model — if you try to build them, you end up reimplementing orchestration in the main agent anyway.
+- **Merge happens in the main context.** Subagents can't talk to each other, only report back. So Pattern 3's merge step *must* live in the main session — there's nowhere else it could go.
 
-This means you can adopt the patterns in this catalog without worrying about contributors accidentally building the anti-patterns. They'll just fail to load.
+This means the anti-patterns below are hard to stumble into by accident: the platform's shape pushes you toward the endorsed patterns.
 
-### Built-in subagents to know about
+### Built-in subagent types to know about
 
-Before defining a custom subagent, check whether one of these covers the role:
+Before defining a custom subagent, check whether one of opencode's built-in Task-tool subagent types covers the role:
 
 | Built-in | Purpose |
 |----------|---------|
-| `Explore` | Read-only codebase search and analysis. Use this for Pattern 5 (research isolation). |
-| `Plan` | Read-only research during plan mode. |
-| `general-purpose` | Multi-step tasks needing both exploration and modification. |
+| `explore` | Read-only codebase search and analysis. Use this for Pattern 5 (research isolation). |
+| `general` | Multi-step tasks needing both exploration and modification. |
 
-Don't redefine these. Layer your specialist personas (code-reviewer, security-auditor, test-engineer) on top of them.
+Don't redefine these. Layer your specialist personas (code-reviewer, security-auditor, test-engineer, web-performance-auditor) on top of them.
 
-### Frontmatter restrictions for plugin agents
+### Agent frontmatter
 
-Plugin subagents do **not** support the `hooks`, `mcpServers`, or `permissionMode` frontmatter fields — these are silently ignored. If a future persona needs any of those, the user must copy the file into `.claude/agents/` or `~/.claude/agents/` instead.
+Agent files use a small frontmatter schema. The fields this repo relies on:
 
-The fields that DO work in plugin agents are: `name`, `description`, `tools`, `disallowedTools`, `model`, `maxTurns`, `skills`, `memory`, `background`, `effort`, `isolation`, `color`, `initialPrompt`. Use `model` per-persona if you want to optimize cost (e.g. Haiku for `test-engineer` coverage scans, Sonnet for `code-reviewer`, Opus for `security-auditor`).
+- `name` — must match the filename (without `.md`).
+- `description` — when-to-use summary; surfaces the agent as a candidate to the main agent.
+- `mode: subagent` — required for fan-out personas. Without it the file is a regular agent, not a callable tool.
+
+The file body becomes the agent's system prompt. opencode loads `mcpServers` from project and user config (`.opencode.jsonc`, `~/.config/opencode/`) at the session level — personas pick them up automatically; they are not per-agent frontmatter fields.
 
 ### Spawning multiple subagents in parallel
 
-In Claude Code, parallel fan-out (Pattern 3) requires issuing **multiple Agent tool calls in a single assistant turn**. Sequential turns serialize execution. `/ship` calls this out explicitly. Any new orchestrator command should do the same.
+In opencode, parallel fan-out (Pattern 3) requires issuing **multiple Task tool calls in a single assistant turn**. Sequential turns serialize execution. `/ship` and `/webperf` call this out explicitly. Any new orchestrator command should do the same.
 
 ---
 
-## Worked example: Agent Teams for competing-hypothesis debugging
+## Worked example: competing-hypothesis debugging (within the subagent model)
 
-This example shows when to reach for **Agent Teams** instead of `/ship`'s subagent fan-out. The two patterns look similar from a distance — both spawn the same three personas — but the value comes from a different place.
+This example shows how to approximate an "adversarial debate" investigation using only opencode's subagent primitive — no team/coordinator layer. It's the pattern to reach for when a single agent will pick the first plausible theory and stop, but you don't need teammates that message each other in real time.
 
 ### The scenario
 
@@ -186,96 +179,69 @@ Plausible root causes (mutually exclusive, all fit the symptoms):
 3. A missing index on a query that scales with cart size
 4. A flaky third-party API where the SDK retries silently before timing out
 
-A single agent will pick the first plausible theory and stop investigating. A `/ship`-style subagent fan-out would have each persona report independently — but their reports never meet, so nothing rules out the wrong theories.
-
-This is exactly the case the Agent Teams docs describe: *"With multiple independent investigators actively trying to disprove each other, the theory that survives is much more likely to be the actual root cause."*
-
 ### Why this is *not* a `/ship` job
 
-| | `/ship` (subagents) | Agent Teams |
-|--|--------------------|-------------|
-| Sub-agents see | The same diff, different lenses | A shared task list, each other's messages |
-| Output | Three independent reports → one merge | Adversarial debate → consensus root cause |
+| | `/ship` (parallel subagents) | This pattern (sequential adversarial passes) |
+|--|------------------------------|----------------------------------------------|
+| Sub-agents see | The same diff, different lenses | The previous round's leading theory, asked to falsify it |
+| Output | Three independent reports → one merge | Converged root cause through disproven hypotheses |
 | Right when | You want a verdict on a known artifact | You want to *find* the artifact among hypotheses |
 
-`/ship` is a verdict; Agent Teams is an investigation.
-
-### Setup (one-time, per-environment)
-
-Agent Teams is experimental. In `~/.claude/settings.json`:
-
-```json
-{
-  "env": {
-    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
-  }
-}
-```
-
-Requires Claude Code v2.1.32 or later. The personas in this repo are picked up automatically — no team-config files to author by hand.
+`/ship` is a verdict; this is an investigation.
 
 ### The trigger prompt
 
-Type into the lead session, in natural language:
+Type into the main session, in natural language:
 
 ```
 Users report checkout hangs for ~30 seconds intermittently after last
 week's release. No errors in logs.
 
-Create an agent team to debug this with competing hypotheses. Spawn
-three teammates using the existing agent types:
+Investigate with competing hypotheses. Run three passes, each a
+subagent call, feeding each pass the previous pass's leading theory
+and asking it to disprove it:
 
-  - code-reviewer  — investigate race conditions and blocking calls
-                     in the checkout code path
-  - security-auditor — investigate auth checks, session handling,
-                       and any synchronous network calls added recently
-  - test-engineer  — propose tests that would distinguish between the
-                     hypotheses and check coverage gaps in checkout
+  Pass 1 — code-reviewer lens: race conditions and blocking calls in
+           the checkout code path. Output the most likely theory + the
+           evidence that supports it.
+  Pass 2 — security-auditor lens: given pass 1's theory, try to
+           disprove it by checking auth checks, session handling, and
+           recent synchronous network calls. Either corroborate or
+           propose the strongest alternative.
+  Pass 3 — test-engineer lens: given the surviving theory, propose the
+           minimal test that would confirm or refute it, and check
+           coverage gaps in checkout that let this slip through.
 
-Have them message each other directly to challenge each other's
-theories. Update findings as consensus emerges. Only converge when
-two teammates agree they can disprove the others'.
+Only converge when two passes agree on the same root cause.
 ```
-
-The lead spawns three teammates referencing the existing persona names. The persona body is **appended** to each teammate's system prompt as additional instructions (on top of the team-coordination instructions the lead installs); the trigger prompt above becomes their task.
 
 ### What happens
 
-1. Each teammate runs in its own context window, exploring the codebase from its own lens.
-2. Teammates use `message` to send findings to each other directly. The lead doesn't have to relay.
-3. The shared task list shows who's investigating what — visible at any time with `Ctrl+T` (in-process mode) or in a tmux pane (split mode).
-4. When `code-reviewer` finds a `Promise.all` that should be sequential, it messages `security-auditor` to confirm the auth call isn't part of the race. `security-auditor` checks and replies — either confirming the race is the real issue or producing counter-evidence.
-5. `test-engineer` proposes a focused integration test for whichever theory is winning, which the team uses to verify before declaring consensus.
-6. The lead synthesizes the converged finding and presents it to you.
-
-You can interrupt at any teammate by cycling with `Shift+Down` and typing — useful for redirecting an investigator who's gone down a wrong path.
+1. Each pass is one subagent call in its own context window, focused on a single lens.
+2. The main agent carries one theory forward between passes — that's the only hand-off state, and it's small.
+3. Because each pass is told to *disprove* the prior theory, the survivor is much more likely to be the real root cause than the first plausible guess.
+4. The main agent synthesizes the converged theory and presents it.
 
 ### When to clean up
 
-When the investigation lands on a root cause, tell the lead:
-
-```
-Clean up the team
-```
-
-Always cleanup through the lead, not a teammate (per the docs: teammates lack full team context for cleanup).
+No team to clean up — each pass is stateless and returns to the main session. When the investigation lands on a root cause, you're done.
 
 ### Cost expectation
 
-Three Sonnet teammates running for ~10–15 minutes of investigation costs noticeably more than the same three personas spawned as subagents by `/ship`. The justification is *quality of conclusion* — for production debugging where the wrong fix is expensive, the extra tokens are a bargain. For a routine PR review, stick with `/ship`.
+Three sequential subagent passes cost more than one direct invocation but less than a long single-agent investigation that loads everything into one context. The justification is *quality of conclusion* — for production debugging where the wrong fix is expensive, the extra passes are a bargain. For a routine PR review, stick with `/ship`.
 
 ### Anti-pattern in this scenario
 
-Do **not** rebuild this as a `/debug` slash command that fans out subagents. Subagents can't message each other — you'd lose the adversarial debate that makes the pattern work. If a workflow keeps coming up, document the trigger prompt above as a snippet rather than wrapping it in a slash command that misuses subagents.
+Do **not** rebuild this as a `/debug` slash command that fans out subagents in parallel. Parallel subagents can't see each other's findings, so you'd get three independent guesses instead of a converging investigation. The pattern only works because the passes are **sequential and adversarial**. If a workflow keeps coming up, save the trigger prompt above as a snippet rather than wrapping it in a slash command that misuses parallel fan-out.
 
-### When *not* to use Agent Teams
+### When *not* to use this pattern
 
-- Production-bound verdict on a known diff → use `/ship` (subagents).
+- Production-bound verdict on a known diff → use `/ship` (parallel subagents).
 - One specialist perspective on one artifact → direct persona invocation.
 - Sequential lifecycle (spec → plan → build) → user-driven slash commands (Pattern 4).
-- Read-heavy research with a small digest → built-in `Explore` subagent.
+- Read-heavy research with a small digest → built-in `explore` subagent.
 
-Reach for Agent Teams only when teammates **need** to challenge each other to produce the right answer.
+Reach for this pattern only when a single agent would settle on the first plausible theory and stop.
 
 ---
 
@@ -315,7 +281,7 @@ A `code-reviewer` that internally invokes `security-auditor` when it sees auth c
 
 ### C. Sequential orchestrator that paraphrases
 
-An agent that calls `/spec`, then `/plan`, then `/build`, etc. on the user's behalf.
+An agent that calls `/spec`, then `/planning`, then `/build`, etc. on the user's behalf.
 
 **Why it fails:**
 - Loses the human checkpoints that catch wrong-direction work
