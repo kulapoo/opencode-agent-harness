@@ -37,6 +37,14 @@ class Point(NamedTuple):
 - **isort** for import sorting
 - **ruff** for linting
 
+## Verification
+
+Run after editing Python files:
+
+- **Format**: `black` / `ruff format` on edited `.py`/`.pyi` files
+- **Typecheck**: `mypy` or `pyright`
+- **Warning**: flag `print()` statements — use the `logging` module instead
+
 ## Reference
 
 See skill: `python-patterns` for comprehensive Python idioms and patterns.

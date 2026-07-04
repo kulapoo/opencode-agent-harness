@@ -70,3 +70,13 @@ public async Task<Order> LoadOrderAsync(
 - Use `dotnet format` for formatting and analyzer fixes
 - Keep `using` directives organized and remove unused imports
 - Prefer expression-bodied members only when they stay readable
+
+## Verification
+
+Run after editing C# files:
+
+- **Format**: `dotnet format` (applies analyzer fixes too)
+- **Build**: `dotnet build` — verify the solution or project still compiles
+- **Test**: `dotnet test --no-build` — re-run the nearest relevant test project after behavior changes
+- **Session-end**: final `dotnet build` before ending a session with broad C# changes
+- **Warning**: flag edits to `appsettings*.json` so secrets do not get committed

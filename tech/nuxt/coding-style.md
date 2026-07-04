@@ -40,6 +40,15 @@ Three distinct files, do not conflate.
 - `app.head` in `nuxt.config.ts` takes static values only.
 - Reactive meta goes through `useHead` / `useSeoMeta` in component setup, never via `app.head`.
 
+## Verification
+
+Run after editing Nuxt files:
+
+- **Lint**: use the `@nuxt/eslint` module (flat-config, project-aware, generates `.nuxt/eslint.config.mjs`) — run `eslint .` or `eslint --fix`. Prefer this over hand-rolled configs.
+- **Format**: `prettier --write`, **or** enable stylistic rules in `@nuxt/eslint` to avoid a Prettier/ESLint conflict. Pick one formatting authority — never run both at once.
+- **Typecheck**: `nuxi typecheck` (wraps `vue-tsc`; requires `vue-tsc` + `typescript` dev deps). Project-wide, so wrap it: `timeout 60 nuxi typecheck` so a hung type-check is reaped instead of accumulating across fast edits.
+- **Ordering on `app/**` and `server/**` edits**: `eslint --fix` first (mutates the file), then the timed typecheck (verifies the result).
+
 ## Reference
 
 - ECC skills: `nuxt4-patterns`, `vite-patterns`, `frontend-patterns`.

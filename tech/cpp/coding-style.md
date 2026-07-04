@@ -39,6 +39,18 @@ paths:
 - Use **clang-format** — no style debates
 - Run `clang-format -i <file>` before committing
 
+## Verification
+
+Run before committing C++ changes:
+
+```bash
+clang-format --dry-run --Werror src/*.cpp src/*.hpp  # format check
+clang-tidy src/*.cpp -- -std=c++17                    # static analysis
+cppcheck src/                                         # additional analysis
+cmake --build build                                   # compilation
+ctest --test-dir build --output-on-failure            # tests
+```
+
 ## Reference
 
 See skill: `cpp-coding-standards` for comprehensive C++ coding standards and guidelines.

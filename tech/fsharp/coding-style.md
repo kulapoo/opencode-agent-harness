@@ -110,3 +110,13 @@ open Swensen.Unquote
 open MyApp.Domain
 open MyApp.Infrastructure
 ```
+
+## Verification
+
+Run after editing F# files:
+
+- **Format**: `fantomas` on edited files
+- **Build**: `dotnet build` — verify the solution or project still compiles
+- **Test**: `dotnet test --no-build` — re-run the nearest relevant test project after behavior changes
+- **Session-end**: final `dotnet build` before ending a session with broad F# changes
+- **Warning**: flag edits to `appsettings*.json` so secrets do not get committed

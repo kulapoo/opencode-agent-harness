@@ -35,6 +35,17 @@ paths:
 - Throw exceptions for exceptional states; avoid returning `false`/`null` as hidden error channels in new code.
 - Convert framework/request input into validated DTOs before it reaches domain logic.
 
+## Verification
+
+Run after editing PHP files:
+
+- **Format**: Pint or PHP-CS-Fixer on edited `.php` files
+- **Static analysis**: PHPStan or Psalm (in typed codebases)
+- **Tests**: PHPUnit or Pest — targeted tests for touched files/modules when edits affect behavior
+- **Warnings**:
+  - `var_dump`, `dd`, `dump`, or `die()` left in edited files
+  - Edits that add raw SQL or disable CSRF/session protections
+
 ## Reference
 
 See skill: `backend-patterns` for broader service/repository layering guidance.

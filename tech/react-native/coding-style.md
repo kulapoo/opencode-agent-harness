@@ -69,3 +69,21 @@ const styles = StyleSheet.create({ card: { padding: 16, backgroundColor: '#fff' 
 ## TypeScript
 
 All TypeScript rules from `rules/typescript/` apply (explicit types on public APIs, avoid `any`, Zod for validation, immutable updates). This file only adds RN-specific guidance on top.
+
+## Verification
+
+Run after editing `.ts`/`.tsx` files (edit-time checks only — keep them light):
+
+- **Typecheck**: `tsc --noEmit`
+- **Lint**: `npx expo lint` (uses `eslint-config-expo`; flat config `eslint.config.js` is the default from SDK 53+)
+- **Format**: `prettier --write` on changed files
+
+Periodic / pre-release (not per-edit):
+
+- `npx expo-doctor` — validates Expo/native dependency health and config
+- `npx expo install --check` — keeps native deps aligned with the installed Expo SDK
+- `npm audit` — dependency vulnerability scan
+
+Notes:
+
+- Do **not** run heavy native builds (`eas build`, E2E) inside fast edit loops — reserve them for explicit commands or CI.

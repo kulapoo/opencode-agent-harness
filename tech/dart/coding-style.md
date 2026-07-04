@@ -157,3 +157,13 @@ await fetchData();      // or properly awaited
 - Generated files (`.g.dart`, `.freezed.dart`, `.gr.dart`) must be committed or gitignored consistently — pick one strategy per project
 - Never manually edit generated files
 - Keep generator annotations (`@JsonSerializable`, `@freezed`, `@riverpod`, etc.) on the canonical source file only
+
+## Verification
+
+Run after editing Dart/Flutter files:
+
+- **Format**: `dart format .` (CI: `dart format --set-exit-if-changed .`)
+- **Analyze**: `dart analyze --fatal-infos`
+- **Test**: `flutter test` (or `flutter test --coverage`)
+- **Codegen**: `dart run build_runner build --delete-conflicting-outputs` after editing generator annotations
+- **Deps**: `flutter pub outdated` / `flutter pub upgrade` (within constraints)

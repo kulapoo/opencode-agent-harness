@@ -151,3 +151,33 @@ function updateUser(user: UserModel, name: string): UserModel {
   return updated
 }
 ```
+
+## Build Commands
+
+```bash
+hvigorw assembleHap -p product=default        # build HAP package
+hvigorw assembleHap -p module=entry -p product=default   # build a specific module
+hvigorw clean                                   # clean build
+ohpm install                                    # install deps (after oh-package.json5 edits)
+ohpm update                                     # update deps
+```
+
+## Verification
+
+Run after editing ArkTS/HarmonyOS files:
+
+- After editing `.ets`/`.ts`: `hvigorw assembleHap -p product=default` — catches ArkTS compilation errors
+- After editing `module.json5`: verify permissions and ability declarations are still complete
+- After editing `oh-package.json5`: `ohpm install`
+
+### Validation Checklist
+
+After each implementation cycle:
+
+- `hvigorw assembleHap` completes without errors
+- No V1 decorators (`@State`, `@Prop`, `@Link`) in new or modified `.ets` files — use `@ComponentV2` / `@Local` / `@Param`
+- No `@ohos.router` imports in new or modified files
+- All API permissions declared in `module.json5`
+- All dependencies listed in `oh-package.json5`
+- Resource strings added to all i18n directories
+- Dark theme colors provided for new color resources

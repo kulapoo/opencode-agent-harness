@@ -9,7 +9,7 @@ paths:
 ---
 # React Hooks
 
-> This file covers **React hooks** (`useState`, `useEffect`, `useMemo`, `useCallback`, custom hooks) — NOT the harness `hooks/` runtime system. Naming matches the per-language convention `rules/<lang>/hooks.md` used across this repo.
+> Covers **React hooks** (`useState`, `useEffect`, `useMemo`, `useCallback`, custom hooks). This is the only `hooks.md` in `tech/` — the name here refers to the React API, not a harness runtime.
 >
 > Extends typescript/patterns.md (../typescript/patterns.md) and common/patterns.md (../common/patterns.md).
 

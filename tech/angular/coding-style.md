@@ -180,3 +180,13 @@ Use component-level styles with `ViewEncapsulation.Emulated` (default). Avoid `V
 - Default to `ChangeDetectionStrategy.OnPush` on all new components
 - Signals and `async` pipe handle detection automatically — avoid `markForCheck()` and `detectChanges()`
 - Never mutate `@Input()` objects in place when using OnPush
+
+## Verification
+
+Run after editing Angular source, before considering the task done:
+
+- **Format**: Prettier on `.ts`/`.html` files
+- **Lint**: `ng lint` — catches decorator misuse, template errors, style violations
+- **Typecheck**: `tsc --noEmit`
+- **Build**: `ng build` after generating or significantly changing Angular code
+- **Session-end**: `ng lint` across modified files for any outstanding violations

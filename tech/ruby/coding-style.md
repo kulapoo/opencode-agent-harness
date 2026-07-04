@@ -44,3 +44,22 @@ bundle exec rubocop -A
 ## Reference
 
 See skill: `backend-patterns` for broader service/repository layering guidance.
+
+## Verification
+
+Run after editing Ruby/Rails files:
+
+- **Lint/Format**: `bundle exec rubocop -A <file>` (or the project's safer formatter command)
+- **Security**: `bundle exec brakeman --no-progress` after security-sensitive Rails changes
+- **Tests**: narrowest matching `bin/rails test ...` or `bundle exec rspec ...` for touched files
+- **Deps audit**: `bundle exec bundle-audit check --update` when `Gemfile`/`Gemfile.lock` changes and the project has bundler-audit installed
+
+Use only the commands present in the project; do not install new tooling deps without maintainer approval.
+
+### Warnings
+
+Flag in review (do not commit):
+
+- `debugger`, `binding.irb`, `binding.pry`, `puts`, `pp`, or `p` in application code
+- Edits that disable CSRF protection, expand mass-assignment, or add raw SQL without parameterization
+- Migrations that change data destructively without a reversible path or documented rollout plan

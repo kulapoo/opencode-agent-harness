@@ -15,8 +15,8 @@ linters, hooks) that *enforce* what this file *describes*.
 
 > **Language note**: When the language ecosystem has a canonical
 > formatter (rustfmt, gofmt, prettier, black), its defaults win — see the
-> tech dir's `hooks.md`. The principles here apply where a tool does not
-> already decide.
+> tech dir's `coding-style.md` → **Verification** section. The principles
+> here apply where a tool does not already decide.
 
 ## Vertical Formatting — Concept Proximity
 

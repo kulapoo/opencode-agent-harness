@@ -45,3 +45,12 @@ Enable Swift 6 strict concurrency checking. Prefer:
 - `Sendable` value types for data crossing isolation boundaries
 - Actors for shared mutable state
 - Structured concurrency (`async let`, `TaskGroup`) over unstructured `Task {}`
+
+## Verification
+
+Run after editing Swift files:
+
+- **Format**: `SwiftFormat`
+- **Lint**: `SwiftLint`
+- **Typecheck/Build**: `swift build` — type-check modified packages
+- **Warning**: flag `print()` statements — use `os.Logger` or structured logging in production code

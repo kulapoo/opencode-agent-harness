@@ -196,4 +196,11 @@ const validated: UserInput = userSchema.parse(input)
 
 - No `console.log` statements in production code
 - Use proper logging libraries instead
-- See hooks for automatic detection
+
+## Verification
+
+Run after editing JS/TS files:
+
+- **Format**: Prettier
+- **Typecheck**: `tsc` on edited `.ts`/`.tsx` files
+- **Session-end**: scan modified files for stray `console.log` statements

@@ -48,6 +48,16 @@ const open = defineModel<boolean>('open', { default: false })
 </script>
 ```
 
+## Verification
+
+Run after editing `.vue`/`.ts`/`.tsx` files:
+
+- **Lint**: `eslint --fix` with `eslint-plugin-vue` (flat-config `vue/vue3-recommended`) — covers template and script
+- **Format**: `prettier --write` — prefer Prettier-via-ESLint over a separate pass to avoid double-formatting conflicts
+- **Typecheck**: `vue-tsc --noEmit` (plain `tsc` cannot read `.vue` SFCs). Project-wide — debounce or scope so save-storms don't stall
+- **Architecture (optional)**: enforce Feature-Sliced Design slice boundaries with `@feature-sliced/steiger` or `eslint-plugin-boundaries`
+- **Ordering**: lint-fix first (mutates the file), then the project-wide typecheck last so type errors reflect formatted source
+
 ## Reference
 
 - ECC skills: `frontend-patterns`, `vite-patterns`.

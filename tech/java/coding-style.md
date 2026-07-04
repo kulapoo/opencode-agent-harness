@@ -108,6 +108,14 @@ public class OrderNotFoundException extends RuntimeException {
 - Avoid side effects in stream operations
 - For complex logic, prefer a loop over a convoluted stream pipeline
 
+## Verification
+
+Run after editing Java files:
+
+- **Format**: `google-java-format`
+- **Style**: `checkstyle` — Google or Sun style
+- **Compile**: `./mvnw compile` (Maven) or `./gradlew compileJava` (Gradle)
+
 ## References
 
 See skill: `java-coding-standards` for full coding standards with examples.

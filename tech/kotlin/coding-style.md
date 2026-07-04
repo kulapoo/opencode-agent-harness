@@ -84,3 +84,11 @@ val user = try { repository.getUser(id) } catch (e: NotFoundException) { null }
 // GOOD — nullable return
 val user: User? = repository.findUser(id)
 ```
+
+## Verification
+
+Run after editing Kotlin files:
+
+- **Format/Lint**: `ktfmt` or `ktlint` on `.kt` and `.kts` files
+- **Static analysis**: `detekt`
+- **Build**: `./gradlew build` — verify compilation

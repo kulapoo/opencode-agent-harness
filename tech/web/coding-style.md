@@ -94,3 +94,16 @@ Do not reach for generic wrapper `div` stacks when a semantic element exists.
 - Hooks: `use` prefix (`useReducedMotion`)
 - CSS classes: kebab-case or utility classes
 - Animation timelines: camelCase with intent (`heroRevealTl`)
+
+## Verification
+
+Run after editing frontend files:
+
+- **Format**: `prettier --write <file>` (via `pnpm`, `yarn`, or `npm exec` — use repo-owned deps)
+- **Lint**: `eslint --fix <file>`
+- **CSS lint**: `stylelint --fix <file>`
+- **Typecheck**: `tsc --noEmit --pretty false --incremental --tsBuildInfoFile node_modules/.cache/tsc-hook.tsbuildinfo`, wrapped in `timeout 60` so a hung `tsc` is reaped instead of accumulating across fast edits
+  - `--incremental` reuses the previous `.tsbuildinfo` (1–3s on unchanged code vs 30–60s cold)
+  - `--tsBuildInfoFile` is required because `--noEmit` normally suppresses the buildinfo write
+- **Session-end**: `pnpm build` — verify the production build
+- **Ordering**: format → lint → typecheck → build
