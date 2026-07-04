@@ -14,6 +14,7 @@ This file has been replaced. Convention resolution is now declaration-first:
 3. **`AGENTS.md`** — includes a re-read guard: before writing code, confirm
    conventions are in context; if not, re-read.
 
-The old manifest-detection machinery (`rules/detect-conventions.md`) is now a
-tool consumed by the `init-conventions-declaration` skill only — use it to
+The manifest-detection machinery
+(`skills/init-conventions-declaration/detect-conventions.md`) is a tool
+consumed by the `init-conventions-declaration` skill only — use it to
 generate or refresh `rules/tech-conventions.md`, not at session start.

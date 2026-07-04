@@ -25,10 +25,28 @@ Use the file the skill is acting on to pick the row. "Deps" = a key in
 
 ### Non-JS/TS (1:1 with language)
 
-See `conventions/MANIFESTS.md` for the manifest → conventions-dir table
-(`go.mod`→`golang`, `Cargo.toml`→`rust`, `pyproject.toml`→`python`,
-`Gemfile`→`ruby`, etc.). It's a flat 1:1 language mapping with no branching —
-load it only when a non-JS/TS manifest is detected.
+Flat 1:1 language mapping — no framework branching. Apply only when a
+non-JS/TS manifest is detected.
+
+| Manifest / signal            | Conventions dir |
+| ---------------------------- | --------------- |
+| `go.mod`                       | `golang`         |
+| `Cargo.toml`                   | `rust`           |
+| `pyproject.toml` / `requirements.txt` / `setup.py` | `python` |
+| `Gemfile`                       | `ruby`           |
+| `composer.json`                 | `php`            |
+| `pubspec.yaml` (Flutter/Dart)    | `dart`           |
+| `Package.swift`                  | `swift`          |
+| `*.csproj` (C#)                | `csharp`         |
+| `*.fsproj` or `.fs` files (F#)  | `fsharp`         |
+| `CMakeLists.txt` / `.c` / `.cpp` / `.h` | `cpp`     |
+| `build.gradle` + `.java`          | `java`         |
+| `build.gradle.kts` + `.kt`        | `kotlin`       |
+| HarmonyOS project (`oh-package.json5`, `.ets` files) | `arkts` |
+| `Makefile.PL` / `cpanfile` / `.pl` | `perl`         |
+
+If a manifest signals a conventions dir that does not exist, fall back to
+`common/` only and write in the target language's idioms.
 
 ### JS/TS (framework-aware — check `deps` in priority order)
 

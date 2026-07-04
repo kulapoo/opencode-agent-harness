@@ -26,9 +26,9 @@ system prompt via `opencode.json` `instructions` and survives compaction.
    skill's directory:
    `Read skills/init-conventions-declaration/detect-conventions.md`.
 2. Map detected conventions to dir names (e.g. `Cargo.toml` → `rust`,
-   `package.json` with `react` dep → `react`). JS/TS framework detection
-   is inlined in detect-conventions.md; non-JS/TS uses
-   `conventions/MANIFESTS.md`.
+   `package.json` with `react` dep → `react`). Both the JS/TS framework
+   table and the non-JS/TS manifest table live inline in
+   detect-conventions.md — no external manifest map to consult.
 3. Write the result to `rules/tech-conventions.md`:
    ```
    ## Conventions
