@@ -1,277 +1,188 @@
----
-paths:
-  - "**/*.rs"
----
-# Rust Patterns
+# Rust Patterns Rule
 
-> This file extends common/patterns.md (../common/patterns.md) with Rust-specific content.
+Design patterns that make Rust code idiomatic, synthesized from Effective Rust
+Items 1, 6, 7, 11 and RfR Chapters 2, 3, 13. Each pattern includes when to use
+it and a code sketch.
 
-## Repository Pattern with Traits
+## 1. Make Invalid States Unrepresentable  *(highest-leverage pattern)*
 
-Encapsulate data access behind a trait:
+Encode invariants in the type system so illegal combinations don't compile.
 
 ```rust
-pub trait OrderRepository: Send + Sync {
-    fn find_by_id(&self, id: u64) -> Result<Option<Order>, StorageError>;
-    fn find_all(&self) -> Result<Vec<Order>, StorageError>;
-    fn save(&self, order: &Order) -> Result<Order, StorageError>;
-    fn delete(&self, id: u64) -> Result<(), StorageError>;
-}
+// BAD: fg_color validity depends on monochrome
+struct DisplayProps { monochrome: bool, fg_color: RgbColor }
+
+// GOOD
+enum Color { Monochrome, Foreground(RgbColor) }
+struct DisplayProps { color: Color }
 ```
 
-Concrete implementations handle storage details (Postgres, SQLite, in-memory for tests).
+Apply whenever you find a comment like "// X must be None if Y is true".
 
-## Service Layer
+## 2. Newtype (Effective Item 6)
 
-Business logic in service structs; inject dependencies via constructor:
+Wrap a primitive to give it domain meaning and prevent mix-ups.
 
 ```rust
-pub struct OrderService {
-    repo: Box<dyn OrderRepository>,
-    payment: Box<dyn PaymentGateway>,
-}
-
-impl OrderService {
-    pub fn new(repo: Box<dyn OrderRepository>, payment: Box<dyn PaymentGateway>) -> Self {
-        Self { repo, payment }
-    }
-
-    pub fn place_order(&self, request: CreateOrderRequest) -> anyhow::Result<OrderSummary> {
-        let order = Order::from(request);
-        self.payment.charge(order.total())?;
-        let saved = self.repo.save(&order)?;
-        Ok(OrderSummary::from(saved))
-    }
-}
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct UserId(pub u64);
+pub struct AccountId(pub u64);
+// Now UserId and AccountId can't be passed interchangeably.
 ```
+- Cheap (zero-cost at runtime, often `Copy`).
+- Add conversions: `From<u64>`, `Into<u64>`, `Deref` only if truly value-like.
+- Implement the standard traits (Debug/Eq/Hash/serde) so it behaves like a value.
 
-## Newtype Pattern for Type Safety
+## 3. Builder (Effective Item 7)
 
-Prevent argument mix-ups with distinct wrapper types:
-
-```rust
-struct UserId(u64);
-struct OrderId(u64);
-
-fn get_order(user: UserId, order: OrderId) -> anyhow::Result<Order> {
-    // Can't accidentally swap user and order IDs at call sites
-    todo!()
-}
-```
-
-## Enum State Machines
-
-Model states as enums — make illegal states unrepresentable:
+For types with many optional/incompatible fields or multi-step construction.
 
 ```rust
-enum ConnectionState {
-    Disconnected,
-    Connecting { attempt: u32 },
-    Connected { session_id: String },
-    Failed { reason: String, retries: u32 },
-}
+pub struct Server { host: String, port: u16, tls: bool /* ... */ }
 
-fn handle(state: &ConnectionState) {
-    match state {
-        ConnectionState::Disconnected => connect(),
-        ConnectionState::Connecting { attempt } if *attempt > 3 => abort(),
-        ConnectionState::Connecting { .. } => wait(),
-        ConnectionState::Connected { session_id } => use_session(session_id),
-        ConnectionState::Failed { retries, .. } if *retries < 5 => retry(),
-        ConnectionState::Failed { reason, .. } => log_failure(reason),
+#[derive(Default)]
+pub struct ServerBuilder { host: Option<String>, port: Option<u16>, tls: bool }
+
+impl ServerBuilder {
+    pub fn host(mut self, h: impl Into<String>) -> Self { self.host = Some(h.into()); self }
+    pub fn port(mut self, p: u16) -> Self { self.port = Some(p); self }
+    pub fn tls(mut self) -> Self { self.tls = true; self }
+    pub fn build(self) -> Result<Server, BuildError> {
+        Ok(Server {
+            host: self.host.ok_or(BuildError::MissingHost)?,
+            port: self.port.unwrap_or(80),
+            tls: self.tls,
+        })
     }
 }
+impl Server {
+    pub fn builder() -> ServerBuilder { ServerBuilder::default() }
+}
 ```
+- Use `#[derive(Default)]` on the builder to reduce boilerplate, or
+  `derive_builder`/`typed-builder` crates for compile-time required-field checks.
+- Builders make the illegal intermediate states (half-built) unconstructable by
+  the caller.
 
-Always match exhaustively — no wildcard `_` for business-critical enums.
+## 4. Type-State
 
-## Builder Pattern
-
-Use for structs with many optional parameters:
+Use phantom type parameters to encode configuration into the type, moving
+runtime checks to compile time.
 
 ```rust
-pub struct ServerConfig {
-    host: String,
-    port: u16,
-    max_connections: usize,
-}
+use std::marker::PhantomData;
 
-impl ServerConfig {
-    pub fn builder(host: impl Into<String>, port: u16) -> ServerConfigBuilder {
-        ServerConfigBuilder {
-            host: host.into(),
-            port,
-            max_connections: 100,
-        }
+pub struct Sealed;
+pub struct Unsealed;
+pub struct Channel<State = Unsealed> { buf: Vec<u8>, _state: PhantomData<State> }
+
+impl Channel<Unsealed> {
+    pub fn seal(self) -> Channel<Sealed> { Channel { buf: self.buf, _state: PhantomData } }
+}
+impl Channel<Sealed> {
+    pub fn checksum(&self) -> u32 { /* ... */ }
+}
+```
+Use sparingly—powerful but increases type complexity.
+
+## 5. RAII / Drop Guard (Effective Item 11; RfR Ch. 13)
+
+Tie resource acquisition to object lifetime; release in `Drop`.
+
+```rust
+pub struct TempFile { path: PathBuf }
+impl Drop for TempFile { fn drop(&mut self) { let _ = std::fs::remove_file(&self.path); } }
+```
+- Implement `Drop` for anything owning an OS handle, lock, allocation, or
+  transaction. Never require callers to remember to "close".
+- Pair acquisition with a guard type so release is automatic even on early
+  return/panic. (`MutexGuard`, `BufReader`, scoped threads.)
+
+## 6. Error-as-Enum with `thiserror` (RfR Ch. 4)
+
+```rust
+use thiserror::Error;
+
+#[derive(Debug, Error)]
+#[non_exhaustive]
+pub enum StoreError {
+    #[error("not found: {0}")]
+    NotFound(String),
+    #[error("io error")]
+    Io(#[from] std::io::Error),
+    #[error("invalid format")]
+    Invalid(#[from] serde_json::Error),
+}
+```
+- One variant per user-actionable failure mode.
+- `#[non_exhaustive]` so adding variants is non-breaking (Effective 21).
+- Use `#[from]` to auto-convert and source-chain.
+- Application top-level: `anyhow::Result` + `anyhow::Context` for ergonomics.
+
+## 7. Combinator / Pipeline over Match (Effective Items 3, 9)
+
+```rust
+// Prefer:
+let total: u64 = ids.iter().map(|i| i.0).sum();
+
+// Over:
+let mut total = 0u64;
+for i in &ids { total += i.0; }
+```
+And for `Option`/`Result`:
+```rust
+let name = user.and_then(|u| u.name).ok_or_else(|| Error::NoName)?;
+```
+
+## 8. Extension Trait (RfR Ch. 13)
+
+Add convenience methods to foreign types via a trait.
+
+```rust
+pub trait JsonExt: Sized {
+    fn to_json(&self) -> anyhow::Result<String> where Self: Serialize;
+}
+impl<T: Serialize> JsonExt for T {
+    fn to_json(&self) -> anyhow::Result<String> { Ok(serde_json::to_string(self)?) }
+}
+```
+
+## 9. SlotMap / Indexed Storage (RfR Ch. 13 "Index Pointers")
+
+For graphs/ASTs with arbitrary sharing, store nodes in a `Vec`/`SlotMap` and
+reference them by `u32` keys — avoids `Rc<RefCell<>>` borrow-ordering problems
+and enables simple `Clone` of references.
+
+## 10. Enum Dispatch over Dynamic Dispatch
+
+When you have a closed set of behaviors, an enum with a `match` is often faster,
+simpler, and exhaustiveness-checked versus `Box<dyn Trait>`.
+
+```rust
+enum Shape { Circle(f64), Rect(f64, f64) }
+impl Shape {
+    fn area(&self) -> f64 {
+        match self { Shape::Circle(r) => std::f64::consts::PI*r*r, Shape::Rect(w,h)=>w*h }
     }
 }
-
-pub struct ServerConfigBuilder {
-    host: String,
-    port: u16,
-    max_connections: usize,
-}
-
-impl ServerConfigBuilder {
-    pub fn max_connections(mut self, n: usize) -> Self {
-        self.max_connections = n;
-        self
-    }
-
-    pub fn build(self) -> ServerConfig {
-        ServerConfig {
-            host: self.host,
-            port: self.port,
-            max_connections: self.max_connections,
-        }
-    }
-}
 ```
 
-## Sealed Traits for Extensibility Control
+## 11. PhantomData for Lifetimes/Types without Fields
 
-Use a private module to seal a trait, preventing external implementations:
+When a struct has a lifetime/type parameter but no field of that type, add
+`PhantomData<X>` to express the intended variance and drop behavior.
 
-```rust
-mod private {
-    pub trait Sealed {}
-}
+## 12. Crate Prelude (RfR Ch. 13)
 
-pub trait Format: private::Sealed {
-    fn encode(&self, data: &[u8]) -> Vec<u8>;
-}
+For libraries with commonly-needed traits, provide a `prelude` module users can
+glob-import: `pub mod prelude { pub use crate::{Foo, BarTrait}; }`. Document that
+`use yourcrate::prelude::*;` is the one acceptable glob import.
 
-pub struct Json;
-impl private::Sealed for Json {}
-impl Format for Json {
-    fn encode(&self, data: &[u8]) -> Vec<u8> { todo!() }
-}
-```
+## Anti-patterns to refuse
 
-## API Response Envelope
-
-Consistent API responses using a generic enum:
-
-```rust
-#[derive(Debug, serde::Serialize)]
-#[serde(tag = "status")]
-pub enum ApiResponse<T: serde::Serialize> {
-    #[serde(rename = "ok")]
-    Ok { data: T },
-    #[serde(rename = "error")]
-    Error { message: String },
-}
-```
-
-## Contract Definition
-
-Define the interface as a `trait` before implementing it:
-
-```rust
-#[async_trait]
-pub trait TaskApi: Send + Sync {
-    async fn create_task(&self, input: CreateTaskInput) -> Result<Task, ApiError>;
-    async fn list_tasks(&self, params: ListTasksParams) -> Result<Paged<Task>, ApiError>;
-    async fn get_task(&self, id: TaskId) -> Result<Task, ApiError>;
-    async fn update_task(&self, id: TaskId, input: UpdateTaskInput) -> Result<Task, ApiError>;
-    async fn delete_task(&self, id: TaskId) -> Result<(), ApiError>;
-}
-```
-
-## Error Representation
-
-Use a single error enum (e.g. `thiserror`) at module boundaries and
-`Result<T, E>` in signatures — never `unwrap` on external input. Map to the
-universal REST envelope (`{ code, message, details? }`) in the HTTP layer:
-
-```rust
-#[derive(Debug, thiserror::Error)]
-pub enum ApiError {
-    #[error("validation failed")]
-    Validation { details: Vec<ErrorDetail> },
-    #[error("task {0} not found")]
-    NotFound(TaskId),
-    #[error("conflict: {0}")]
-    Conflict(String),
-}
-```
-
-## Boundary Validation
-
-Use `serde` for deserialization at the edge; add `validator` or a custom
-`Deserialize` impl for rules. After parsing, internal code trusts the type:
-
-```rust
-#[derive(Debug, Deserialize, Validate)]
-pub struct CreateTaskInput {
-    #[validate(length(min = 1, max = 200))]
-    pub title: String,
-    pub description: Option<String>,
-}
-
-async fn create(Validated(input): Validated<CreateTaskInput>) -> impl IntoResponse {
-    let task = state.svc.create(input).await?;
-    (StatusCode::CREATED, Json(task)).into_response()
-}
-```
-
-## Additive Evolution
-
-- New fields must be `Option<T>` (or carry `#[serde(default)]`) so old payloads
-  still deserialize.
-- Adding a required field is a breaking deserialization change.
-- For enums used in `match`: adding a variant breaks arms that aren't `_` —
-  surface that as a deliberate migration, not a silent change.
-- Never rename a serialized field without `#[serde(alias = "oldName")]`.
-
-## Variant Types
-
-Use enums with data — exhaustive `match` makes illegal states unrepresentable:
-
-```rust
-pub enum TaskStatus {
-    Pending,
-    InProgress { assignee: UserId, started_at: DateTime<Utc> },
-    Completed { completed_at: DateTime<Utc>, completed_by: UserId },
-    Cancelled { reason: String, cancelled_at: DateTime<Utc> },
-}
-```
-
-## Input/Output Separation
-
-Separate request structs (caller-provided) from response structs
-(server-generated fields included):
-
-```rust
-#[derive(Debug, Deserialize)]
-pub struct CreateTaskInput {
-    pub title: String,
-    pub description: Option<String>,
-}
-
-#[derive(Debug, Serialize)]
-pub struct Task {
-    pub id: TaskId,
-    pub title: String,
-    pub description: Option<String>,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
-    pub created_by: UserId,
-}
-```
-
-## Opaque IDs
-
-Use newtypes so distinct IDs are not interchangeable:
-
-```rust
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(transparent)]
-pub struct TaskId(pub String);
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(transparent)]
-pub struct UserId(pub String);
-
-async fn get_task(id: TaskId) -> Result<Task, ApiError> { /* ... */ unimplemented!() }
-```
+- `Rc<RefCell<Node>>` graphs for tree-like data — use indices/SlotMap.
+- `Box<dyn Trait>` when a generic `impl Trait` parameter would do.
+- God-struct with `Option<T>` fields representing mutually-exclusive states.
+- Builder that panics on `build()` for missing fields — return `Result` or use
+  type-state/typed-builder.
+- Hand-rolling what a std method/iterator does (`for`+`push` instead of `collect`).
