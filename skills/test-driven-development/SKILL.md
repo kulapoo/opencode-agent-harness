@@ -384,10 +384,10 @@ For detailed testing patterns, examples, and anti-patterns across frameworks, se
 After completing any implementation:
 
 - [ ] Every new behavior has a corresponding test
-- [ ] All tests pass: `npm test`
+- [ ] All tests pass (exit code is the verdict; see `rules/verification-commands.md`)
 - [ ] Bug fixes include a reproduction test that failed before the fix
 - [ ] Test names describe the behavior being verified
 - [ ] No tests were skipped or disabled
 - [ ] Coverage hasn't decreased (if tracked)
 
-**Note:** Run each test command after a change that could affect the result. After a clean run, don't repeat the same command unless the code has changed since — re-running on unchanged code adds no confidence.
+**Note:** Run each test command quietly after a change that could affect the result. After a clean run, don't repeat the same command unless the code has changed since — re-running on unchanged code adds no confidence.

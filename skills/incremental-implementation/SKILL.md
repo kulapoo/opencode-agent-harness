@@ -201,8 +201,9 @@ When directing an agent to implement incrementally:
 Start with just the database schema change and the API endpoint.
 Don't touch the UI yet — we'll do that in the next increment.
 
-After implementing, run `npm test` and `npm run build` to verify
-nothing is broken."
+After implementing, run the project's verification commands (tests,
+build, lint) to confirm nothing is broken. See
+`rules/verification-commands.md` for the quiet, fail-fast defaults."
 ```
 
 Be explicit about what's in scope and what's NOT in scope for each increment.
@@ -212,12 +213,14 @@ Be explicit about what's in scope and what's NOT in scope for each increment.
 After each increment, verify:
 
 - [ ] The change does one thing and does it completely
-- [ ] All existing tests still pass (`npm test`)
-- [ ] The build succeeds (`npm run build`)
-- [ ] Type checking passes (`npx tsc --noEmit`)
-- [ ] Linting passes (`npm run lint`)
+- [ ] All existing tests still pass
+- [ ] The build succeeds
+- [ ] Type checking passes
+- [ ] Linting passes
 - [ ] The new functionality works as expected
 - [ ] The change is committed with a descriptive message
+
+Run each command quietly (exit code is the verdict). See `rules/verification-commands.md` for the per-tool quiet flags, the fail-fast rule for RED→GREEN iteration, and the redirect-and-grep pattern for full-suite runs.
 
 **Note:** Run each verification command after a change that could affect it. After a successful run, don't repeat the same command unless the code has changed since — re-running on unchanged code adds no information.
 

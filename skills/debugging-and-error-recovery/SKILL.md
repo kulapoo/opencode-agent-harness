@@ -72,17 +72,20 @@ Cannot reproduce on demand:
     └── Document the conditions observed and revisit when it recurs
 ```
 
-For test failures:
+For test failures, narrow to the failing case before re-running the whole suite. Verbose output is appropriate *here* — you are reproducing, not verifying:
+
 ```bash
-# Run the specific failing test
+# Run the specific failing test (jest example; adapt the filter flag to your runner)
 npm test -- --grep "test name"
 
-# Run with verbose output
+# Run with verbose output to see what was actually called/asserted
 npm test -- --verbose
 
 # Run in isolation (rules out test pollution)
 npm test -- --testPathPattern="specific-file" --runInBand
 ```
+
+For the full-suite re-run after a fix, prefer the quiet defaults in `rules/verification-commands.md` — the exit code is the verdict, the verbose output above was the reproduction evidence.
 
 ### Step 2: Localize
 
@@ -104,8 +107,10 @@ Which layer is failing?
 git bisect start
 git bisect bad                    # Current commit is broken
 git bisect good <known-good-sha> # This commit worked
-# Git will checkout midpoint commits; run your test at each
-git bisect run npm test -- --grep "failing test"
+# Git will checkout midpoint commits; run your test at each.
+# Use the quiet command for your runner (see rules/verification-commands.md)
+# so each bisect step pays only for pass/fail, not the full banner.
+git bisect run <your-test-command>
 ```
 
 ### Step 3: Reduce
@@ -153,20 +158,20 @@ This test will prevent the same bug from recurring. It should fail without the f
 
 ### Step 6: Verify End-to-End
 
-After fixing, verify the complete scenario:
+After fixing, verify the complete scenario. Run quietly — the exit code is the verdict; pull detail only if a step fails (see `rules/verification-commands.md`):
 
 ```bash
-# Run the specific test
-npm test -- --grep "specific test"
+# Run the specific test that reproduced the bug
+<your-runner> <specific-test>
 
-# Run the full test suite (check for regressions)
-npm test
+# Run the full suite quietly (check for regressions)
+# e.g. pytest -q --tb=short, cargo test --quiet, jest --silent
 
 # Build the project (check for type/compilation errors)
-npm run build
+<your-build-command>
 
 # Manual spot check if applicable
-npm run dev  # Verify in browser
+<your-dev-command>  # Verify in browser/runtime
 ```
 
 ## Error-Specific Patterns

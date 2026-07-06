@@ -219,14 +219,13 @@ git diff --staged
 # 2. Ensure no secrets
 git diff --staged | grep -i "password\|secret\|api_key\|token"
 
-# 3. Run tests
-npm test
-
+# 3. Run tests (quiet; see rules/verification-commands.md)
 # 4. Run linting
-npm run lint
-
 # 5. Run type checking
-npx tsc --noEmit
+#
+# Use your project's commands for 3–5. Run quietly so the exit code is
+# the verdict and the output stays bounded — e.g. `pytest -q --tb=short -x`,
+# `eslint --quiet`, `tsc --noEmit`, `cargo test --quiet`.
 ```
 
 Automate this with git hooks:
