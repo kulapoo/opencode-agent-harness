@@ -49,16 +49,17 @@ opencode-native consolidation, not a replacement for either.
    your project root, or copy the top-level folders (`agents/`, `commands/`,
    `skills/`, `rules/`, `tech/`) and `.opencode.jsonc` into your repo.
 
-2. **Declare your tech.** Edit `rules/tech.md` and list the stacks you use,
-   each matching a `tech/<name>/` folder:
+2. **Adopt.** Run `/adopt` — it detects your stack, writes `rules/tech.md`,
+   wires `.opencode.jsonc`, and scaffolds a project `AGENTS.md` from the
+   template. Prefer the manual route? Edit `rules/tech.md` and list the stacks
+   you use, each matching a `tech/<name>/` folder:
    ```markdown
    ## Tech
    - python
    - react
    - rust
    ```
-   Or run the `init-tech-declaration` skill — it detects stacks from your
-   manifest files and writes the declaration for you.
+   Or run the `init-tech-declaration` skill, which `/adopt` orchestrates.
 
 3. **Restart opencode.** Config is loaded once at startup. After any change
    to `.opencode.jsonc`, an agent file, a skill, or a command, quit and
@@ -87,6 +88,7 @@ opencode-native consolidation, not a replacement for either.
 
 | Command           | What it does                                                                    |
 | ----------------- | ------------------------------------------------------------------------------- |
+| `/adopt`          | Adopt the harness into a project — detect tech, wire config, scaffold the agent map. Run once, re-run as a health check. |
 | `/spec`           | Write a structured specification before code.                                   |
 | `/planning`       | Break work into small, verifiable, dependency-ordered tasks.                    |
 | `/build`          | Implement tasks incrementally (RED → GREEN → commit). `/build auto` runs all.   |

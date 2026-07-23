@@ -59,3 +59,6 @@ And a `"instructions": ["rules/tech.md"]` entry in `opencode.json`.
 - If detection finds nothing recognizable, write `## Tech` with only `common`
   and warn the user.
 - The detection machinery (`detect-tech.md`) is a tool, not a runtime step.
+- The `/adopt` command orchestrates this skill as part of full harness setup;
+  it also scaffolds a project `AGENTS.md` from `AGENTS.template.md` in this
+  folder.

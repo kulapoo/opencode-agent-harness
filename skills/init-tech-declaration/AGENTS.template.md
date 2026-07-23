@@ -1,47 +1,32 @@
-# OpenCode Agent Harness
+# <PROJECT_NAME>
+
+<!--
+  This is the always-loaded map for AI coding agents working in this
+  repository. It follows the agents.md standard and the OpenCode Agent
+  Harness skill-driven model. /adopt fills the <PLACEHOLDER>s; downstream
+  projects derive their AGENTS.md from this file.
+-->
 
 This file orients AI coding agents working in this repository. It is the
 always-loaded **map**: project specifics plus the skill-driven workflow this
-harness uses. Detail lives on-demand in the skills and rules — follow the
-pointers, don't try to hold it all at once. Full background in
-[README.md](README.md); how to extend the harness in
-[CONTRIBUTING.md](CONTRIBUTING.md).
+project uses. Detail lives on-demand in the skills and rules — follow the
+pointers, don't try to hold it all at once.
 
 ## Project Overview
 
-An [opencode](https://opencode.ai)-native agent harness — skill-driven
-workflows, subagent orchestration, standing rules, tech-aware conventions,
-verification-first development. One harness, one target, no multi-harness
-fragmentation.
+<PROJECT_OVERVIEW — one paragraph: what this project is and who it's for.>
 
 ## Commands
 
-This is a configuration-only repo (markdown, no application code), so there's
-no compile/test/lint step. The one verification gate:
-
-```bash
-python3 scripts/check-refs.py   # exit 1 if any internal markdown ref is broken
-```
-
-For the RED→GREEN test loop when this harness drives an actual codebase, see
+Fill with full commands, not tool names: <BUILD_COMMAND>, <TEST_COMMAND>,
+<LINT_COMMAND>, <DEV_COMMAND>. The project uses the OpenCode Agent Harness —
+for the RED→GREEN test loop and quiet-verification defaults, see
 `rules/verification-commands.md`.
 
 ## Tech
 
-Configuration-only — markdown skills/rules/commands. The only executable is
-`scripts/check-refs.py` (Python, stdlib only). Each downstream project declares
-its own stack in `rules/tech.md`.
-
-## Repo map
-
-| Folder        | What it is                                                          | Read first when…                                          |
-| ------------- | ------------------------------------------------------------------- | --------------------------------------------------------- |
-| `skills/`     | Lifecycle skills. Each is `skills/<name>/SKILL.md`.                 | …doing that kind of task — load the matching skill first. |
-| `commands/`   | Slash entry points: `/adopt`, `/spec`, `/planning`, `/build`, `/test`, `/review`, `/code-simplify`, `/ship`, `/webperf`. | …invoking a workflow. See [README.md](README.md) § Commands. |
-| `agents/`     | Specialist subagents (`code-reviewer`, `security-auditor`, `test-engineer`, `web-performance-auditor`). | …fanning out a review. See [README.md](README.md) § Agents. |
-| `rules/`      | Standing checklists + the tech declaration. Loaded on demand.       | …a command cites one. Only `rules/tech.md` is always loaded. |
-| `tech/`       | Per-language conventions. Only stacks in `rules/tech.md` auto-load. | …editing code — read the matching `tech/<name>/` files.   |
-| `scripts/`    | `check-refs.py` — internal markdown-reference validator.            | …you've added, renamed, or moved any `.md` file.          |
+Declared in `rules/tech.md` (injected into every session). Each entry maps to
+`tech/<name>/` — read the matching folder before editing that stack's code.
 
 ## Skill-Driven Execution
 
@@ -101,6 +86,10 @@ Composition rule: **the user (or a command) is the orchestrator. Agents do not i
 
 ## Boundaries
 
-- Never auto-load every rule into `.opencode.jsonc` → `instructions` — the context budget is finite.
+<PROJECT_BOUNDARIES — always do / ask first / never do, project-specific.>
+
+Harness defaults (apply unless the project overrides):
+
+- Rules are load-on-demand — only `rules/tech.md` sits in every session. Keep `.opencode.jsonc` → `instructions` lean.
 - Gotchas go in the code next to the trap (`/** GOTCHA */`), never accumulated here. See `documentation-and-adrs`.
 - Restart opencode after any config change — config loads once at startup.

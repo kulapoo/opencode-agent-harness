@@ -160,6 +160,7 @@ Break the plan into discrete, implementable tasks:
   - Acceptance: [What must be true when done]
   - Verify: [How to confirm — test command, build, manual check]
   - Files: [Which files will be touched]
+  - Docs: [Gotchas → inline comment in the code by default; docs/gotchas.md#gN only if no code home; AGENTS.md gets an index line only]
 ```
 
 ### Phase 4: Implement
