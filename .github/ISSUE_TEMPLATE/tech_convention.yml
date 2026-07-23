@@ -1,0 +1,31 @@
+name: Tech convention proposal
+description: Propose a new tech/<lang>/ folder or improve an existing one
+labels: ["tech-convention"]
+body:
+  - type: input
+    id: stack
+    attributes:
+      label: Stack / language
+      description: e.g. "elixir", "rust (axum)", "python (django)"
+    validations:
+      required: true
+  - type: dropdown
+    id: action
+    attributes:
+      label: Action
+      options:
+        - New tech dir
+        - Improve existing conventions
+        - Fix incorrect convention
+    validations:
+      required: true
+  - type: textarea
+    id: content
+    attributes:
+      label: Conventions
+      description: |
+        Paste the convention content (coding style, patterns, security, testing).
+        Follow the delta pattern — reference `common/` baselines and add only
+        language-specific deltas. Include `paths:` frontmatter.
+    validations:
+      required: true

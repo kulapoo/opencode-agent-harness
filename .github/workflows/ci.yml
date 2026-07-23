@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Check markdown references
+        run: python3 .opencode/harness/scripts/check-refs.py
+
+      - name: Lint frontmatter + tech-dir consistency
+        run: python3 .opencode/harness/scripts/lint-frontmatter.py
+
+      - name: Installer tests
+        run: python3 -m unittest discover -s tests -v

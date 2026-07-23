@@ -31,58 +31,62 @@ opencode-native consolidation, not a replacement for either.
 
 | Folder        | Purpose                                                                                          |
 | ------------- | ------------------------------------------------------------------------------------------------ |
-| `agents/`     | Specialist subagents (reviewer, security auditor, test engineer, web-perf auditor).              |
-| `commands/`   | Slash commands: `/spec`, `/planning`, `/build`, `/test`, `/review`, `/code-simplify`, `/ship`, `/webperf`. |
-| `skills/`     | 25 skills covering the full lifecycle (spec, plan, build, test, review, ship, debug, secure, …). |
-| `rules/`      | Standing checklists and the tech declaration — the launch bar and conventions.                   |
-| `tech/`       | Per-language/framework conventions. A ready-made library; only declared techs auto-load.         |
-| `.opencode.jsonc` | Project config: injects `rules/tech.md` into context and wires the `chrome-devtools` MCP.    |
+| `.opencode/agents/`     | Specialist subagents (reviewer, security auditor, test engineer, web-perf auditor).              |
+| `.opencode/commands/`   | Slash commands: `/spec`, `/planning`, `/build`, `/test`, `/review`, `/code-simplify`, `/ship`, `/webperf`. |
+| `.opencode/skills/`     | 25 skills covering the full lifecycle (spec, plan, build, test, review, ship, debug, secure, …). |
+| `.opencode/harness/rules/`      | Standing checklists and the tech declaration — the launch bar and conventions.                   |
+| `.opencode/harness/tech/`       | Per-language/framework conventions. A ready-made library; only declared techs lazy-load via the router.         |
+| `.opencode.jsonc` | Project config: injects `.opencode/harness/rules/tech.md` (the tech router) into every session.    |
 
 ## Requirements
 
 - [opencode](https://opencode.ai) installed and on `$PATH`.
-- Node/npx available if you want the `chrome-devtools` MCP (used by `/webperf` deep mode and the browser-testing skill).
+- Python 3.8+ for the reference validator (`check-refs.py`) and installer.
+- Node/npx only if you opt into the `chrome-devtools` MCP (see `/webperf` deep mode).
 
 ## Quick start
 
-1. **Use this repo as your project's opencode config.** Either clone it into
-   your project root, or copy the top-level folders (`agents/`, `commands/`,
-   `skills/`, `rules/`, `tech/`) and `.opencode.jsonc` into your repo.
-
-2. **Adopt.** Run `/adopt` — it detects your stack, writes `rules/tech.md`,
-   wires `.opencode.jsonc`, and scaffolds a project `AGENTS.md` from the
-   template. Prefer the manual route? Edit `rules/tech.md` and list the stacks
-   you use, each matching a `tech/<name>/` folder:
-   ```markdown
-   ## Tech
-   - python
-   - react
-   - rust
+1. **Install the harness into your project:**
+   ```bash
+   python3 install.py install
    ```
-   Or run the `init-tech-declaration` skill, which `/adopt` orchestrates.
+   This copies the `.opencode/` tree (agents, commands, skills, rules, tech,
+   scripts) and writes a version-tracked manifest for future updates. Use
+   `--from <local-clone>` if you cloned the repo instead of fetching from GitHub.
 
-3. **Restart opencode.** Config is loaded once at startup. After any change
-   to `.opencode.jsonc`, an agent file, a skill, or a command, quit and
-   restart opencode for the change to take effect.
+2. **Adopt.** Run `/adopt` in opencode — it detects your stack, writes the
+   lazy-load tech router (`.opencode/harness/rules/tech.md`), wires your config,
+   and scaffolds a project `AGENTS.md`. Prefer the manual route? Edit
+   `.opencode/harness/rules/tech.md` and list the stacks you use, each matching
+   a `.opencode/harness/tech/<name>/` folder.
+
+3. **Restart opencode.** Config loads once at startup. After any change to
+   config, an agent, a skill, or a command, quit and restart.
+
+**Updating:** `python3 install.py update` — upgrades untouched files in place,
+preserves your modifications, and reports drift. `python3 install.py status`
+shows installed version and modified files.
 
 ## How the pieces fit
 
-- **Auto-discovery.** opencode discovers `agents/*.md`, `commands/*.md`, and
-  `skills/*/SKILL.md` by convention — no per-file registration needed.
+- **Auto-discovery.** opencode discovers `.opencode/agents/*.md`, `.opencode/commands/*.md`, and
+  `.opencode/skills/*/SKILL.md` by convention — no per-file registration needed.
 - **System context.** `.opencode.jsonc` → `instructions` lists files injected
-  into every session's context. Today that's `rules/tech.md`. The other
-  `rules/*-checklist.md` files are **load-on-demand**: agents and commands
+  into every session's context. Today that's `.opencode/harness/rules/tech.md`. The other
+  `.opencode/harness/rules/*-checklist.md` files are **load-on-demand**: agents and commands
   pull them in when relevant (e.g. `/ship` Phase B cites the security,
   performance, accessibility, and observability checklists).
-- **Tech conventions.** Each `tech/<name>/*.md` file declares a `paths:`
-  glob. When you edit a matching file, opencode loads that tech's
-  conventions into context. `tech/common/` is the glob-less baseline.
-- **Subagents.** The four agents in `agents/` are `mode: subagent`, so the
+- **Tech conventions (lazy router).** `.opencode/harness/rules/tech.md` is the
+  always-injected router — it lists active stacks and tells the agent which
+  `.opencode/harness/tech/<name>/*.md` files to Read before writing code. Tech
+  files keep a `paths:` frontmatter glob for documentation and future
+  cross-tool export, but opencode does not auto-inject on glob match.
+- **Subagents.** The four agents in `.opencode/agents/` are `mode: subagent`, so the
   CLI exposes each as a tool with the same name — that's what lets `/ship`
   and `/webperf` fan out to them in parallel.
-- **MCP.** `.opencode.jsonc` wires the `chrome-devtools` MCP server
-  (`chrome-devtools-mcp`), used by `/webperf` deep mode and the
-  `browser-testing-with-devtools` skill.
+- **MCP.** Optional — wire the `chrome-devtools` MCP server in your project's
+  config if you use `/webperf` deep mode or the `browser-testing-with-devtools`
+  skill. Not enabled by default.
 
 ## Commands
 
@@ -109,22 +113,30 @@ opencode-native consolidation, not a replacement for either.
 
 ## Tech conventions
 
-`tech/` ships conventions for 20 stacks (angular, arkts, cpp, csharp, dart,
+`.opencode/harness/tech/` ships conventions for 20 stacks (angular, arkts, cpp, csharp, dart,
 fsharp, golang, java, kotlin, nuxt, perl, php, python, react, react-native,
 ruby, rust, swift, typescript, vue, web) plus a `common` baseline. **Only the
-techs listed in `rules/tech.md` auto-load** — the rest stay dormant until you
+techs listed in `.opencode/harness/rules/tech.md` are active** — the router tells the
+agent to lazy-load the matching convention files. The rest stay dormant until you
 opt them in. This keeps context lean for any single project while keeping the
 full library one edit away.
 
 ## Validation
 
-Check internal markdown references — verifies that links and backtick paths pointing into the harness's own directories resolve to real files:
+Three gates (all stdlib Python, no dependencies):
 
 ```bash
-python3 scripts/check-refs.py
+# 1. Markdown reference integrity
+python3 .opencode/harness/scripts/check-refs.py
+
+# 2. Frontmatter + tech-dir consistency
+python3 .opencode/harness/scripts/lint-frontmatter.py
+
+# 3. Installer tests
+python3 -m unittest discover -s tests -v
 ```
 
-Exits non-zero if any reference is broken.
+CI runs all three on every push and PR.
 
 ## Contributing
 

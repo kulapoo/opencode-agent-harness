@@ -16,37 +16,40 @@ fragmentation.
 
 ## Commands
 
-This is a configuration-only repo (markdown, no application code), so there's
-no compile/test/lint step. The one verification gate:
+This is a markdown-first repo with three stdlib-Python validation gates:
 
 ```bash
-python3 scripts/check-refs.py   # exit 1 if any internal markdown ref is broken
+python3 .opencode/harness/scripts/check-refs.py        # markdown reference integrity
+python3 .opencode/harness/scripts/lint-frontmatter.py   # frontmatter + tech-dir consistency
+python3 -m unittest discover -s tests -v                # installer tests
 ```
 
 For the RED→GREEN test loop when this harness drives an actual codebase, see
-`rules/verification-commands.md`.
+`.opencode/harness/rules/verification-commands.md`.
 
 ## Tech
 
-Configuration-only — markdown skills/rules/commands. The only executable is
-`scripts/check-refs.py` (Python, stdlib only). Each downstream project declares
-its own stack in `rules/tech.md`.
+Markdown skills/rules/commands + the installer (`install.py`) and validators
+under `.opencode/harness/scripts/`. Each downstream project declares
+its own stack in `.opencode/harness/rules/tech.md`.
 
 ## Repo map
 
 | Folder        | What it is                                                          | Read first when…                                          |
 | ------------- | ------------------------------------------------------------------- | --------------------------------------------------------- |
-| `skills/`     | Lifecycle skills. Each is `skills/<name>/SKILL.md`.                 | …doing that kind of task — load the matching skill first. |
-| `commands/`   | Slash entry points: `/adopt`, `/spec`, `/planning`, `/build`, `/test`, `/review`, `/code-simplify`, `/ship`, `/webperf`. | …invoking a workflow. See [README.md](README.md) § Commands. |
-| `agents/`     | Specialist subagents (`code-reviewer`, `security-auditor`, `test-engineer`, `web-performance-auditor`). | …fanning out a review. See [README.md](README.md) § Agents. |
-| `rules/`      | Standing checklists + the tech declaration. Loaded on demand.       | …a command cites one. Only `rules/tech.md` is always loaded. |
-| `tech/`       | Per-language conventions. Only stacks in `rules/tech.md` auto-load. | …editing code — read the matching `tech/<name>/` files.   |
-| `scripts/`    | `check-refs.py` — internal markdown-reference validator.            | …you've added, renamed, or moved any `.md` file.          |
+| `.opencode/skills/`     | Lifecycle skills. Each is `.opencode/skills/<name>/SKILL.md`.                 | …doing that kind of task — load the matching skill first. |
+| `.opencode/commands/`   | Slash entry points: `/adopt`, `/spec`, `/planning`, `/build`, `/test`, `/review`, `/code-simplify`, `/ship`, `/webperf`. | …invoking a workflow. See [README.md](README.md) § Commands. |
+| `.opencode/agents/`     | Specialist subagents (`code-reviewer`, `security-auditor`, `test-engineer`, `web-performance-auditor`). | …fanning out a review. See [README.md](README.md) § Agents. |
+| `.opencode/harness/rules/`      | Standing checklists + the tech declaration. Loaded on demand.       | …a command cites one. Only `.opencode/harness/rules/tech.md` is always loaded. |
+| `.opencode/harness/tech/`       | Per-language conventions. Only stacks in `.opencode/harness/rules/tech.md` are active (lazy-loaded via the router). | …editing code — read the matching `.opencode/harness/tech/<name>/` files.   |
+| `.opencode/harness/scripts/`    | `check-refs.py` + `lint-frontmatter.py` — validators.  | …you've added, renamed, or moved any `.md` file.          |
+| `tests/`             | Installer unittest suite.                                           | …you've changed `install.py`.                             |
+| `install.py`         | Installer (install/update/status) for adopting the harness into projects. | …distributing or updating the harness.  |
 
 ## Skill-Driven Execution
 
 This project runs on a **skill-driven model**: if a task matches a skill, use
-it. Skills live at `skills/<name>/SKILL.md`. Don't implement directly when a
+it. Skills live at `.opencode/skills/<name>/SKILL.md`. Don't implement directly when a
 skill applies; follow its workflow exactly — no partial application.
 
 ### Intent → Skill
@@ -67,7 +70,7 @@ More skills exist — reach for the matching one before inventing a process.
 
 ### Lifecycle
 
-The workflow maps to slash commands (this harness ships `commands/`) and the
+The workflow maps to slash commands (this harness ships `.opencode/commands/`) and the
 skills behind them:
 
 ```
@@ -93,11 +96,11 @@ Correct behavior: always check for and use a skill first, even for small tasks.
 
 Three composable layers — different jobs, don't confuse them:
 
-- **Skills** (`skills/<name>/SKILL.md`) — workflows with steps and exit criteria. The *how*. Mandatory when an intent matches.
-- **Agents** (`agents/<role>.md`) — specialist subagents with a perspective and output format. The *who*. opencode exposes each as a `mode: subagent` tool.
-- **Commands** (`commands/*.md`) — slash entry points. The *when*. The orchestration layer.
+- **Skills** (`.opencode/skills/<name>/SKILL.md`) — workflows with steps and exit criteria. The *how*. Mandatory when an intent matches.
+- **Agents** (`.opencode/agents/<role>.md`) — specialist subagents with a perspective and output format. The *who*. opencode exposes each as a `mode: subagent` tool.
+- **Commands** (`.opencode/commands/*.md`) — slash entry points. The *when*. The orchestration layer.
 
-Composition rule: **the user (or a command) is the orchestrator. Agents do not invoke other agents.** An agent may invoke skills. The only multi-agent pattern this harness endorses is **parallel fan-out with a merge step** — used by `/ship`. See `rules/orchestration-patterns.md`.
+Composition rule: **the user (or a command) is the orchestrator. Agents do not invoke other agents.** An agent may invoke skills. The only multi-agent pattern this harness endorses is **parallel fan-out with a merge step** — used by `/ship`. See `.opencode/harness/rules/orchestration-patterns.md`.
 
 ## Boundaries
 

@@ -1,0 +1,32 @@
+name: Bug report
+description: Report a broken skill, command, agent, or installer issue
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe the unexpected behavior. Include the command or skill you ran.
+    validations:
+      required: true
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      options:
+        - skill
+        - command
+        - agent
+        - tech convention
+        - installer (install.py)
+        - check-refs / lint-frontmatter
+        - other
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Minimal repro — the project setup, the exact command/prompt, and what you expected vs got.
+    validations:
+      required: true
