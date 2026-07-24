@@ -48,3 +48,18 @@ git tag v0.1.0
 git push origin main --tags
 # Create GitHub release from the tag, pasting the CHANGELOG entry.
 ```
+
+**Publishing the GitHub Release is required, not optional.** The README's
+install one-liner resolves from the tag via `raw.githubusercontent.com`
+(works whether or not a Release object exists), but the Release itself is
+what users see on the repo's home page and what `gh release view` / the
+GitHub "Releases" sidebar surface. Skip it and the project looks unreleased.
+
+```bash
+gh release create v0.1.0 --title "v0.1.0 — <summary>" \
+  --notes "$(git tag -l --format='%(contents:subject)' v0.1.0)"
+```
+
+After publishing, bump the `INSTALLER_URL` constant in `install.py` and the
+tag in the README one-liner to point at the new tag, so documentation and the
+post-install hint stay in sync with what users actually run.

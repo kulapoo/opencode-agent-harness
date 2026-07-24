@@ -6,10 +6,33 @@ All notable changes to this project are documented here. Format based on
 
 ## [Unreleased]
 
+### Added
+- **One-command install via `curl | python3`** — the installer is now
+  reachable pinned to a tag at
+  `https://raw.githubusercontent.com/kulapoo/opencode-agent-harness/v0.1.0/install.py`,
+  so adopting the harness into a new project no longer requires `git clone`
+  first. See README § Quick start. The same pattern works for `update` and
+  `status`: `curl … | python3 - update`.
+- **`install.py --version`** — prints the installer's own version
+  (`git describe` of its source tree, e.g. `v0.1.0` or
+  `v0.1.0-3-gabc123-dirty`; `unknown` outside a git repo). Helps debug a stale
+  installer before an update fails confusingly.
+- **Invocation-aware post-install hint** — after `install`, the output tells
+  you exactly how to reach the installer again for `update`/`status`. If
+  invoked from a file path (clone user), it prints
+  `python3 /abs/path/install.py status`; if piped via stdin (`curl | python3 -`
+  user), it prints the curl one-liner. Closes the "where is install.py later?"
+  gotcha at the moment you need it.
+- Test coverage for `--version` and both invocation modes (4 new unittests).
+
 ### Changed
 - `/adopt` manifest guidance clarified: `install.py` lives in the harness source
   repo (never copied downstream), so `update`/`status` are run via its absolute
   path; a `local` version means a local-clone install, not an error.
+- README § Quick start rewritten: one-liner is now the primary install path,
+  with an inspect-first variant for cautious environments and the clone path
+  retained as an auditable fallback. § Updating rewritten to cover both
+  one-liner and clone re-invocation patterns.
 
 ### Fixed
 - Directory sources now stamp a meaningful version (`git describe --tags --always

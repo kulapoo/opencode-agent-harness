@@ -7,12 +7,14 @@ Usage:
     python3 install.py install [--tag TAG] [--from PATH] [--force] [--skip-existing]
     python3 install.py update  [--tag TAG] [--from PATH]
     python3 install.py status
+    python3 install.py --version
 
 Flags:
     --tag TAG          Install a specific git tag (default: latest release or main)
     --from PATH        Use a local directory or tarball instead of GitHub
     --force            Overwrite conflicting files during install
     --skip-existing    Skip conflicting files during install
+    --version          Print installer version and exit
     -h, --help         Show this message
 """
 
@@ -32,6 +34,12 @@ import urllib.request
 from pathlib import Path
 
 REPO = "kulapoo/opencode-agent-harness"
+# Pinned-tag URL for the installer itself. raw.githubusercontent.com resolves
+# from tags whether or not a GitHub Release object exists. Bump this when cutting
+# a new release so the documented one-liner and post-install hint stay in sync.
+INSTALLER_URL = (
+    "https://raw.githubusercontent.com/kulapoo/opencode-agent-harness/v0.1.0/install.py"
+)
 MANIFEST_REL = ".opencode/harness/harness.json"
 OPENCODE_PREFIX = ".opencode/"
 SKIPPED_DIRS = {".git", "__pycache__", ".ruff_cache", "node_modules"}
@@ -147,6 +155,28 @@ def describe_source_version(source: Path) -> str | None:
     except (FileNotFoundError, subprocess.TimeoutExpired):
         pass
     return None
+
+
+def installer_version() -> str:
+    """Version label for this installer itself (not the payload)."""
+    return describe_source_version(Path(__file__).parent) or "unknown"
+
+
+def update_invocation_hint(command: str = "status") -> str:
+    """Return the right way to re-invoke this installer for `command`.
+
+    Detects whether we were run from a file path (clone user) or piped via
+    stdin (curl|python3 one-liner user) by inspecting sys.argv[0]:
+      - `'-'` → piped via stdin → re-curl to re-invoke.
+      - else  → file path → call by absolute path.
+
+    `command` is one of: status, update. (Re-install is rarely idempotent —
+    manifest already exists — so we don't hint it here.)
+    """
+    if sys.argv and sys.argv[0] == "-":
+        return f"curl -fsSL {INSTALLER_URL} | python3 - {command}"
+    invoked_as = Path(sys.argv[0]).resolve() if sys.argv else Path(__file__)
+    return f"python3 {invoked_as} {command}"
 
 
 # ── source resolution ────────────────────────────────────────────────────────
@@ -271,6 +301,11 @@ def cmd_install(args) -> int:
     print("\nNext steps:")
     print("  1. Restart opencode (config loads at startup).")
     print("  2. Run /adopt to detect your tech and scaffold AGENTS.md.")
+    # install.py is never copied downstream; remind the user how to reach it
+    # again for update/status, adapting to whether they piped via curl or
+    # invoked a local file.
+    print("\nTo check for updates / status later (installer stays in source repo):")
+    print(f"  {update_invocation_hint('status')}")
     return 0
 
 
@@ -408,6 +443,13 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="opencode-agent-harness installer",
         formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    # action="version" prints and exits before the required-subparser check,
+    # so `install.py --version` works without specifying a subcommand.
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"opencode-agent-harness installer {installer_version()}",
     )
     sub = parser.add_subparsers(dest="command", required=True)
 

@@ -322,5 +322,72 @@ class TestVersionLabel(unittest.TestCase):
         self.assertEqual(m["version"], "local")
 
 
+class TestInstallerCLI(unittest.TestCase):
+    """Top-level installer CLI flags (--version) and invocation-aware
+    post-install hints (file-path vs piped-via-stdin)."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.target = self.tmp / "project"
+        self.target.mkdir()
+        self.source = make_source(self.tmp)
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp)
+
+    def test_version_flag_prints_and_exits_zero(self):
+        result = subprocess.run(
+            [sys.executable, str(INSTALLER), "--version"],
+            cwd=self.target,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("opencode-agent-harness installer", result.stdout)
+
+    def test_version_flag_does_not_require_subcommand(self):
+        # --version must exit cleanly without `install`/`update`/`status`,
+        # even though subparsers are required.
+        result = subprocess.run(
+            [sys.executable, str(INSTALLER), "--version"],
+            cwd=self.target,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertNotIn("required", result.stderr.lower())
+
+    def test_install_hint_for_file_path_invocation(self):
+        result = subprocess.run(
+            [sys.executable, str(INSTALLER), "install", "--from", str(self.source)],
+            cwd=self.target,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        # File-path users get told to re-invoke by absolute path.
+        self.assertIn("python3 ", result.stdout)
+        self.assertIn(str(INSTALLER), result.stdout)
+        self.assertIn("status", result.stdout)
+        # Must NOT accidentally suggest the curl one-liner.
+        self.assertNotIn("curl ", result.stdout)
+
+    def test_install_hint_for_stdin_invocation(self):
+        # Simulate `curl ... | python3 - install` by piping the installer
+        # source via stdin with argv[0] == '-'.
+        installer_src = INSTALLER.read_text()
+        result = subprocess.run(
+            [sys.executable, "-", "install", "--from", str(self.source)],
+            cwd=self.target,
+            input=installer_src,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        # stdin users get told to re-curl.
+        self.assertIn("curl -fsSL", result.stdout)
+        self.assertIn("python3 - status", result.stdout)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -46,13 +46,28 @@ opencode-native consolidation, not a replacement for either.
 
 ## Quick start
 
-1. **Install the harness into your project:**
+1. **Install the harness into your project.** From inside the target project:
+
    ```bash
+   curl -fsSL https://raw.githubusercontent.com/kulapoo/opencode-agent-harness/v0.1.0/install.py \
+     | python3 - install
+   ```
+
+   This fetches the installer pinned to tag `v0.1.0` and runs it once. It copies
+   the `.opencode/` tree (agents, commands, skills, rules, tech, scripts) and
+   writes a version-tracked manifest for future updates.
+
+   **Prefer to inspect first?** Cautious environments (corporate networks, audit
+   requirements) — download, audit, then run:
+
+   ```bash
+   curl -fsSL https://raw.githubusercontent.com/kulapoo/opencode-agent-harness/v0.1.0/install.py -o install.py
+   less install.py
    python3 install.py install
    ```
-   This copies the `.opencode/` tree (agents, commands, skills, rules, tech,
-   scripts) and writes a version-tracked manifest for future updates. Use
-   `--from <local-clone>` if you cloned the repo instead of fetching from GitHub.
+
+   **Air-gapped or want a local clone?** `git clone` this repo, then from your
+   project: `python3 /path/to/opencode-agent-harness/install.py install --from /path/to/opencode-agent-harness`.
 
 2. **Adopt.** Run `/adopt` in opencode — it detects your stack, writes the
    lazy-load tech router (`.opencode/harness/rules/tech.md`), wires your config,
@@ -63,9 +78,27 @@ opencode-native consolidation, not a replacement for either.
 3. **Restart opencode.** Config loads once at startup. After any change to
    config, an agent, a skill, or a command, quit and restart.
 
-**Updating:** `python3 install.py update` — upgrades untouched files in place,
-preserves your modifications, and reports drift. `python3 install.py status`
-shows installed version and modified files.
+**Trust & pinning.** The one-liner executes remote code pinned to a tag — the
+exact bytes a reviewer sees at that tag, frozen. Bump the tag in the URL when
+you want a newer installer. For air-gapped or audited environments, use the
+clone path above.
+
+**Updating.** `install.py` lives in the harness source repo and is never copied
+into your project (see [adopt.md](.opencode/commands/adopt.md) § manifest).
+Re-invoke it the same way you installed:
+
+```bash
+# one-liner users — fetch the latest installer each time:
+curl -fsSL https://raw.githubusercontent.com/kulapoo/opencode-agent-harness/v0.1.0/install.py \
+  | python3 - update      # or: ... | python3 - status
+
+# clone users — invoke by absolute path:
+python3 /path/to/opencode-agent-harness/install.py update
+python3 /path/to/opencode-agent-harness/install.py status
+```
+
+`update` upgrades untouched files in place, preserves your modifications, and
+reports drift. `status` shows installed version and modified files.
 
 ## How the pieces fit
 
