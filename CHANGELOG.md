@@ -81,3 +81,8 @@ migration notes below.
 2. Or manually: `git mv agents .opencode/agents` etc., then update path
    references and run `python3 .opencode/harness/scripts/check-refs.py`.
 3. Run `/adopt` — it detects legacy layouts and offers migration.
+
+> **Easier now:** if your project has `.opencode/rules/` or `.opencode/tech/`
+> (the pre-harness-tree layout), run `/migrate` (or
+> `python3 install.py migrate --from <this-repo> --dry-run`) — it handles the
+> relocation, orphan cleanup, config path, and tech-router port in one shot.

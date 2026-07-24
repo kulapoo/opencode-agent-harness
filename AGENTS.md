@@ -38,13 +38,13 @@ its own stack in `.opencode/harness/rules/tech.md`.
 | Folder        | What it is                                                          | Read first when…                                          |
 | ------------- | ------------------------------------------------------------------- | --------------------------------------------------------- |
 | `.opencode/skills/`     | Lifecycle skills. Each is `.opencode/skills/<name>/SKILL.md`.                 | …doing that kind of task — load the matching skill first. |
-| `.opencode/commands/`   | Slash entry points: `/adopt`, `/spec`, `/planning`, `/build`, `/test`, `/review`, `/code-simplify`, `/ship`, `/webperf`. | …invoking a workflow. See [README.md](README.md) § Commands. |
+| `.opencode/commands/`   | Slash entry points: `/adopt`, `/migrate`, `/spec`, `/planning`, `/build`, `/test`, `/review`, `/code-simplify`, `/ship`, `/webperf`. | …invoking a workflow. See [README.md](README.md) § Commands. |
 | `.opencode/agents/`     | Specialist subagents (`code-reviewer`, `security-auditor`, `test-engineer`, `web-performance-auditor`). | …fanning out a review. See [README.md](README.md) § Agents. |
 | `.opencode/harness/rules/`      | Standing checklists + the tech declaration. Loaded on demand.       | …a command cites one. Only `.opencode/harness/rules/tech.md` is always loaded. |
 | `.opencode/harness/tech/`       | Per-language conventions. Only stacks in `.opencode/harness/rules/tech.md` are active (lazy-loaded via the router). | …editing code — read the matching `.opencode/harness/tech/<name>/` files.   |
 | `.opencode/harness/scripts/`    | `check-refs.py` + `lint-frontmatter.py` — validators.  | …you've added, renamed, or moved any `.md` file.          |
 | `tests/`             | Installer unittest suite.                                           | …you've changed `install.py`.                             |
-| `install.py`         | Installer (install/update/status) for adopting the harness into projects. | …distributing or updating the harness.  |
+| `install.py`         | Installer (install/update/status/migrate) for adopting the harness into projects. | …distributing or updating the harness.  |
 
 ## Skill-Driven Execution
 
