@@ -6,6 +6,16 @@ All notable changes to this project are documented here. Format based on
 
 ## [Unreleased]
 
+### Changed
+- `/adopt` manifest guidance clarified: `install.py` lives in the harness source
+  repo (never copied downstream), so `update`/`status` are run via its absolute
+  path; a `local` version means a local-clone install, not an error.
+
+### Fixed
+- Directory sources now stamp a meaningful version (`git describe --tags --always
+  --dirty`, e.g. `v0.1.0-3-gabc123`) into the manifest instead of the bare
+  `local` label. Falls back to `local` when the source isn't a git repo.
+
 ## [0.1.0] - 2026-07-24
 
 First tagged release. Breaking changes from the pre-release layout — see

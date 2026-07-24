@@ -272,5 +272,55 @@ class TestConfigBootstrap(InstallerTestCase):
         self.assertIn("Wrote default config", out)
 
 
+class TestVersionLabel(unittest.TestCase):
+    """A directory source that is a git repo stamps a meaningful version
+    (via `git describe`) instead of the bare 'local' label."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.target = self.tmp / "project"
+        self.target.mkdir()
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp)
+
+    def _git(self, *args: str, cwd: Path):
+        subprocess.run(
+            ["git", "-c", "user.email=t@t", "-c", "user.name=t", *args],
+            cwd=cwd,
+            check=True,
+            capture_output=True,
+        )
+
+    def test_git_repo_source_stamps_describe_version(self):
+        source = make_source(self.tmp, "src")
+        self._git("init", "-q", cwd=source)
+        self._git("add", "-A", cwd=source)
+        self._git("commit", "-qm", "init", cwd=source)
+        self._git("tag", "v9.9.9", cwd=source)
+
+        result = subprocess.run(
+            [sys.executable, str(INSTALLER), "install", "--from", str(source)],
+            cwd=self.target,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        m = json.loads((self.target / ".opencode/harness/harness.json").read_text())
+        self.assertEqual(m["version"], "v9.9.9")
+
+    def test_non_git_dir_source_falls_back_to_local(self):
+        source = make_source(self.tmp, "src")  # not a git repo
+        result = subprocess.run(
+            [sys.executable, str(INSTALLER), "install", "--from", str(source)],
+            cwd=self.target,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        m = json.loads((self.target / ".opencode/harness/harness.json").read_text())
+        self.assertEqual(m["version"], "local")
+
+
 if __name__ == "__main__":
     unittest.main()

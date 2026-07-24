@@ -53,8 +53,15 @@ diff first):
 5. **Health summary.** Collect the `init-tech-declaration` report, then add:
    - `AGENTS.md` status (absent / stock-harness / customized).
    - Manifest: if `.opencode/harness/harness.json` exists, show installed
-     version and whether an update is available. If absent, note the installer
-     wasn't used (manual install) — the manifest enables `install.py update`.
+     version and whether an update is available. Note that `install.py` is the
+     *installer* — it lives in the harness source repo, not under `.opencode/`,
+      so it is never copied into downstream projects; to run `update`/`status`,
+      invoke it by absolute path with the project as cwd, e.g.
+     `python3 /path/to/opencode-agent-harness/install.py status`. A version of
+     `local` only means it was installed from a local clone (`--from <dir>`)
+     rather than a GitHub tag — it is not an error. If the manifest is absent,
+     it wasn't written (manual install); the manifest enables
+     `install.py update`/`status`.
 6. **Post-adopt verification.** Remind the user to restart opencode (config
    loads once at startup), then in a new session verify the router is active:
    ask "what tech conventions should I load?" — the agent should cite the

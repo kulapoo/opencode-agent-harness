@@ -23,6 +23,7 @@ import hashlib
 import json
 import os
 import shutil
+import subprocess
 import sys
 import tarfile
 import tempfile
@@ -127,6 +128,27 @@ def latest_release_tag() -> str | None:
         return None
 
 
+def describe_source_version(source: Path) -> str | None:
+    """Best-effort version label for a local source from its git metadata.
+
+    Returns `git describe --tags --always --dirty` (e.g. `v0.1.0` or
+    `v0.1.0-3-gabc123-dirty`), or None if the path isn't a git repo / git is
+    unavailable. Callers fall back to the bare 'local' label when None."""
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(source), "describe", "--tags", "--always", "--dirty"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        if result.returncode == 0:
+            v = result.stdout.strip()
+            return v or None
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        pass
+    return None
+
+
 # ── source resolution ────────────────────────────────────────────────────────
 
 
@@ -135,7 +157,8 @@ def resolve_source(from_path: str | None, tag: str | None) -> tuple[Path, str, b
     if from_path:
         p = Path(from_path)
         if p.is_dir():
-            return p.resolve(), tag or "local", False
+            ver = tag or describe_source_version(p) or "local"
+            return p.resolve(), ver, False
         if p.is_file() and (p.suffix == ".gz" or ".tar" in p.name):
             extracted = extract_tarball(p)
             return extracted, tag or "local", True
