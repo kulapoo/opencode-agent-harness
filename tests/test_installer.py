@@ -216,5 +216,61 @@ class TestStatusDrift(InstallerTestCase):
         self.assertIn("missing", out)
 
 
+class TestConfigBootstrap(InstallerTestCase):
+    def test_writes_default_config_on_fresh_install(self):
+        rc, out, _ = self._run("install", "--from", str(self.source))
+        self.assertEqual(rc, 0, out)
+        cfg = self.target / "opencode.jsonc"
+        self.assertTrue(cfg.exists(), "opencode.jsonc not written")
+        m = json.loads(cfg.read_text())
+        self.assertIn(
+            ".opencode/harness/rules/tech.md",
+            m.get("instructions", []),
+            "tech router not wired into instructions",
+        )
+        self.assertIn("Wrote default config", out)
+
+    def test_does_not_overwrite_existing_config(self):
+        existing = self.target / "opencode.jsonc"
+        existing.write_text('{"instructions": ["my-own.md"]}\n')
+        rc, out, _ = self._run("install", "--from", str(self.source))
+        self.assertEqual(rc, 0, out)
+        self.assertEqual(existing.read_text(), '{"instructions": ["my-own.md"]}\n')
+        self.assertNotIn("Wrote default config", out)
+
+    def test_respects_all_config_variants(self):
+        for variant in ("opencode.json", ".opencode.jsonc"):
+            with self.subTest(variant=variant):
+                tgt = self.tmp / f"proj-{variant.replace('.', '')}"
+                tgt.mkdir()
+                (tgt / variant).write_text('{"instructions": ["mine.md"]}\n')
+                result = subprocess.run(
+                    [
+                        sys.executable,
+                        str(INSTALLER),
+                        "install",
+                        "--from",
+                        str(self.source),
+                    ],
+                    cwd=tgt,
+                    capture_output=True,
+                    text=True,
+                )
+                self.assertEqual(result.returncode, 0, result.stderr)
+                # neither opencode.jsonc created nor the existing variant touched
+                self.assertFalse((tgt / "opencode.jsonc").exists())
+                self.assertEqual(
+                    (tgt / variant).read_text(), '{"instructions": ["mine.md"]}\n'
+                )
+
+    def test_update_writes_config_if_missing(self):
+        self._run("install", "--from", str(self.source))
+        (self.target / "opencode.jsonc").unlink()
+        rc, out, _ = self._run("update", "--from", str(self.source))
+        self.assertEqual(rc, 0, out)
+        self.assertTrue((self.target / "opencode.jsonc").exists())
+        self.assertIn("Wrote default config", out)
+
+
 if __name__ == "__main__":
     unittest.main()

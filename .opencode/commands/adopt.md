@@ -8,27 +8,18 @@ The front door. Bring the harness into a project (or reconcile an existing
 setup), then hand off to `/spec`. Idempotent — safe to re-run; it fills gaps
 and reports drift rather than overwriting.
 
-> Named `/adopt`, not `/init`: opencode ships a built-in `/init`, and a custom
-> command of the same name would shadow it with no way back. `/adopt` is the
-> harness-specific equivalent.
-
 ## What it reconciles
 
-Three things make a project harness-ready. Fill each, never silently overwrite
-(the `init-tech-declaration` rule: show a diff first):
+Fill each, never silently overwrite (the `init-tech-declaration` rule: show a
+diff first):
 
-1. **Tech router** — orchestrate the `init-tech-declaration` skill: detect
-   manifests, map to `.opencode/harness/tech/<dir>/`, write the lazy-load
-   router at `.opencode/harness/rules/tech.md`. This is injected into every
-   session and tells the agent which convention files to Read per stack.
-2. **Config wiring** — ensure the project config has
-   `"instructions": [".opencode/harness/rules/tech.md"]`. Check for any of
-   these filenames in the project root (first match wins): `opencode.json`,
-   `opencode.jsonc`, `.opencode.jsonc`. If none exists, create `.opencode.jsonc`.
-   Leave every other key (MCP, agents, models) untouched.
-3. **Agent map** — scaffold the project `AGENTS.md` from
-   `.opencode/skills/init-tech-declaration/AGENTS.template.md`, following the
-   [agents.md](https://agents.md/) standard. Kept as a lean index (see
+1. **Tech router** — via `init-tech-declaration` (detect →
+   `.opencode/harness/rules/tech.md` router). Injected into every session.
+2. **Config wiring** — `instructions` must include the tech router path.
+   The skill owns the config filename variants and preserves other keys.
+3. **Agent map** — scaffold `AGENTS.md` from
+   `.opencode/skills/init-tech-declaration/AGENTS.template.md`
+   ([agents.md](https://agents.md/) standard), kept as a lean index (see
    `context-engineering` § Rules File Lifecycle).
 
 ## AGENTS.md handling (non-destructive)
@@ -57,21 +48,13 @@ Three things make a project harness-ready. Fill each, never silently overwrite
    the installer: `python3 install.py install` (or see README § Quick start).
 3. **Tech + config.** Run `init-tech-declaration` (detect-tech →
    `.opencode/harness/rules/tech.md` router → config `instructions` wiring),
-   following its diff-first rule. The skill handles all config filename
-   variants and preserves existing keys.
-4. **Agent map.** Reconcile `AGENTS.md` per the handling above. When
-   scaffolding, ask the user for the project name, build/test/lint commands,
-   and any hard boundaries, then fill the template.
-5. **Health summary.** Report:
-   - Tech detected + `.opencode/harness/tech/<dir>/` dirs that exist vs
-     missing (missing → falls back to `common/`).
-   - Config wiring: which file was found/created, whether `instructions`
-     includes the tech router path.
+   following its diff-first rule.
+4. **Agent map.** Reconcile `AGENTS.md` per the handling above.
+5. **Health summary.** Collect the `init-tech-declaration` report, then add:
    - `AGENTS.md` status (absent / stock-harness / customized).
    - Manifest: if `.opencode/harness/harness.json` exists, show installed
-     version and whether an update is available. If it doesn't exist, note
-     that the installer wasn't used (manual install) — manifest enables
-     `install.py update` for future upgrades.
+     version and whether an update is available. If absent, note the installer
+     wasn't used (manual install) — the manifest enables `install.py update`.
 6. **Post-adopt verification.** Remind the user to restart opencode (config
    loads once at startup), then in a new session verify the router is active:
    ask "what tech conventions should I load?" — the agent should cite the

@@ -37,6 +37,14 @@ SKIPPED_DIRS = {".git", "__pycache__", ".ruff_cache", "node_modules"}
 # Local-only scaffolding at the .opencode/ root (opencode plugin/tooling) that
 # must never ship to downstream projects.
 SKIPPED_ROOT_FILES = {".gitignore", "package.json", "package-lock.json", "bun.lock"}
+# opencode reads any of these at project root (first found wins).
+CONFIG_FILES = ["opencode.jsonc", "opencode.json", ".opencode.jsonc"]
+MIN_CONFIG = (
+    "{\n"
+    '  "$schema": "https://opencode.ai/config.json",\n'
+    '  "instructions": [".opencode/harness/rules/tech.md"]\n'
+    "}\n"
+)
 
 
 # ── helpers ──────────────────────────────────────────────────────────────────
@@ -68,6 +76,22 @@ def write_manifest(version: str, files: dict[str, str]) -> None:
     with open(p, "w") as f:
         json.dump({"version": version, "files": files}, f, indent=2, sort_keys=True)
         f.write("\n")
+
+
+def ensure_config() -> bool:
+    """Write a minimal opencode.jsonc at the target root if no config exists.
+
+    The tech router (.opencode/harness/rules/tech.md) must be injected into
+    every session, which requires an `instructions` entry. Without this, a user
+    who installs but skips /adopt gets no tech conventions. Safe to re-run:
+    never overwrites an existing config in any supported filename variant.
+    Returns True if a config was written.
+    """
+    for name in CONFIG_FILES:
+        if (Path.cwd() / name).exists():
+            return False
+    (Path.cwd() / CONFIG_FILES[0]).write_text(MIN_CONFIG)
+    return True
 
 
 def list_harness_files(source_root: Path) -> list[Path]:
@@ -213,9 +237,13 @@ def cmd_install(args) -> int:
 
     write_manifest(version, hashes)
 
+    wrote_config = ensure_config()
+
     print(f"\nInstalled {installed} file(s) (version {version}).")
     if skipped:
         print(f"Skipped {skipped} existing file(s).")
+    if wrote_config:
+        print(f"Wrote default config: {CONFIG_FILES[0]}")
     print(f"Manifest: {MANIFEST_REL}")
     print("\nNext steps:")
     print("  1. Restart opencode (config loads at startup).")
@@ -295,10 +323,14 @@ def cmd_update(args) -> int:
         hashes[rel_str] = sha256_file(f)
     write_manifest(version, hashes)
 
+    wrote_config = ensure_config()
+
     print(f"\nUpdated to {version}.")
     print(
         f"  Upgraded: {upgraded}  Added: {added}  Removed: {removed}  Preserved: {preserved}"
     )
+    if wrote_config:
+        print(f"  Wrote default config: {CONFIG_FILES[0]}")
     if drift:
         print("\nDrift (user-modified files kept as-is):")
         for d in drift:
