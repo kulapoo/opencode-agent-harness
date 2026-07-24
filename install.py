@@ -70,11 +70,16 @@ def read_manifest() -> dict | None:
         return json.load(f)
 
 
-def write_manifest(version: str, files: dict[str, str]) -> None:
+def write_manifest(
+    version: str, files: dict[str, str], migrations: list[str] | None = None
+) -> None:
     p = manifest_path()
     p.parent.mkdir(parents=True, exist_ok=True)
+    payload = {"version": version, "files": files}
+    if migrations is not None:
+        payload["migrations"] = migrations
     with open(p, "w") as f:
-        json.dump({"version": version, "files": files}, f, indent=2, sort_keys=True)
+        json.dump(payload, f, indent=2, sort_keys=True)
         f.write("\n")
 
 
@@ -321,7 +326,7 @@ def cmd_update(args) -> int:
     for f in all_installed:
         rel_str = str(f.relative_to(Path.cwd()))
         hashes[rel_str] = sha256_file(f)
-    write_manifest(version, hashes)
+    write_manifest(version, hashes, migrations=manifest.get("migrations", []))
 
     wrote_config = ensure_config()
 
@@ -378,6 +383,330 @@ def cmd_status(args) -> int:
     return 0
 
 
+# ── migration ────────────────────────────────────────────────────────────────
+#
+# `install.py migrate` relocates a legacy harness layout to the current one.
+# The first migration (`001-harness-relocate`) handles the move of `rules/`
+# and `tech/` from `.opencode/` to `.opencode/harness/`. Future layout changes
+# append an id to MIGRATIONS and add matching detect/apply logic.
+
+MIGRATIONS = ["001-harness-relocate"]
+LEGACY_RULES = Path(".opencode/rules")
+LEGACY_TECH = Path(".opencode/tech")
+OLD_TECH_PATH = ".opencode/rules/tech.md"
+NEW_TECH_PATH = ".opencode/harness/rules/tech.md"
+
+
+def detect_legacy_layout(target: Path) -> list[Path]:
+    """Return legacy-layout markers present under target (old location of
+    rules/ and tech/, before they moved under .opencode/harness/)."""
+    found = []
+    for marker in (LEGACY_RULES, LEGACY_TECH):
+        if (target / marker).is_dir():
+            found.append(marker)
+    return found
+
+
+def parse_legacy_stacks(tech_md_text: str) -> list[str]:
+    """Extract stack names from a legacy tech.md.
+
+    Legacy format used plain bullets like `- rust`; the router format uses
+    `→` arrows, which we skip so we don't misread an already-migrated file.
+    """
+    stacks: list[str] = []
+    for line in tech_md_text.splitlines():
+        s = line.strip()
+        if not s.startswith("- ") or "→" in s:
+            continue
+        name = s[2:].strip().strip("`")
+        if name and " " not in name and not name.startswith("("):
+            stacks.append(name)
+    return stacks
+
+
+def _router_bullets(stacks: list[str]) -> list[str]:
+    return [
+        f"- `{s}` → `.opencode/harness/tech/{s}/*.md`"
+        f" + `.opencode/harness/tech/common/*.md`"
+        for s in stacks
+    ]
+
+
+def port_tech_md(
+    shipped: str, stacks: list[str], source: Path
+) -> tuple[str, list[str], list[str]]:
+    """Rewrite the shipped router's stack bullets from legacy stacks.
+
+    Returns (new_text, emitted, unmapped). Only stacks that have a matching
+    `tech/<name>/` dir in the source are emitted; others are reported as
+    unmapped (the user can add them via init-tech-declaration)."""
+    emitted, unmapped = [], []
+    for s in stacks:
+        if (source / ".opencode/harness/tech" / s).is_dir():
+            emitted.append(s)
+        else:
+            unmapped.append(s)
+
+    lines = shipped.splitlines()
+    # Locate the router bullet block: the contiguous run of `→` bullets.
+    bullet_idx = [
+        i for i, ln in enumerate(lines) if ln.lstrip().startswith("- `") and "→" in ln
+    ]
+    bullets = _router_bullets(emitted)
+    if bullet_idx:
+        start, end = bullet_idx[0], bullet_idx[-1]
+        # Only collapse a contiguous block starting at `start`.
+        new_lines = lines[:start] + bullets + lines[end + 1 :]
+    else:
+        new_lines = lines + ["", *_router_bullets(emitted)] if emitted else lines
+    text = "\n".join(new_lines)
+    return (text + "\n") if shipped.endswith("\n") else text, emitted, unmapped
+
+
+def fix_config_instructions(target: Path) -> str | None:
+    """Rewrite the legacy tech.md path in whichever config file holds it.
+
+    Raw string replacement preserves formatting and JSONC comments; only the
+    exact legacy path string is touched. Returns the config filename or None."""
+    for name in CONFIG_FILES:
+        p = target / name
+        if p.exists() and OLD_TECH_PATH in (text := p.read_text()):
+            p.write_text(text.replace(OLD_TECH_PATH, NEW_TECH_PATH))
+            return name
+    return None
+
+
+def build_migrate_plan(
+    target: Path, source: Path, legacy: list[Path], legacy_stacks: list[str]
+) -> dict:
+    """Inspect (read-only) and describe what migrate will do."""
+    shipped_tech = source / ".opencode/harness/rules/tech.md"
+    _, emitted, unmapped = (
+        port_tech_md(shipped_tech.read_text(), legacy_stacks, source)
+        if shipped_tech.exists() and legacy_stacks
+        else ("", [], [])
+    )
+
+    # Count harness files not yet present at the target.
+    new_harness = 0
+    src_harness = source / ".opencode/harness"
+    if src_harness.is_dir():
+        for f in src_harness.rglob("*"):
+            if f.is_file() and str(f.relative_to(source)) != MANIFEST_REL:
+                if not (target / f.relative_to(source)).exists():
+                    new_harness += 1
+
+    # Content files (agents/commands/skills) that differ or are new.
+    updates, adds = [], []
+    for sub in ("agents", "commands", "skills"):
+        src_sub = source / ".opencode" / sub
+        if not src_sub.is_dir():
+            continue
+        for f in src_sub.rglob("*"):
+            if not f.is_file():
+                continue
+            rel = str(f.relative_to(source))
+            dest = target / rel
+            if not dest.exists():
+                adds.append(rel)
+            elif dest.read_bytes() != f.read_bytes():
+                updates.append(rel)
+
+    config_target = None
+    for name in CONFIG_FILES:
+        p = target / name
+        if p.exists() and OLD_TECH_PATH in p.read_text():
+            config_target = name
+            break
+
+    return {
+        "legacy": [str(m) for m in legacy],
+        "new_harness": new_harness,
+        "adds": adds,
+        "updates": updates,
+        "config": config_target,
+        "emitted": emitted,
+        "unmapped": unmapped,
+    }
+
+
+def print_migrate_plan(plan: dict) -> None:
+    print("Migration plan (001-harness-relocate):\n")
+    for m in plan["legacy"]:
+        print(
+            f"  MOVE   {m}/*  ->  .opencode/harness/<name>/*  (canonical from source)"
+        )
+    for m in plan["legacy"]:
+        print(f"  DELETE {m}/  (orphan from legacy layout)")
+    if plan["new_harness"]:
+        print(
+            f"  ADD    {plan['new_harness']} harness file(s) under .opencode/harness/"
+        )
+    if plan["updates"]:
+        print(f"  UPDATE {len(plan['updates'])} content file(s):")
+        for rel in plan["updates"]:
+            print(f"           - {rel}")
+    if plan["adds"]:
+        print(f"  ADD    {len(plan['adds'])} new upstream file(s):")
+        for rel in plan["adds"]:
+            print(f"           - {rel}")
+    if plan["config"]:
+        print(f"  EDIT   {plan['config']}: instructions path -> {NEW_TECH_PATH}")
+    if plan["emitted"]:
+        print(f"  PORT   tech.md stacks -> {', '.join(plan['emitted'])}")
+    if plan["unmapped"]:
+        print(
+            f"  WARN   unmapped stack(s) (no source tech/ dir, skipped): "
+            f"{', '.join(plan['unmapped'])}"
+        )
+    print("  PRESERVE local files (AGENTS.md, custom commands, scaffolding)")
+
+
+def apply_migration(target: Path, source: Path, legacy_stacks: list[str]) -> dict:
+    """Execute the 001-harness-relocate migration. Returns a summary."""
+    summary = {
+        "deleted": 0,
+        "added": 0,
+        "updated": 0,
+        "config": None,
+        "emitted": [],
+        "unmapped": [],
+    }
+
+    # 1. Copy the canonical harness/ tree from source (rules, tech, scripts).
+    src_harness = source / ".opencode/harness"
+    if src_harness.is_dir():
+        for f in src_harness.rglob("*"):
+            if not f.is_file() or str(f.relative_to(source)) == MANIFEST_REL:
+                continue
+            dest = target / f.relative_to(source)
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(f, dest)
+
+    # 2. Port the shipped tech.md using the legacy stack list.
+    new_tech = target / NEW_TECH_PATH
+    if new_tech.exists() and legacy_stacks:
+        shipped = new_tech.read_text()
+        text, emitted, unmapped = port_tech_md(shipped, legacy_stacks, source)
+        new_tech.write_text(text)
+        summary["emitted"] = emitted
+        summary["unmapped"] = unmapped
+
+    # 3. Delete legacy orphan dirs.
+    for marker in (LEGACY_RULES, LEGACY_TECH):
+        d = target / marker
+        if d.exists():
+            shutil.rmtree(d)
+            summary["deleted"] += 1
+
+    # 4. Sync agents/commands/skills from source (overwrite; keep local extras).
+    for sub in ("agents", "commands", "skills"):
+        src_sub = source / ".opencode" / sub
+        if not src_sub.is_dir():
+            continue
+        for f in src_sub.rglob("*"):
+            if not f.is_file():
+                continue
+            dest = target / f.relative_to(source)
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            if not dest.exists():
+                summary["added"] += 1
+            else:
+                summary["updated"] += 1
+            shutil.copy2(f, dest)
+
+    # 5. Fix the config instructions path.
+    summary["config"] = fix_config_instructions(target)
+    return summary
+
+
+def migrate_check(target: Path) -> int:
+    """Verify no legacy layout remains and config path is current. Exit code
+    is the verdict."""
+    problems = []
+    for marker in (LEGACY_RULES, LEGACY_TECH):
+        if (target / marker).exists():
+            problems.append(f"legacy dir present: {marker}")
+    for name in CONFIG_FILES:
+        p = target / name
+        if p.exists() and OLD_TECH_PATH in p.read_text():
+            problems.append(f"{name} still references {OLD_TECH_PATH}")
+    if problems:
+        print("Migration check FAILED:")
+        for x in problems:
+            print(f"  - {x}")
+        return 1
+    print("Migration check passed: no legacy layout, config path current.")
+    return 0
+
+
+def cmd_migrate(args) -> int:
+    target = Path.cwd()
+
+    if args.check:
+        return migrate_check(target)
+
+    source_root, version, _cleanup = resolve_source(args.from_path, args.tag)
+
+    legacy = detect_legacy_layout(target)
+    if not legacy:
+        print("Nothing to migrate — no legacy layout detected.")
+        return 0
+
+    legacy_tech = target / LEGACY_RULES / "tech.md"
+    legacy_stacks = (
+        parse_legacy_stacks(legacy_tech.read_text()) if legacy_tech.exists() else []
+    )
+
+    plan = build_migrate_plan(target, source_root, legacy, legacy_stacks)
+    print_migrate_plan(plan)
+
+    if args.dry_run:
+        print("\n(dry-run; no changes made)")
+        return 0
+
+    if not args.force:
+        if sys.stdin.isatty():
+            if input("\nApply this migration? [y/N] ").strip().lower() not in (
+                "y",
+                "yes",
+            ):
+                print("Aborted.")
+                return 1
+        else:
+            print("\nRefusing to apply non-interactively without --force. Aborted.")
+            return 1
+
+    summary = apply_migration(target, source_root, legacy_stacks)
+
+    # Seal the manifest with the migration recorded.
+    hashes = {
+        str(f.relative_to(target)): sha256_file(f) for f in list_harness_files(target)
+    }
+    prior = (read_manifest() or {}).get("migrations", [])
+    applied = list(dict.fromkeys([*prior, *MIGRATIONS]))
+    write_manifest(version, hashes, migrations=applied)
+
+    print(f"\nMigration applied ({version}).")
+    print(
+        f"  Deleted legacy dirs: {summary['deleted']}  "
+        f"Added: {summary['added']}  Updated: {summary['updated']}"
+    )
+    if summary["config"]:
+        print(f"  Rewrote config path in: {summary['config']}")
+    if summary["emitted"]:
+        print(f"  tech.md stacks ported: {', '.join(summary['emitted'])}")
+    if summary["unmapped"]:
+        print(
+            f"  WARNING unmapped stack(s) (no source tech/ dir): "
+            f"{', '.join(summary['unmapped'])} — add via init-tech-declaration"
+        )
+    print("\nNext steps:")
+    print("  1. Restart opencode (config loads at startup).")
+    print("  2. Run /adopt to reconcile AGENTS.md and verify the tech router.")
+    return 0
+
+
 # ── main ─────────────────────────────────────────────────────────────────────
 
 
@@ -408,6 +737,26 @@ def main() -> int:
 
     p_status = sub.add_parser("status", help="Show installation status and drift")
     p_status.set_defaults(func=cmd_status)
+
+    p_migrate = sub.add_parser(
+        "migrate", help="Migrate a legacy harness layout to the current one"
+    )
+    p_migrate.add_argument("--tag", default=None, help="Specific git tag")
+    p_migrate.add_argument(
+        "--from", dest="from_path", default=None, help="Local dir or tarball"
+    )
+    p_migrate.add_argument(
+        "--dry-run", action="store_true", help="Print the plan; change nothing"
+    )
+    p_migrate.add_argument(
+        "--force", action="store_true", help="Apply without interactive prompt"
+    )
+    p_migrate.add_argument(
+        "--check",
+        action="store_true",
+        help="Verify migration state; exit code is verdict",
+    )
+    p_migrate.set_defaults(func=cmd_migrate)
 
     args = parser.parse_args()
     return args.func(args)

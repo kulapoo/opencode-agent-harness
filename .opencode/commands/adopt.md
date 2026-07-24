@@ -36,12 +36,20 @@ diff first):
 
 ## Steps
 
-1. **Legacy layout check.** If harness folders are found at the project root
-   (`agents/`, `commands/`, `skills/` at root instead of under `.opencode/`),
-   this is a pre-0.1 adoption. Offer to migrate them under `.opencode/` (the
-   modern layout) and update any root-relative path references. Show what
-   will move; write only on confirmation. If `.opencode/` already has the
-   harness, skip.
+1. **Legacy layout check.** Two relocations have happened — detect both and
+   delegate to the deterministic engine (`install.py migrate`) rather than
+   moving files by hand. Show what will change; write only on confirmation.
+   - **Pre-0.1** — harness folders at the project root (`agents/`,
+     `commands/`, `skills/` instead of under `.opencode/`): offer to move them
+     under `.opencode/` and fix root-relative references.
+   - **Pre-harness-tree** — `rules/` or `tech/` at the `.opencode/` root
+     instead of under `.opencode/harness/` (the 0.1 layout move): run
+     `python3 install.py migrate --from <this-repo> --dry-run`, show the plan,
+     and on approval apply it (add `--force`). The engine relocates the dirs,
+     removes the legacy orphans, fixes the config path, ports the tech router,
+     and writes the manifest. Do **not** relocate these by hand.
+   If `.opencode/` already has the modern layout (`harness/rules/` present, no
+   `.opencode/rules/`), skip.
 2. **Guard.** Confirm `.opencode/` has the harness folders (`agents/`,
    `commands/`, `skills/`, `harness/rules/`). If not, stop — `/adopt`
    configures an *existing* harness, it doesn't fetch one. Point the user to

@@ -6,6 +6,23 @@ All notable changes to this project are documented here. Format based on
 
 ## [Unreleased]
 
+### Added
+- **`install.py migrate`** — one-command migration from a legacy harness layout
+  to the current one. Relocates `.opencode/{rules,tech}` → `.opencode/harness/`,
+  removes orphan dirs, syncs `agents/`/`commands/`/`skills/`, rewrites the
+  config `instructions` path, and ports the `tech.md` stacks into the router
+  format deterministically. Flags: `--dry-run` (plan only), `--force`
+  (non-interactive apply), `--check` (verify; exit code is the verdict).
+  Records applied migrations in `.opencode/harness/harness.json`.
+- **`/migrate` command** — orchestrates plan → approval → apply → validate.
+- Migration test suite (`tests/test_migrate.py`, 16 cases).
+
+### Changed
+- `/adopt` legacy-layout check now detects the pre-harness-tree layout too
+  (`.opencode/{rules,tech}` at the `.opencode/` root) and delegates to
+  `install.py migrate` instead of moving files by hand.
+- `install.py update` preserves the recorded `migrations` list across updates.
+
 ## [0.1.0] - 2026-07-24
 
 First tagged release. Breaking changes from the pre-release layout — see
@@ -48,3 +65,8 @@ migration notes below.
 2. Or manually: `git mv agents .opencode/agents` etc., then update path
    references and run `python3 .opencode/harness/scripts/check-refs.py`.
 3. Run `/adopt` — it detects legacy layouts and offers migration.
+
+> **Easier now:** if your project has `.opencode/rules/` or `.opencode/tech/`
+> (the pre-harness-tree layout), run `/migrate` (or
+> `python3 install.py migrate --from <this-repo> --dry-run`) — it handles the
+> relocation, orphan cleanup, config path, and tech-router port in one shot.

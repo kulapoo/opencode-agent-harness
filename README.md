@@ -32,7 +32,7 @@ opencode-native consolidation, not a replacement for either.
 | Folder        | Purpose                                                                                          |
 | ------------- | ------------------------------------------------------------------------------------------------ |
 | `.opencode/agents/`     | Specialist subagents (reviewer, security auditor, test engineer, web-perf auditor).              |
-| `.opencode/commands/`   | Slash commands: `/spec`, `/planning`, `/build`, `/test`, `/review`, `/code-simplify`, `/ship`, `/webperf`. |
+| `.opencode/commands/`   | Slash commands: `/adopt`, `/migrate`, `/spec`, `/planning`, `/build`, `/test`, `/review`, `/code-simplify`, `/ship`, `/webperf`. |
 | `.opencode/skills/`     | 25 skills covering the full lifecycle (spec, plan, build, test, review, ship, debug, secure, …). |
 | `.opencode/harness/rules/`      | Standing checklists and the tech declaration — the launch bar and conventions.                   |
 | `.opencode/harness/tech/`       | Per-language/framework conventions. A ready-made library; only declared techs lazy-load via the router.         |
@@ -93,6 +93,7 @@ shows installed version and modified files.
 | Command           | What it does                                                                    |
 | ----------------- | ------------------------------------------------------------------------------- |
 | `/adopt`          | Adopt the harness into a project — detect tech, wire config, scaffold the agent map. Run once, re-run as a health check. |
+| `/migrate`        | Relocate a legacy harness layout to the current one — dry-run plan, apply, validate. One command, no hand-edits. |
 | `/spec`           | Write a structured specification before code.                                   |
 | `/planning`       | Break work into small, verifiable, dependency-ordered tasks.                    |
 | `/build`          | Implement tasks incrementally (RED → GREEN → commit). `/build auto` runs all.   |
