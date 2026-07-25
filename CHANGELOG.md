@@ -6,10 +6,14 @@ All notable changes to this project are documented here. Format based on
 
 ## [Unreleased]
 
+_Nothing yet._
+
+## [0.2.0] - 2026-07-25
+
 ### Added
 - **One-command install via `curl | python3`** — the installer is now
   reachable pinned to a tag at
-  `https://raw.githubusercontent.com/kulapoo/opencode-agent-harness/v0.1.0/install.py`,
+  `https://raw.githubusercontent.com/kulapoo/opencode-agent-harness/v0.2.0/install.py`,
   so adopting the harness into a new project no longer requires `git clone`
   first. See README § Quick start. The same pattern works for `update` and
   `status`: `curl … | python3 - update`.
@@ -24,6 +28,7 @@ All notable changes to this project are documented here. Format based on
   user), it prints the curl one-liner. Closes the "where is install.py later?"
   gotcha at the moment you need it.
 - Test coverage for `--version` and both invocation modes (4 new unittests).
+- **`/how-to-guide` command + consolidated FAQ reference** — a new conversational slash command that walks users through the harness's workflow, artifacts, and philosophy. Backed by `.opencode/harness/references/how-to-guide.md` (new `references/` dir) holding 9 distilled entries: resuming after a break, phase meaning, file roles, vertical slicing, methodology fit, `/spec` inputs, ROADMAP/VISION compatibility, commit-message convention, and OSS adoption. The command converses (offers categories, re-explains in its own words, offers follow-ups) rather than dumping the reference.
 
 ### Changed
 - `/adopt` manifest guidance clarified: `install.py` lives in the harness source
