@@ -6,6 +6,10 @@ All notable changes to this project are documented here. Format based on
 
 ## [Unreleased]
 
+_Nothing yet._
+
+## [0.3.0] - 2026-07-26
+
 ### Removed
 - **`install.py update`** — the sync step that upgraded, pruned, and resurrected
   files is gone. It was the source of two bugs: deleted files reappeared on the

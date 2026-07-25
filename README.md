@@ -50,11 +50,11 @@ opencode-native consolidation, not a replacement for either.
 1. **Install the harness into your project.** From inside the target project:
 
    ```bash
-   curl -fsSL https://raw.githubusercontent.com/kulapoo/opencode-agent-harness/v0.2.0/install.py \
+   curl -fsSL https://raw.githubusercontent.com/kulapoo/opencode-agent-harness/v0.3.0/install.py \
      | python3 - install
    ```
 
-   This fetches the installer pinned to tag `v0.2.0` and runs it once. It
+   This fetches the installer pinned to tag `v0.3.0` and runs it once. It
    copies the `.opencode/` tree (agents, commands, skills, rules, tech,
    scripts) and writes a manifest used by `status` to report drift.
 
@@ -62,7 +62,7 @@ opencode-native consolidation, not a replacement for either.
    requirements) — download, audit, then run:
 
    ```bash
-   curl -fsSL https://raw.githubusercontent.com/kulapoo/opencode-agent-harness/v0.2.0/install.py -o install.py
+   curl -fsSL https://raw.githubusercontent.com/kulapoo/opencode-agent-harness/v0.3.0/install.py -o install.py
    less install.py
    python3 install.py install
    ```
@@ -94,7 +94,7 @@ copied into your project (see [adopt.md](.opencode/commands/adopt.md) § manifes
 
 ```bash
 # one-liner users — re-run install (or status to inspect without writing):
-curl -fsSL https://raw.githubusercontent.com/kulapoo/opencode-agent-harness/v0.2.0/install.py \
+curl -fsSL https://raw.githubusercontent.com/kulapoo/opencode-agent-harness/v0.3.0/install.py \
   | python3 - install      # or: ... | python3 - status
 
 # clone users — invoke by absolute path:
