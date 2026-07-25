@@ -16,11 +16,15 @@ All three must exit 0.
 ## 2. Installer self-test [automated]
 
 ```bash
-# Install into a throwaway dir, verify, then update with a modified file
+# Install into a throwaway dir, verify idempotency, then test divergence.
 python3 install.py install --from .    # in a tmp project
 python3 install.py status
-# modify a file, then:
-python3 install.py update --from .     # should preserve the modification
+# Re-running install is a no-op when files match:
+python3 install.py install --from .
+# Modify a file; plain install now aborts with an overwrite warning:
+python3 install.py install --from .            # rc=1, lists the divergence
+python3 install.py install --from . --force    # overwrites
+python3 install.py install --from . --skip-existing   # keeps your edit
 ```
 
 ## 3. opencode discovery smoke test [manual]

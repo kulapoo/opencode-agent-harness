@@ -32,10 +32,11 @@ opencode-native consolidation, not a replacement for either.
 | Folder        | Purpose                                                                                          |
 | ------------- | ------------------------------------------------------------------------------------------------ |
 | `.opencode/agents/`     | Specialist subagents (reviewer, security auditor, test engineer, web-perf auditor).              |
-| `.opencode/commands/`   | Slash commands: `/adopt`, `/migrate`, `/spec`, `/planning`, `/build`, `/test`, `/review`, `/code-simplify`, `/ship`, `/webperf`. |
+| `.opencode/commands/`   | Slash commands: `/adopt`, `/spec`, `/planning`, `/build`, `/test`, `/review`, `/code-simplify`, `/ship`, `/webperf`, `/how-to-guide`. |
 | `.opencode/skills/`     | 25 skills covering the full lifecycle (spec, plan, build, test, review, ship, debug, secure, …). |
 | `.opencode/harness/rules/`      | Standing checklists and the tech declaration — the launch bar and conventions.                   |
 | `.opencode/harness/tech/`       | Per-language/framework conventions. A ready-made library; only declared techs lazy-load via the router.         |
+| `.opencode/harness/references/` | Consolidated reference material that commands pull from conversationally (backs `/how-to-guide`). Never injected wholesale. |
 | `.opencode.jsonc` | Project config: injects `.opencode/harness/rules/tech.md` (the tech router) into every session.    |
 
 ## Requirements
@@ -53,9 +54,9 @@ opencode-native consolidation, not a replacement for either.
      | python3 - install
    ```
 
-   This fetches the installer pinned to tag `v0.2.0` and runs it once. It copies
-   the `.opencode/` tree (agents, commands, skills, rules, tech, scripts) and
-   writes a version-tracked manifest for future updates.
+   This fetches the installer pinned to tag `v0.2.0` and runs it once. It
+   copies the `.opencode/` tree (agents, commands, skills, rules, tech,
+   scripts) and writes a manifest used by `status` to report drift.
 
    **Prefer to inspect first?** Cautious environments (corporate networks, audit
    requirements) — download, audit, then run:
@@ -83,22 +84,26 @@ exact bytes a reviewer sees at that tag, frozen. Bump the tag in the URL when
 you want a newer installer. For air-gapped or audited environments, use the
 clone path above.
 
-**Updating.** `install.py` lives in the harness source repo and is never copied
-into your project (see [adopt.md](.opencode/commands/adopt.md) § manifest).
-Re-invoke it the same way you installed:
+**Refreshing.** There is no `update` or `migrate` step — `install` is
+idempotent and is the only command that writes files. To refresh a project
+against a newer harness, re-run `install`; files that already match are left
+untouched, and any local files that differ are reported with an overwrite
+warning before anything happens. Overwriting is always your explicit decision
+via `--force`. `install.py` lives in the harness source repo and is never
+copied into your project (see [adopt.md](.opencode/commands/adopt.md) § manifest).
 
 ```bash
-# one-liner users — fetch the latest installer each time:
+# one-liner users — re-run install (or status to inspect without writing):
 curl -fsSL https://raw.githubusercontent.com/kulapoo/opencode-agent-harness/v0.2.0/install.py \
-  | python3 - update      # or: ... | python3 - status
+  | python3 - install      # or: ... | python3 - status
 
 # clone users — invoke by absolute path:
-python3 /path/to/opencode-agent-harness/install.py update
+python3 /path/to/opencode-agent-harness/install.py install
 python3 /path/to/opencode-agent-harness/install.py status
 ```
 
-`update` upgrades untouched files in place, preserves your modifications, and
-reports drift. `status` shows installed version and modified files.
+`status` shows the installed version and any modified or missing files; it
+changes nothing.
 
 ## How the pieces fit
 
@@ -114,6 +119,11 @@ reports drift. `status` shows installed version and modified files.
   `.opencode/harness/tech/<name>/*.md` files to Read before writing code. Tech
   files keep a `paths:` frontmatter glob for documentation and future
   cross-tool export, but opencode does not auto-inject on glob match.
+- **Reference material.** `.opencode/harness/references/*.md` holds consolidated
+  answers that commands surface conversationally — `/how-to-guide` picks the
+  relevant slice and re-explains it in context rather than dumping the file.
+  Like the checklists, references stay load-on-demand and are never injected
+  wholesale into every session.
 - **Subagents.** The four agents in `.opencode/agents/` are `mode: subagent`, so the
   CLI exposes each as a tool with the same name — that's what lets `/ship`
   and `/webperf` fan out to them in parallel.
@@ -126,7 +136,6 @@ reports drift. `status` shows installed version and modified files.
 | Command           | What it does                                                                    |
 | ----------------- | ------------------------------------------------------------------------------- |
 | `/adopt`          | Adopt the harness into a project — detect tech, wire config, scaffold the agent map. Run once, re-run as a health check. |
-| `/migrate`        | Relocate a legacy harness layout to the current one — dry-run plan, apply, validate. One command, no hand-edits. |
 | `/spec`           | Write a structured specification before code.                                   |
 | `/planning`       | Break work into small, verifiable, dependency-ordered tasks.                    |
 | `/build`          | Implement tasks incrementally (RED → GREEN → commit). `/build auto` runs all.   |
@@ -135,6 +144,7 @@ reports drift. `status` shows installed version and modified files.
 | `/code-simplify`  | Reduce complexity without changing behavior.                                    |
 | `/ship`           | Parallel fan-out review + go/no-go launch decision with rollback plan.          |
 | `/webperf`        | Web performance audit (Core Web Vitals, Lighthouse/trace analysis).             |
+| `/how-to-guide`   | Conversational FAQ — ask about workflow, artifacts, phases, methodology fit, or resuming work. |
 
 ## Agents
 

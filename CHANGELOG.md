@@ -6,7 +6,39 @@ All notable changes to this project are documented here. Format based on
 
 ## [Unreleased]
 
-_Nothing yet._
+### Removed
+- **`install.py update`** — the sync step that upgraded, pruned, and resurrected
+  files is gone. It was the source of two bugs: deleted files reappeared on the
+  next run (the "migrate command keeps coming back" symptom), and any drift
+  handling relied on a manifest that fought the user's intent.
+- **`install.py migrate`** and its migration engine (`MIGRATIONS`, the legacy
+  `.opencode/{rules,tech}` → `.opencode/harness/{rules,tech}` relocation
+  logic). `install` now materializes the current layout; legacy layouts are not
+  auto-relocated.
+- **`/migrate` slash command** — it drove the removed engine.
+- The migration engine's dedicated test suite (removed with the engine).
+
+### Changed
+- **`install` is now idempotent and is the only command that writes files.**
+  Re-running it is the refresh path: files whose content already matches the
+  harness are left untouched (no-op, not a conflict); any local files that
+  differ are reported with a prominent overwrite warning and the run aborts
+  unless you pass `--force` (overwrite) or `--skip-existing` (keep yours).
+  Overwriting is always the user's explicit decision. There is no longer a
+  separate guard that refuses to re-run when a manifest exists.
+- `/adopt` dropped its legacy-layout detection step (it delegated to the removed
+  `migrate`) and its manifest note no longer references `update`.
+- `status` now reports "Newer harness available: \<tag\> (re-run install to
+  refresh)" instead of "Update available".
+
+### Migration (from 0.2.0)
+- No file moves are required — the layout is unchanged. To refresh an existing
+  install, re-run `install` from the same source. If you previously deleted
+  shipped files (e.g. `migrate.md`) and want them gone for good, there is now
+  no mechanism that brings them back; if any reappear during this one
+  transition, delete them once more — future installs won't resurrect them.
+- If you depended on `install.py update` or `install.py migrate` in scripts,
+  replace those calls with `install.py install` (optionally `--force`).
 
 ## [0.2.0] - 2026-07-25
 

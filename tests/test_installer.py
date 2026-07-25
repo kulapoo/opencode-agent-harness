@@ -1,4 +1,4 @@
-"""Installer test suite — validates install, update, and conflict behavior.
+"""Installer test suite — validates install, idempotency, and conflict behavior.
 
 Run:  python3 -m pytest tests/test_installer.py
   or:  python3 -m unittest tests.test_installer
@@ -121,7 +121,7 @@ class TestConflictDetection(InstallerTestCase):
 
         rc, out, _ = self._run("install", "--from", str(self.source))
         self.assertEqual(rc, 1)
-        self.assertIn("conflicting", out.lower())
+        self.assertIn("overwrite", out.lower())
         self.assertEqual(existing.read_text(), "user content")
 
     def test_no_partial_install_on_conflict(self):
@@ -152,50 +152,62 @@ class TestConflictDetection(InstallerTestCase):
         self.assertIn("body v1", existing.read_text())
 
 
-class TestUpdate(InstallerTestCase):
-    def setUp(self):
-        super().setUp()
+class TestIdempotency(InstallerTestCase):
+    """Re-running install is the refresh path: matching files are no-ops,
+    divergent files are reported with an overwrite warning before any action."""
+
+    def test_rerun_after_install_is_noop(self):
         self._run("install", "--from", str(self.source))
-
-    def test_upgrades_untouched(self):
-        rc, out, _ = self._run("update", "--from", str(self.source))
-        self.assertEqual(rc, 0)
-        self.assertIn("Upgraded", out)
-
-    def test_preserves_modified(self):
-        f = self.target / ".opencode/agents/reviewer.md"
-        f.write_text("user modification")
-        rc, out, _ = self._run("update", "--from", str(self.source))
-        self.assertEqual(rc, 0)
-        self.assertEqual(f.read_text(), "user modification")
-        self.assertIn("preserved", out.lower())
-
-    def test_adds_new_upstream_files(self):
-        # Add a file to the source
-        (self.source / ".opencode/agents/new-agent.md").write_text(
-            "---\ndescription: new\n---\nnew body"
+        reviewer = (self.target / ".opencode/agents/reviewer.md").read_text()
+        rc, out, _ = self._run("install", "--from", str(self.source))
+        self.assertEqual(rc, 0, out)
+        # Content unchanged on the second run.
+        self.assertEqual(
+            (self.target / ".opencode/agents/reviewer.md").read_text(), reviewer
         )
-        rc, out, _ = self._run("update", "--from", str(self.source))
-        self.assertEqual(rc, 0)
-        self.assertTrue((self.target / ".opencode/agents/new-agent.md").exists())
-        self.assertIn("Added", out)
+        # Every shipped file matched → reported up-to-date, nothing overwritten.
+        self.assertIn("Up-to-date", out)
+        self.assertIn("Overwritten: 0", out)
 
-    def test_removes_deleted_upstream_files(self):
-        # Remove a file from source
-        (self.source / ".opencode/commands/ship.md").unlink()
-        rc, out, _ = self._run("update", "--from", str(self.source))
-        self.assertEqual(rc, 0)
+    def test_matching_content_is_not_a_conflict(self):
+        # Pre-place a file whose content matches the source byte-for-byte.
+        f = self.target / ".opencode/agents/reviewer.md"
+        f.parent.mkdir(parents=True)
+        f.write_text((self.source / ".opencode/agents/reviewer.md").read_text())
+        rc, out, _ = self._run("install", "--from", str(self.source))
+        self.assertEqual(rc, 0, out)
+        self.assertIn("Up-to-date", out)
+
+    def test_warns_and_aborts_on_divergence(self):
+        f = self.target / ".opencode/agents/reviewer.md"
+        f.parent.mkdir(parents=True)
+        f.write_text("user content")
+        rc, out, _ = self._run("install", "--from", str(self.source))
+        self.assertEqual(rc, 1)
+        # Prominent overwrite warning naming the divergent file.
+        self.assertIn("overwrite", out.lower())
+        self.assertIn(".opencode/agents/reviewer.md", out)
+        # Nothing written — divergent file preserved, absent files stay absent.
+        self.assertEqual(f.read_text(), "user content")
         self.assertFalse((self.target / ".opencode/commands/ship.md").exists())
-        self.assertIn("Removed", out)
 
-    def test_preserves_modified_on_delete(self):
-        f = self.target / ".opencode/commands/ship.md"
-        f.write_text("user keeps this")
-        (self.source / ".opencode/commands/ship.md").unlink()
-        rc, out, _ = self._run("update", "--from", str(self.source))
-        self.assertEqual(rc, 0)
-        self.assertTrue(f.exists())
-        self.assertEqual(f.read_text(), "user keeps this")
+    def test_force_overwrites_divergent_on_rerun(self):
+        self._run("install", "--from", str(self.source))
+        f = self.target / ".opencode/agents/reviewer.md"
+        f.write_text("user edit")
+        rc, out, _ = self._run("install", "--from", str(self.source), "--force")
+        self.assertEqual(rc, 0, out)
+        self.assertIn("body v1", f.read_text())
+        self.assertIn("Overwritten: 1", out)
+
+    def test_skip_existing_keeps_divergent_on_rerun(self):
+        self._run("install", "--from", str(self.source))
+        f = self.target / ".opencode/agents/reviewer.md"
+        f.write_text("user edit")
+        rc, out, _ = self._run("install", "--from", str(self.source), "--skip-existing")
+        self.assertEqual(rc, 0, out)
+        self.assertEqual(f.read_text(), "user edit")
+        self.assertIn("Kept 1 divergent", out)
 
 
 class TestStatusDrift(InstallerTestCase):
@@ -263,10 +275,10 @@ class TestConfigBootstrap(InstallerTestCase):
                     (tgt / variant).read_text(), '{"instructions": ["mine.md"]}\n'
                 )
 
-    def test_update_writes_config_if_missing(self):
+    def test_install_writes_config_if_missing(self):
         self._run("install", "--from", str(self.source))
         (self.target / "opencode.jsonc").unlink()
-        rc, out, _ = self._run("update", "--from", str(self.source))
+        rc, out, _ = self._run("install", "--from", str(self.source))
         self.assertEqual(rc, 0, out)
         self.assertTrue((self.target / "opencode.jsonc").exists())
         self.assertIn("Wrote default config", out)
@@ -346,8 +358,8 @@ class TestInstallerCLI(unittest.TestCase):
         self.assertIn("opencode-agent-harness installer", result.stdout)
 
     def test_version_flag_does_not_require_subcommand(self):
-        # --version must exit cleanly without `install`/`update`/`status`,
-        # even though subparsers are required.
+        # --version must exit cleanly without `install`/`status`, even though
+        # subparsers are required.
         result = subprocess.run(
             [sys.executable, str(INSTALLER), "--version"],
             cwd=self.target,
