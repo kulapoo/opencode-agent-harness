@@ -8,6 +8,42 @@ All notable changes to this project are documented here. Format based on
 
 _Nothing yet._
 
+## [0.5.0] - 2026-07-26
+
+### Changed
+- **Unified docs layout: `docs/specs/<effort-slug>/` replaces `SPEC.md` +
+  `tasks/` + `tasks/archive/`.** One directory per effort (branch-scoped)
+  holds four thin files with distinct jobs:
+  - `spec.md` — destination (what does done look like?)
+  - `plan.md` — route (thin index of tasks + architecture decisions + checkpoints)
+  - `todo.md` — progress (flat checkboxes; single status source)
+  - `tasks/00N-<slug>.md` — turn-by-turn per-task detail (acceptance, files, verify, deps)
+- **No archive directory.** Effort directories stay in `docs/specs/` forever;
+  `spec.md` frontmatter transitions `draft → active → shipped` (or
+  `abandoned`) in place. Git is the full history; the filesystem is the
+  browsable index. The old "trio archives as a unit" principle is gone.
+- **ADRs renamed `docs/decisions/` → `docs/adrs/`.** Same append-only
+  lifecycle, just aligns the directory name with the industry term.
+- **Multi-scale framing.** The harness no longer describes itself as
+  "solo / small-team only." The `docs/specs/<slug>/` layout works for solo
+  developers, small teams, and large OSS projects (Rust/KEP-scale) without
+  modification; very large projects can add an optional grouping layer
+  (`docs/specs/<area>/<effort>/`) and open-contribution projects can extend
+  the `status` enum — both layer on top without changing the core model.
+
+### Removed
+- `SPEC.md` at project root as the default save path.
+- `tasks/plan.md`, `tasks/todo.md`, `tasks/archive/` directory tree.
+- `docs/decisions/` (renamed to `docs/adrs/`).
+- The "Plan File Lifecycle" section in `planning-and-task-breakdown` (replaced
+  by "Effort File Lifecycle" with the four-files-four-jobs mental model).
+
+### Migration (breaking for downstreams)
+Downstream projects with the old `SPEC.md` + `tasks/` layout need to migrate
+to `docs/specs/<slug>/`. No automated migration tooling ships in this
+release — re-run `/spec` on a fresh branch to start the new layout alongside
+existing work.
+
 ## [0.4.1] - 2026-07-26
 
 ### Added
