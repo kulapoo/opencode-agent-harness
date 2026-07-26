@@ -18,8 +18,15 @@ Flags:
     --from PATH        Use a local directory or tarball instead of GitHub
     --force            Overwrite divergent local files during install
     --skip-existing    Keep divergent local files during install
+    --prune-deprecated Delete deprecated orphan files (per DEPRECATED) found downstream
+    --no-color         Disable ANSI color (also honors NO_COLOR env var)
+    --color            Force ANSI color on even when stdout is not a TTY
     --version          Print installer version and exit
     -h, --help         Show this message
+
+Color output is auto-disabled when stdout isn't a TTY (pipes, logs, redirects),
+so the installer is safe to curl|python3. NO_COLOR and CLICOLOR_FORCE env vars
+are honored; --no-color / --color flags override them.
 """
 
 from __future__ import annotations
@@ -65,6 +72,52 @@ MIN_CONFIG = (
     '  "instructions": [".opencode/harness/rules/tech.md"]\n'
     "}\n"
 )
+
+
+# ── color ────────────────────────────────────────────────────────────────────
+# ANSI color support. Auto-disables when stdout isn't a TTY so pipes, logs,
+# file redirection, and test capture stay clean. Honors the de-facto standard
+# env vars in addition to the --no-color / --color flags:
+#   NO_COLOR            → off regardless of TTY (https://no-color.org)
+#   CLICOLOR_FORCE != 0 → on regardless of TTY
+# Precedence (highest first):
+#   --no-color flag  >  --color flag  >  NO_COLOR  >  CLICOLOR_FORCE  >  isatty
+
+_ANSI = {
+    "red": "\033[31m",
+    "yellow": "\033[33m",
+    "green": "\033[32m",
+    "bold": "\033[1m",
+    "reset": "\033[0m",
+}
+# Module-level override set by the --no-color / --color flags in main().
+# None means "auto" (env + TTY). Tests can flip this directly to avoid having
+# to mess with env vars or pseudo-TTYs.
+_COLOR_OVERRIDE: bool | None = None
+
+
+def _color_enabled() -> bool:
+    if _COLOR_OVERRIDE is not None:
+        return _COLOR_OVERRIDE
+    # NO_COLOR: present and non-empty disables (https://no-color.org).
+    if os.environ.get("NO_COLOR", "") != "":
+        return False
+    # CLICOLOR_FORCE: non-zero value forces on.
+    clicolor = os.environ.get("CLICOLOR_FORCE", "")
+    if clicolor and clicolor != "0":
+        return True
+    return sys.stdout.isatty()
+
+
+def _c(text: str, *styles: str) -> str:
+    """Wrap `text` in the named ANSI styles, or return it unchanged when color
+    is disabled. Unknown style names are silently skipped."""
+    if not _color_enabled():
+        return text
+    prefix = "".join(_ANSI.get(s, "") for s in styles)
+    if not prefix:
+        return text
+    return f"{prefix}{text}{_ANSI['reset']}"
 
 
 # ── helpers ──────────────────────────────────────────────────────────────────
@@ -250,26 +303,53 @@ def report_orphans(
     print()
     if deprecated_orphans:
         print(
-            f"Deprecated files found ({len(deprecated_orphans)}) — no longer "
-            "shipped by the harness:"
+            _c(
+                f"Deprecated files found ({len(deprecated_orphans)}) — no longer "
+                "shipped by the harness:",
+                "yellow",
+                "bold",
+            )
         )
         for rel in deprecated_orphans:
             removed_in, reason, replacement = deprecated_map[rel]
             extra = f"; replacement: {replacement}" if replacement else ""
-            print(f"  {rel}  (deprecated in {removed_in}: {reason}{extra})")
+            print(
+                _c(f"  {rel}", "yellow")
+                + f"  (deprecated in {removed_in}: {reason}{extra})"
+            )
         if prune:
             for rel in deprecated_orphans:
                 (Path.cwd() / rel).unlink(missing_ok=True)
-            print(f"  → pruned {len(deprecated_orphans)} deprecated file(s).")
+            print(
+                _c(f"  → pruned {len(deprecated_orphans)} deprecated file(s).", "green")
+            )
         else:
-            print("  → re-run install with --prune-deprecated to delete them.")
+            print(
+                _c(
+                    "  → re-run install with --prune-deprecated to delete them.",
+                    "bold",
+                )
+            )
     if unknown_orphans:
         print(
-            f"Untracked files under .opencode/ ({len(unknown_orphans)}) — not in "
-            "MANIFEST or DEPRECATED:"
+            _c(
+                f"Untracked files under .opencode/ ({len(unknown_orphans)}) — not in "
+                "MANIFEST or DEPRECATED:",
+                "yellow",
+                "bold",
+            )
         )
         for rel in unknown_orphans:
-            print(f"  {rel}  (no longer part of the harness; safe to remove)")
+            print(
+                _c(f"  {rel}", "yellow")
+                + "  (no longer part of the harness; safe to remove)"
+            )
+        print(
+            _c(
+                "  → not shipped by the harness; safe to delete manually if not yours.",
+                "bold",
+            )
+        )
 
 
 def latest_release_tag() -> str | None:
@@ -579,7 +659,23 @@ def main() -> int:
     )
     sub = parser.add_subparsers(dest="command", required=True)
 
-    p_install = sub.add_parser("install", help="Install the harness into this project")
+    # Shared color flags on every subcommand. Parent parser is the canonical
+    # argparse pattern for "every subcommand accepts these".
+    color_flags = argparse.ArgumentParser(add_help=False)
+    color_flags.add_argument(
+        "--no-color",
+        action="store_true",
+        help="Disable ANSI color output (also honors NO_COLOR env var)",
+    )
+    color_flags.add_argument(
+        "--color",
+        action="store_true",
+        help="Force ANSI color output even when stdout is not a TTY",
+    )
+
+    p_install = sub.add_parser(
+        "install", parents=[color_flags], help="Install the harness into this project"
+    )
     p_install.add_argument("--tag", default=None, help="Specific git tag")
     p_install.add_argument(
         "--from", dest="from_path", default=None, help="Local dir or tarball"
@@ -597,10 +693,19 @@ def main() -> int:
     )
     p_install.set_defaults(func=cmd_install)
 
-    p_status = sub.add_parser("status", help="Show installation status and drift")
+    p_status = sub.add_parser(
+        "status", parents=[color_flags], help="Show installation status and drift"
+    )
     p_status.set_defaults(func=cmd_status)
 
     args = parser.parse_args()
+    # Resolve color override BEFORE the command runs so every print sees the
+    # right setting. --no-color wins over --color when both are passed.
+    global _COLOR_OVERRIDE
+    if args.no_color:
+        _COLOR_OVERRIDE = False
+    elif args.color:
+        _COLOR_OVERRIDE = True
     return args.func(args)
 
 

@@ -7,6 +7,7 @@ Run:  python3 -m pytest tests/test_installer.py
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -65,12 +66,16 @@ class InstallerTestCase(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.tmp)
 
-    def _run(self, *args: str) -> tuple[int, str, str]:
+    def _run(self, *args: str, env: dict | None = None) -> tuple[int, str, str]:
+        full_env = None
+        if env is not None:
+            full_env = {**os.environ, **env}
         result = subprocess.run(
             [sys.executable, str(INSTALLER), *args],
             cwd=self.target,
             capture_output=True,
             text=True,
+            env=full_env,
         )
         return result.returncode, result.stdout, result.stderr
 
@@ -540,6 +545,86 @@ class TestOrphanDetection(InstallerTestCase):
         self._run("install", "--from", str(self.source))
         rc, out, _ = self._run("status")
         self.assertIn("No orphans", out)
+
+
+class TestColorOutput(InstallerTestCase):
+    """ANSI color highlights the orphan report so 'safe to remove' files stand
+    out. Color is auto-disabled when stdout isn't a TTY (pipes, captures, logs)
+    so the curl|python3 install path stays clean. NO_COLOR / CLICOLOR_FORCE env
+    vars and --no-color / --color flags all participate."""
+
+    RESET = "\033[0m"
+
+    def _make_unknown_orphan(self) -> Path:
+        unknown = self.target / ".opencode/commands/custom.md"
+        unknown.parent.mkdir(parents=True, exist_ok=True)
+        unknown.write_text("user file")
+        return unknown
+
+    def test_color_off_when_stdout_captured(self):
+        # Default behavior with stdout captured (not a TTY) and no env override:
+        # no ANSI escapes. This is what every other test in this suite sees.
+        self._make_unknown_orphan()
+        rc, out, _ = self._run(
+            "install",
+            "--from",
+            str(self.source),
+            env={"NO_COLOR": "", "CLICOLOR_FORCE": ""},
+        )
+        self.assertEqual(rc, 0, out)
+        self.assertIn("safe to remove", out)
+        self.assertNotIn("\033[", out)
+
+    def test_color_on_with_clicolor_force(self):
+        # CLICOLOR_FORCE!=0 flips color on even when stdout is captured.
+        self._make_unknown_orphan()
+        rc, out, _ = self._run(
+            "install", "--from", str(self.source), env={"CLICOLOR_FORCE": "1"}
+        )
+        self.assertEqual(rc, 0, out)
+        # The unknown-orphan header and the path line both get wrapped.
+        self.assertIn("\033[33m", out)  # yellow
+        self.assertIn(self.RESET, out)
+        # The plain text is still present inside the escape sequences.
+        self.assertIn("safe to remove", out)
+
+    def test_no_color_env_disables_color(self):
+        # NO_COLOR (non-empty) overrides CLICOLOR_FORCE per the spec.
+        self._make_unknown_orphan()
+        rc, out, _ = self._run(
+            "install",
+            "--from",
+            str(self.source),
+            env={"NO_COLOR": "1", "CLICOLOR_FORCE": "1"},
+        )
+        self.assertEqual(rc, 0, out)
+        self.assertNotIn("\033[", out)
+
+    def test_no_color_flag_overrides_clicolor_force(self):
+        # The --no-color flag wins over CLICOLOR_FORCE.
+        self._make_unknown_orphan()
+        rc, out, _ = self._run(
+            "install",
+            "--from",
+            str(self.source),
+            "--no-color",
+            env={"CLICOLOR_FORCE": "1"},
+        )
+        self.assertEqual(rc, 0, out)
+        self.assertNotIn("\033[", out)
+
+    def test_color_flag_forces_color_when_piped(self):
+        # The --color flag flips color on regardless of TTY.
+        self._make_unknown_orphan()
+        rc, out, _ = self._run(
+            "install",
+            "--from",
+            str(self.source),
+            "--color",
+            env={"NO_COLOR": "", "CLICOLOR_FORCE": ""},
+        )
+        self.assertEqual(rc, 0, out)
+        self.assertIn("\033[33m", out)
 
 
 if __name__ == "__main__":
