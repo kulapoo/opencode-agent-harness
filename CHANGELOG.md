@@ -8,6 +8,28 @@ All notable changes to this project are documented here. Format based on
 
 _Nothing yet._
 
+## [0.4.1] - 2026-07-26
+
+### Added
+- **Color-coded orphan report** in `install` — the deprecated and untracked
+  `.opencode/` file sections now render with prominent yellow+bold headers
+  and yellow file paths, so the "no longer part of the harness; safe to
+  remove" set actually stands out instead of blending into the install
+  output. Color is auto-disabled when stdout isn't a TTY (pipes, logs,
+  redirects, `curl | python3`), so captured output is unchanged. Honors the
+  `NO_COLOR` and `CLICOLOR_FORCE` env vars per the de-facto standards.
+- **`install --no-color` / `install --color`** flags — explicit overrides
+  (`--no-color` wins when both are passed). Also accepted by `status`.
+- **Closing hint for untracked orphans** — the "safe to remove" block now
+  ends with `→ not shipped by the harness; safe to delete manually if not
+  yours.`, closing the gap where that set listed files but gave no removal
+  instruction.
+
+### Changed
+- `install.py` docstring `Flags:` section now lists `--prune-deprecated`,
+  `--no-color`, and `--color`, and documents the auto-disable-on-pipe
+  behavior.
+
 ## [0.4.0] - 2026-07-26
 
 ### Added

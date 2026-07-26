@@ -49,7 +49,7 @@ REPO = "kulapoo/opencode-agent-harness"
 # from tags whether or not a GitHub Release object exists. Bump this when cutting
 # a new release so the documented one-liner and post-install hint stay in sync.
 INSTALLER_URL = (
-    "https://raw.githubusercontent.com/kulapoo/opencode-agent-harness/v0.4.0/install.py"
+    "https://raw.githubusercontent.com/kulapoo/opencode-agent-harness/v0.4.1/install.py"
 )
 MANIFEST_REL = ".opencode/harness/harness.json"
 # Source-side declarations (at the repo root of the harness itself). The install
