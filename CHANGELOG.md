@@ -8,6 +8,52 @@ All notable changes to this project are documented here. Format based on
 
 _Nothing yet._
 
+## [0.4.0] - 2026-07-26
+
+### Added
+- **`MANIFEST`** — the install set as a hand-maintained, plain-text list of
+  every shipped path (one per line). Install is now gated by it: a file under
+  `.opencode/` ships only if listed. This structurally prevents the leak that
+  let `extract-release-notes.py` escape into downstream installs in 0.3.x.
+- **`DEPRECATED`** — a plain-text registry of removed files
+  (`path ⇥ removed_in ⇥ reason[ ⇥ replacement]`). When `install` finds a
+  downstream file that the current `MANIFEST` no longer tracks, it looks the
+  path up here and prints a deprecation explanation instead of silence.
+  Seeded with `migrate.md` (removed in 0.3.0) and the leaked
+  `extract-release-notes.py`.
+- **`scripts/lint-manifest.py`** — a fourth validation gate. Fails if `MANIFEST`
+  doesn't exactly match the shippable `.opencode/` tree (catches both "forgot
+  to declare a new file" and "declared a file that's gone"), if a path is in
+  both `MANIFEST` and `DEPRECATED`, or if a `DEPRECATED` entry still exists in
+  the source tree.
+- **`install --prune-deprecated`** — opt-in flag that deletes deprecated orphan
+  files (those `DEPRECATED` explains) after listing them. Unknown orphans are
+  never touched. Default remains warn-only — overwriting and deletion are
+  always your explicit decision.
+- **Orphan detection** in `install`, `status`, and `/adopt`: files under
+  `.opencode/` that the current harness no longer ships are reported.
+  `install` gives the full deprecation explanation (it has the source
+  `DEPRECATED`); `status` and `/adopt` report them self-contained (no source
+  needed) as untracked.
+
+### Changed
+- **Install discovery is now MANIFEST-gated** (was: `rglob` over `.opencode/`
+  with a skip-list). When a source has no `MANIFEST` (predates 0.4.0, e.g. an
+  old `--tag`), install falls back to the `rglob` discoverer with a notice
+  that leak protection is inactive — backward compatible.
+- **Downstream manifest (`harness.json`) now records only the tracked install
+  set**, not everything `rglob` finds on disk. This is what lets `status`
+  detect leftover orphans (a file on disk that isn't in the manifest).
+- `extract-release-notes.py` moved from `.opencode/harness/scripts/` to
+  `scripts/` at the repo root — it is a maintainer-only release tool, never
+  meant to ship downstream.
+
+### Migration (from 0.3.0)
+- If you have a stale `migrate.md` (or the leaked `extract-release-notes.py`)
+  in an existing install, re-running `install` now reports it as a deprecated
+  orphan with an explanation. Add `--prune-deprecated` to delete it, or remove
+  it by hand. No file moves are required.
+
 ## [0.3.0] - 2026-07-26
 
 ### Removed
