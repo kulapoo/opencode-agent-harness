@@ -42,9 +42,16 @@ REPO = "kulapoo/opencode-agent-harness"
 # from tags whether or not a GitHub Release object exists. Bump this when cutting
 # a new release so the documented one-liner and post-install hint stay in sync.
 INSTALLER_URL = (
-    "https://raw.githubusercontent.com/kulapoo/opencode-agent-harness/v0.3.0/install.py"
+    "https://raw.githubusercontent.com/kulapoo/opencode-agent-harness/v0.4.0/install.py"
 )
 MANIFEST_REL = ".opencode/harness/harness.json"
+# Source-side declarations (at the repo root of the harness itself). The install
+# set is gated by MANIFEST — a file under .opencode/ ships only if listed there.
+# When MANIFEST is absent (source predates v0.4.0), install falls back to
+# discovering via rglob + the skip rules below. DEPRECATED drives the
+# explanation printed when a downstream file is no longer in MANIFEST.
+MANIFEST_FILE = "MANIFEST"
+DEPRECATED_FILE = "DEPRECATED"
 OPENCODE_PREFIX = ".opencode/"
 SKIPPED_DIRS = {".git", "__pycache__", ".ruff_cache", "node_modules"}
 # Local-only scaffolding at the .opencode/ root (opencode plugin/tooling) that
@@ -113,7 +120,13 @@ def ensure_config() -> bool:
 
 
 def list_harness_files(source_root: Path) -> list[Path]:
-    """Return all files under .opencode/ in source_root, excluding harness.json."""
+    """Return all files under .opencode/ in source_root, excluding harness.json.
+
+    This is the ground-truth on-disk discoverer (rglob + skip rules). The
+    primary install path reads MANIFEST instead (see resolve_install_files);
+    this function backs the legacy fallback, the downstream manifest snapshot,
+    and lint-manifest's notion of 'shippable'.
+    """
     oc = source_root / OPENCODE_PREFIX
     if not oc.is_dir():
         return []
@@ -130,6 +143,133 @@ def list_harness_files(source_root: Path) -> list[Path]:
             continue
         result.append(p)
     return result
+
+
+def read_source_manifest(source_root: Path) -> list[str] | None:
+    """Read the source MANIFEST; return declared paths, or None if absent.
+
+    Returns None (not []) when MANIFEST is missing, so callers can distinguish
+    'source predates the manifest' (-> rglob fallback) from 'declares nothing'.
+    Comments ('#') and blank lines are ignored.
+    """
+    p = source_root / MANIFEST_FILE
+    if not p.is_file():
+        return None
+    paths = []
+    for line in p.read_text().splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        paths.append(line)
+    return paths
+
+
+def read_source_deprecated(source_root: Path) -> dict[str, tuple[str, str, str]]:
+    """Read source DEPRECATED -> {path: (removed_in, reason, replacement)}.
+
+    replacement is '' when the 4th field is absent. Malformed lines are skipped.
+    """
+    p = source_root / DEPRECATED_FILE
+    if not p.is_file():
+        return {}
+    out: dict[str, tuple[str, str, str]] = {}
+    for line in p.read_text().splitlines():
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+        parts = line.split("\t")
+        if len(parts) < 3:
+            continue
+        out[parts[0].strip()] = (
+            parts[1].strip(),
+            parts[2].strip(),
+            parts[3].strip() if len(parts) > 3 else "",
+        )
+    return out
+
+
+def resolve_install_files(source_root: Path) -> tuple[list[Path], bool]:
+    """Decide which source files to install. Returns (files, manifest_gated).
+
+    Primary: read MANIFEST (the declared, validated install set) — this is what
+    prevents stray files under .opencode/ from leaking downstream.
+    Fallback: when MANIFEST is absent (source predates it), discover via rglob +
+    skip rules, preserving backward compat with old release tags.
+    """
+    declared = read_source_manifest(source_root)
+    if declared is not None:
+        return [source_root / rel for rel in declared], True
+    return list_harness_files(source_root), False
+
+
+def discover_downstream_orphans(tracked: set[str]) -> list[str]:
+    """Downstream .opencode/ files not in `tracked`. Sorted.
+
+    Uses the same skip rules as list_harness_files so scaffolding, node_modules,
+    and the manifest file itself never count as orphans. Used by:
+      - install: `tracked` = current source MANIFEST (authoritative).
+      - status:  `tracked` = downstream harness.json keys (self-contained).
+    """
+    oc = Path.cwd() / OPENCODE_PREFIX
+    if not oc.is_dir():
+        return []
+    orphans: list[str] = []
+    for p in sorted(oc.rglob("*")):
+        if not p.is_file():
+            continue
+        rel = str(p.relative_to(Path.cwd()))
+        if rel == MANIFEST_REL:
+            continue
+        if rel in tracked:
+            continue
+        if any(part in SKIPPED_DIRS for part in p.parts):
+            continue
+        if p.parent == oc and p.name in SKIPPED_ROOT_FILES:
+            continue
+        orphans.append(rel)
+    return orphans
+
+
+def report_orphans(
+    orphans: list[str],
+    deprecated_map: dict[str, tuple[str, str, str]],
+    *,
+    prune: bool,
+) -> None:
+    """Print a categorized orphan report; optionally delete deprecated ones.
+
+    Splits orphans into 'deprecated' (DEPRECATED explains them, with reason) and
+    'unknown' (not in MANIFEST or DEPRECATED). With prune=True, deletes ONLY the
+    deprecated set — unknown orphans are always left untouched (they may be the
+    user's own files under .opencode/). The flag is the confirmation, mirroring
+    --force semantics.
+    """
+    deprecated_orphans = [o for o in orphans if o in deprecated_map]
+    unknown_orphans = [o for o in orphans if o not in deprecated_map]
+    if not deprecated_orphans and not unknown_orphans:
+        return
+    print()
+    if deprecated_orphans:
+        print(
+            f"Deprecated files found ({len(deprecated_orphans)}) — no longer "
+            "shipped by the harness:"
+        )
+        for rel in deprecated_orphans:
+            removed_in, reason, replacement = deprecated_map[rel]
+            extra = f"; replacement: {replacement}" if replacement else ""
+            print(f"  {rel}  (deprecated in {removed_in}: {reason}{extra})")
+        if prune:
+            for rel in deprecated_orphans:
+                (Path.cwd() / rel).unlink(missing_ok=True)
+            print(f"  → pruned {len(deprecated_orphans)} deprecated file(s).")
+        else:
+            print("  → re-run install with --prune-deprecated to delete them.")
+    if unknown_orphans:
+        print(
+            f"Untracked files under .opencode/ ({len(unknown_orphans)}) — not in "
+            "MANIFEST or DEPRECATED:"
+        )
+        for rel in unknown_orphans:
+            print(f"  {rel}  (no longer part of the harness; safe to remove)")
 
 
 def latest_release_tag() -> str | None:
@@ -252,9 +392,28 @@ def extract_tarball(tarball_path: Path) -> Path:
 def cmd_install(args) -> int:
     source_root, version, _cleanup = resolve_source(args.from_path, args.tag)
 
-    harness_files = list_harness_files(source_root)
-    if not harness_files:
-        raise SystemExit("No harness files found in source (.opencode/ missing).")
+    install_files, manifest_gated = resolve_install_files(source_root)
+    if not install_files:
+        raise SystemExit(
+            "No harness files found (MANIFEST empty or .opencode/ missing)."
+        )
+
+    # MANIFEST could drift from the tree if a maintainer forgot to keep them in
+    # sync — lint-manifest catches this at dev time; here we fail loudly at
+    # install time rather than copying a partial set.
+    missing = [str(f) for f in install_files if not f.is_file()]
+    if missing:
+        raise SystemExit(
+            "MANIFEST declares files not present in the source:\n  "
+            + "\n  ".join(sorted(missing))
+            + "\nThis source is inconsistent; use a different --tag or --from."
+        )
+
+    if not manifest_gated:
+        print(
+            "Note: source has no MANIFEST (predates v0.4.0); discovering files "
+            "via rglob. Leak protection is inactive for this source."
+        )
 
     # Pre-flight: classify every source file against what's already on disk.
     # Idempotent — a file whose content already matches the harness is a no-op,
@@ -263,7 +422,7 @@ def cmd_install(args) -> int:
     up_to_date = 0
     divergent: list[str] = []
 
-    for src_file in harness_files:
+    for src_file in install_files:
         rel = src_file.relative_to(source_root)
         dest = Path(rel)
         if not dest.exists():
@@ -306,12 +465,15 @@ def cmd_install(args) -> int:
         else:
             written += 1
 
-    # (Re)write the manifest so `status` reflects this exact install.
+    # (Re)write the manifest so `status` reflects this exact install. Record
+    # only the tracked install set — NOT orphaned leftovers on disk — so `status`
+    # can later detect those orphans as untracked.
+    tracked_rels = [str(f.relative_to(source_root)) for f in install_files]
     hashes = {}
-    all_installed = list_harness_files(Path.cwd())
-    for f in all_installed:
-        rel = str(f.relative_to(Path.cwd()))
-        hashes[rel] = sha256_file(f)
+    for rel in tracked_rels:
+        p = Path(rel)
+        if p.is_file():
+            hashes[rel] = sha256_file(p)
     write_manifest(version, hashes)
 
     wrote_config = ensure_config()
@@ -323,6 +485,15 @@ def cmd_install(args) -> int:
     if wrote_config:
         print(f"  Wrote default config: {CONFIG_FILES[0]}")
     print(f"  Manifest: {MANIFEST_REL}")
+
+    # Orphan detection: downstream files the current source MANIFEST doesn't
+    # track. Deprecated orphans get an explanation (and are pruned with
+    # --prune-deprecated); unknown orphans are reported but never touched.
+    tracked_set = set(tracked_rels)
+    deprecated_map = read_source_deprecated(source_root)
+    orphans = discover_downstream_orphans(tracked_set)
+    report_orphans(orphans, deprecated_map, prune=args.prune_deprecated)
+
     print("\nNext steps:")
     print("  1. Restart opencode (config loads at startup).")
     print("  2. Run /adopt to detect your tech and scaffold AGENTS.md.")
@@ -359,6 +530,24 @@ def cmd_status(args) -> int:
     print(
         f"  Files: {len(files)} total  ({clean} clean, {modified} modified, {missing} missing)"
     )
+
+    # Orphans: downstream .opencode/ files not recorded in this install's
+    # manifest — leftovers from a prior version (e.g. a removed command) or
+    # user-added files. Detected self-contained (no source needed); reasons are
+    # shown at install time when the DEPRECATED registry is available.
+    orphans = discover_downstream_orphans(set(files.keys()))
+    if orphans:
+        print(
+            f"  Orphans: {len(orphans)} untracked file(s) under .opencode/ "
+            "(not in this install's manifest)"
+        )
+        for rel in orphans[:10]:
+            print(f"    {rel}")
+        if len(orphans) > 10:
+            print(f"    ... and {len(orphans) - 10} more")
+        print("  Re-run install for deprecation explanations, or remove manually.")
+    else:
+        print("  No orphans (every .opencode/ file is tracked).")
 
     latest = latest_release_tag()
     if latest and latest != version:
@@ -400,6 +589,11 @@ def main() -> int:
     )
     p_install.add_argument(
         "--skip-existing", action="store_true", help="Keep divergent local files"
+    )
+    p_install.add_argument(
+        "--prune-deprecated",
+        action="store_true",
+        help="Delete deprecated orphan files (per DEPRECATED) found downstream",
     )
     p_install.set_defaults(func=cmd_install)
 

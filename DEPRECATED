@@ -1,0 +1,10 @@
+# DEPRECATED — files the harness USED to ship but no longer does.
+# Tab-separated fields:
+#   <path>TAB<removed_in>TAB<reason>[TAB<replacement>]
+# When the installer finds a downstream file that is NOT in MANIFEST, it looks
+# the path up here to print a deprecation explanation. Add an entry whenever you
+# remove a previously-shipped file (and remove the entry from MANIFEST).
+# Lines starting with '#' are comments; blank lines are ignored.
+
+.opencode/commands/migrate.md	v0.3.0	Removed; install is now idempotent (re-run install to refresh). Safe to delete.
+.opencode/harness/scripts/extract-release-notes.py	v0.4.0	Maintainer-only release helper; never should have shipped. Safe to delete.

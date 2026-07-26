@@ -55,8 +55,14 @@ diff first):
      `update` step — to refresh, re-run `install` (it is idempotent; divergent
      local files are reported with an overwrite warning before anything
      changes). A version of `local` only means it was installed from a local
-     clone (`--from <dir>`) rather than a GitHub tag — it is not an error. If
-     the manifest is absent, it wasn't written (manual file copy).
+      clone (`--from <dir>`) rather than a GitHub tag — it is not an error. If
+      the manifest is absent, it wasn't written (manual file copy).
+   - Orphans: glob `.opencode/` and subtract the paths recorded in
+     `harness.json`'s `files`. Any leftovers are files the current harness no
+     longer ships — typically deprecated commands from a prior version (e.g.
+     `migrate.md` from ≤0.2.0). Report them as safe to delete. This is the
+     session-side view of what `install` reports with full deprecation reasons;
+     re-run `install` (or `install --prune-deprecated`) to act on them.
 5. **Post-adopt verification.** Remind the user to restart opencode (config
    loads once at startup), then in a new session verify the router is active:
    ask "what tech conventions should I load?" — the agent should cite the

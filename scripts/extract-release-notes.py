@@ -7,7 +7,7 @@ the release flow (see RELEASE.md §5) so `gh release create --notes` gets the
 CHANGELOG entry without paste-fragile inline Python in the shell command.
 
 Usage:
-    python3 .opencode/harness/scripts/extract-release-notes.py [repo_root]
+    python3 scripts/extract-release-notes.py [repo_root]
 
 Exit 1 if CHANGELOG.md is missing or no versioned section is found.
 """

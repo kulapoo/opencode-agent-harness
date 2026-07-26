@@ -8,6 +8,7 @@ fully CI-tested — the steps marked **[manual]** require human or LLM verificat
 ```bash
 python3 .opencode/harness/scripts/check-refs.py
 python3 .opencode/harness/scripts/lint-frontmatter.py
+python3 scripts/lint-manifest.py
 python3 -m unittest discover -s tests -v
 ```
 
@@ -25,6 +26,11 @@ python3 install.py install --from .
 python3 install.py install --from .            # rc=1, lists the divergence
 python3 install.py install --from . --force    # overwrites
 python3 install.py install --from . --skip-existing   # keeps your edit
+# MANIFEST gating: a file under .opencode/ not in MANIFEST must NOT ship.
+echo '# stray' > .opencode/harness/scripts/_stray.py   # not in MANIFEST
+python3 install.py install --from . --force   # in a tmp project
+# verify _stray.py was NOT copied; then clean up the source:
+rm .opencode/harness/scripts/_stray.py
 ```
 
 ## 3. opencode discovery smoke test [manual]
@@ -76,13 +82,14 @@ what users see on the repo's home page and what `gh release view` / the
 GitHub "Releases" sidebar surface. Skip it and the project looks unreleased.
 
 Extract the top-most CHANGELOG section as the notes via the helper script
-(`.opencode/harness/scripts/extract-release-notes.py`), then create the release.
-The script keeps the shell command single-line and paste-safe — no inline
-Python with parens that break on paste:
+(`scripts/extract-release-notes.py`), then create the release. The script is a
+maintainer-only tool that lives at the repo root (never under `.opencode/`, so
+it never ships downstream). It keeps the shell command single-line and
+paste-safe — no inline Python with parens that break on paste:
 
 ```bash
 gh release create vX.Y.Z --title "vX.Y.Z — <summary>" \
-  --notes "$(python3 .opencode/harness/scripts/extract-release-notes.py)"
+  --notes "$(python3 scripts/extract-release-notes.py)"
 ```
 
 (Substitute `vX.Y.Z` in the tag and title — those are the only edits.)

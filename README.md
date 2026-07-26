@@ -50,19 +50,21 @@ opencode-native consolidation, not a replacement for either.
 1. **Install the harness into your project.** From inside the target project:
 
    ```bash
-   curl -fsSL https://raw.githubusercontent.com/kulapoo/opencode-agent-harness/v0.3.0/install.py \
+   curl -fsSL https://raw.githubusercontent.com/kulapoo/opencode-agent-harness/v0.4.0/install.py \
      | python3 - install
    ```
 
-   This fetches the installer pinned to tag `v0.3.0` and runs it once. It
+   This fetches the installer pinned to tag `v0.4.0` and runs it once. It
    copies the `.opencode/` tree (agents, commands, skills, rules, tech,
-   scripts) and writes a manifest used by `status` to report drift.
+   scripts) and writes a manifest used by `status` to report drift. The install
+   set is gated by a `MANIFEST` — a file under `.opencode/` ships only if listed
+   there, so stray maintainer-only files can't leak in.
 
    **Prefer to inspect first?** Cautious environments (corporate networks, audit
    requirements) — download, audit, then run:
 
    ```bash
-   curl -fsSL https://raw.githubusercontent.com/kulapoo/opencode-agent-harness/v0.3.0/install.py -o install.py
+   curl -fsSL https://raw.githubusercontent.com/kulapoo/opencode-agent-harness/v0.4.0/install.py -o install.py
    less install.py
    python3 install.py install
    ```
@@ -94,7 +96,7 @@ copied into your project (see [adopt.md](.opencode/commands/adopt.md) § manifes
 
 ```bash
 # one-liner users — re-run install (or status to inspect without writing):
-curl -fsSL https://raw.githubusercontent.com/kulapoo/opencode-agent-harness/v0.3.0/install.py \
+curl -fsSL https://raw.githubusercontent.com/kulapoo/opencode-agent-harness/v0.4.0/install.py \
   | python3 - install      # or: ... | python3 - status
 
 # clone users — invoke by absolute path:
@@ -103,7 +105,10 @@ python3 /path/to/opencode-agent-harness/install.py status
 ```
 
 `status` shows the installed version and any modified or missing files; it
-changes nothing.
+changes nothing. It also reports **orphans** — files under `.opencode/` the
+current harness no longer ships (e.g. a deprecated command from a prior
+version). `install` lists the same orphans with a deprecation explanation; pass
+`--prune-deprecated` to delete the deprecated ones.
 
 ## How the pieces fit
 
@@ -167,7 +172,7 @@ full library one edit away.
 
 ## Validation
 
-Three gates (all stdlib Python, no dependencies):
+Four gates (all stdlib Python, no dependencies):
 
 ```bash
 # 1. Markdown reference integrity
@@ -176,11 +181,14 @@ python3 .opencode/harness/scripts/check-refs.py
 # 2. Frontmatter + tech-dir consistency
 python3 .opencode/harness/scripts/lint-frontmatter.py
 
-# 3. Installer tests
+# 3. Manifest/deprecated consistency (ships vs. declared; no leaks)
+python3 scripts/lint-manifest.py
+
+# 4. Installer + manifest-validator tests
 python3 -m unittest discover -s tests -v
 ```
 
-CI runs all three on every push and PR.
+CI runs all four on every push and PR.
 
 ## Contributing
 

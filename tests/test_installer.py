@@ -41,6 +41,17 @@ def make_source(base: Path, name: str = "source") -> Path:
     (oc / "package.json").write_text('{"dependencies": {}}\n')
     (oc / "package-lock.json").write_text("{}\n")
     (oc / "bun.lock").write_text("{}\n")
+
+    # v0.4.0+: the source declares its install set via MANIFEST. Listing the
+    # four shippable files above makes the manifest-gated path the default for
+    # every test. (Legacy sources without MANIFEST are covered by
+    # TestLegacyFallback.)
+    (src / "MANIFEST").write_text(
+        ".opencode/agents/reviewer.md\n"
+        ".opencode/commands/ship.md\n"
+        ".opencode/skills/spec-driven-development/SKILL.md\n"
+        ".opencode/harness/rules/tech.md\n"
+    )
     return src
 
 
@@ -399,6 +410,136 @@ class TestInstallerCLI(unittest.TestCase):
         # stdin users get told to re-curl.
         self.assertIn("curl -fsSL", result.stdout)
         self.assertIn("python3 - status", result.stdout)
+
+
+def make_source_with_deprecated(base: Path, name: str = "source") -> Path:
+    """A source whose MANIFEST omits a file that DEPRECATED explains.
+
+    Simulates a v0.2.0 → v0.4.0 upgrade: `.opencode/commands/migrate.md` was
+    shipped once, removed in v0.3.0, and recorded in DEPRECATED so downstream
+    installs that still have it get an explanation instead of silence.
+    """
+    src = make_source(base, name)
+    (src / "DEPRECATED").write_text(
+        ".opencode/commands/migrate.md\tv0.3.0\t"
+        "Removed; install is now idempotent. Safe to delete.\n"
+    )
+    return src
+
+
+class TestManifestGating(InstallerTestCase):
+    """A file under .opencode/ in the source but NOT in MANIFEST must not ship.
+
+    This is the structural leak prevention the manifest system exists for — the
+    exact failure that let extract-release-notes.py escape in v0.3.x.
+    """
+
+    def test_stray_source_file_excluded(self):
+        stray = self.source / ".opencode/harness/scripts/stray.py"
+        stray.parent.mkdir(parents=True, exist_ok=True)
+        stray.write_text("# maintainer-only; must not ship")
+        rc, out, _ = self._run("install", "--from", str(self.source))
+        self.assertEqual(rc, 0, out)
+        self.assertFalse(
+            (self.target / ".opencode/harness/scripts/stray.py").exists(),
+            "stray source file leaked through MANIFEST gating",
+        )
+        # Source HAS a manifest, so the legacy-fallback notice must not appear.
+        self.assertNotIn("no MANIFEST", out)
+
+
+class TestLegacyFallback(InstallerTestCase):
+    """A source without MANIFEST (predates v0.4.0) falls back to rglob discovery.
+
+    Preserves backward compat: the v0.4.0 installer can install from an old tag
+    (v0.3.x) that has no MANIFEST, with a notice that leak protection is off.
+    """
+
+    def test_no_manifest_uses_rglobs_with_notice(self):
+        (self.source / "MANIFEST").unlink()
+        rc, out, _ = self._run("install", "--from", str(self.source))
+        self.assertEqual(rc, 0, out)
+        # Files still installed via the fallback discoverer.
+        self.assertTrue((self.target / ".opencode/agents/reviewer.md").exists())
+        self.assertTrue((self.target / ".opencode/commands/ship.md").exists())
+        # User is told why leak protection is inactive.
+        self.assertIn("no MANIFEST", out)
+        self.assertIn("rglob", out)
+
+
+class TestOrphanDetection(InstallerTestCase):
+    """Downstream files the current MANIFEST doesn't track are reported.
+
+    Deprecated orphans (listed in source DEPRECATED) get a reason; unknown
+    orphans get a generic message. By default nothing is deleted.
+    """
+
+    def setUp(self):
+        super().setUp()
+        # Swap in a source whose DEPRECATED explains migrate.md.
+        shutil.rmtree(self.source)
+        self.source = make_source_with_deprecated(self.tmp)
+
+    def test_deprecated_orphan_reported_with_reason(self):
+        orphan = self.target / ".opencode/commands/migrate.md"
+        orphan.parent.mkdir(parents=True, exist_ok=True)
+        orphan.write_text("stale leftover from v0.2.0")
+        rc, out, _ = self._run("install", "--from", str(self.source))
+        self.assertEqual(rc, 0, out)
+        self.assertIn("Deprecated files found", out)
+        self.assertIn("migrate.md", out)
+        self.assertIn("v0.3.0", out)
+        self.assertIn("idempotent", out)
+        # Warn-only by default: the file is NOT deleted.
+        self.assertTrue(
+            orphan.exists(), "deprecated orphan deleted without --prune-deprecated"
+        )
+        self.assertIn("--prune-deprecated", out)
+
+    def test_unknown_orphan_reported_generically(self):
+        # A downstream file in neither MANIFEST nor DEPRECATED — could be the
+        # user's own file. Reported but never touched.
+        unknown = self.target / ".opencode/commands/my-custom.md"
+        unknown.parent.mkdir(parents=True, exist_ok=True)
+        unknown.write_text("user's own file")
+        rc, out, _ = self._run("install", "--from", str(self.source))
+        self.assertEqual(rc, 0, out)
+        self.assertIn("Untracked files", out)
+        self.assertIn("my-custom.md", out)
+        self.assertTrue(unknown.exists())
+
+    def test_prune_deprecated_deletes_only_deprecated(self):
+        deprecated = self.target / ".opencode/commands/migrate.md"
+        deprecated.parent.mkdir(parents=True, exist_ok=True)
+        deprecated.write_text("stale")
+        unknown = self.target / ".opencode/commands/custom.md"
+        unknown.write_text("user file")
+        rc, out, _ = self._run(
+            "install", "--from", str(self.source), "--prune-deprecated"
+        )
+        self.assertEqual(rc, 0, out)
+        # Deprecated orphan IS pruned.
+        self.assertFalse(deprecated.exists(), "deprecated orphan not pruned")
+        self.assertIn("pruned", out.lower())
+        # Unknown orphan is NOT touched.
+        self.assertTrue(
+            unknown.exists(), "unknown orphan pruned (should be left alone)"
+        )
+
+    def test_status_detects_orphans_after_drop(self):
+        # Install writes a downstream manifest tracking only the shipped set.
+        self._run("install", "--from", str(self.source))
+        # Drop a file that the manifest doesn't track (simulates a leftover).
+        orphan = self.target / ".opencode/commands/migrate.md"
+        orphan.write_text("stale")
+        rc, out, _ = self._run("status")
+        self.assertIn("Orphans:", out)
+        self.assertIn("migrate.md", out)
+
+    def test_status_no_orphans_when_clean(self):
+        self._run("install", "--from", str(self.source))
+        rc, out, _ = self._run("status")
+        self.assertIn("No orphans", out)
 
 
 if __name__ == "__main__":

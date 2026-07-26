@@ -16,12 +16,13 @@ fragmentation.
 
 ## Commands
 
-This is a markdown-first repo with three stdlib-Python validation gates:
+This is a markdown-first repo with four stdlib-Python validation gates:
 
 ```bash
 python3 .opencode/harness/scripts/check-refs.py        # markdown reference integrity
 python3 .opencode/harness/scripts/lint-frontmatter.py   # frontmatter + tech-dir consistency
-python3 -m unittest discover -s tests -v                # installer tests
+python3 scripts/lint-manifest.py                        # MANIFEST/DEPRECATED vs .opencode/ (no leaks)
+python3 -m unittest discover -s tests -v                # installer + manifest-validator tests
 ```
 
 For the RED→GREEN test loop when this harness drives an actual codebase, see
@@ -29,8 +30,9 @@ For the RED→GREEN test loop when this harness drives an actual codebase, see
 
 ## Tech
 
-Markdown skills/rules/commands + the installer (`install.py`) and validators
-under `.opencode/harness/scripts/`. Each downstream project declares
+Markdown skills/rules/commands + the installer (`install.py`), the install-set
+declarations (`MANIFEST` + `DEPRECATED`), and validators under
+`.opencode/harness/scripts/` and `scripts/`. Each downstream project declares
 its own stack in `.opencode/harness/rules/tech.md`.
 
 ## Repo map
@@ -42,9 +44,12 @@ its own stack in `.opencode/harness/rules/tech.md`.
 | `.opencode/agents/`     | Specialist subagents (`code-reviewer`, `security-auditor`, `test-engineer`, `web-performance-auditor`). | …fanning out a review. See [README.md](README.md) § Agents. |
 | `.opencode/harness/rules/`      | Standing checklists + the tech declaration. Loaded on demand.       | …a command cites one. Only `.opencode/harness/rules/tech.md` is always loaded. |
 | `.opencode/harness/tech/`       | Per-language conventions. Only stacks in `.opencode/harness/rules/tech.md` are active (lazy-loaded via the router). | …editing code — read the matching `.opencode/harness/tech/<name>/` files.   |
-| `.opencode/harness/scripts/`    | `check-refs.py` + `lint-frontmatter.py` — validators.  | …you've added, renamed, or moved any `.md` file.          |
-| `tests/`             | Installer unittest suite.                                           | …you've changed `install.py`.                             |
-| `install.py`         | Installer (install/status) for adopting the harness into projects. Idempotent — re-running refreshes, overwriting only on `--force`. | …distributing or updating the harness.  |
+| `.opencode/harness/scripts/`    | `check-refs.py` + `lint-frontmatter.py` — validators that ship downstream.  | …you've added, renamed, or moved any `.md` file.          |
+| `scripts/`           | Maintainer-only tools (`lint-manifest.py`, `extract-release-notes.py`). Never shipped — not under `.opencode/`, not in `MANIFEST`. | …you've changed the manifest system or release flow.     |
+| `MANIFEST`           | The install set: every file the installer ships, one path per line. Gated — a file under `.opencode/` ships only if listed. | …adding/removing a shipped file (then run `scripts/lint-manifest.py`). |
+| `DEPRECATED`         | Removed files with `path ⇥ removed_in ⇥ reason[ ⇥ replacement]`. Drives the deprecation explanation `install` prints for orphans. | …removing a previously-shipped file.                      |
+| `tests/`             | Installer + manifest-validator unittest suites.                     | …you've changed `install.py` or `scripts/lint-manifest.py`.|
+| `install.py`         | Installer (install/status) for adopting the harness into projects. Idempotent, MANIFEST-gated; `--prune-deprecated` cleans deprecated orphans. | …distributing or updating the harness.  |
 
 ## Skill-Driven Execution
 
