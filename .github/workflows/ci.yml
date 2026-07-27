@@ -22,5 +22,8 @@ jobs:
       - name: Lint frontmatter + tech-dir consistency
         run: python3 .opencode/harness/scripts/lint-frontmatter.py
 
+      - name: Lint plan.md thinness
+        run: python3 .opencode/harness/scripts/lint-plan.py
+
       - name: Installer tests
         run: python3 -m unittest discover -s tests -v

@@ -15,7 +15,7 @@ are welcome.
 | `.opencode/skills/`   | `<name>/SKILL.md` (extra files allowed). |
 | `.opencode/harness/rules/`    | `*.md`, loaded on demand by commands.    |
 | `.opencode/harness/tech/`     | `<lang>/*.md`, each with `paths:` frontmatter. |
-| `.opencode/harness/scripts/`  | `check-refs.py`, `lint-frontmatter.py` (stdlib Python). |
+| `.opencode/harness/scripts/`  | `check-refs.py`, `lint-frontmatter.py`, `lint-plan.py` (stdlib Python). |
 | `tests/`     | Installer unittest suite. |
 
 ## Adding things
@@ -108,15 +108,16 @@ it. The consistency checker (below) validates this bidirectionally.
 
 ## Validation
 
-Before submitting, all three gates must pass:
+Before submitting, all four gates must pass:
 
 ```bash
 python3 .opencode/harness/scripts/check-refs.py
 python3 .opencode/harness/scripts/lint-frontmatter.py
+python3 .opencode/harness/scripts/lint-plan.py
 python3 -m unittest discover -s tests -v
 ```
 
-CI runs all three automatically on push and PR.
+CI runs all four automatically on push and PR.
 
 ## Tech declaration
 

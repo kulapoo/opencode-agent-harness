@@ -8,11 +8,12 @@ fully CI-tested — the steps marked **[manual]** require human or LLM verificat
 ```bash
 python3 .opencode/harness/scripts/check-refs.py
 python3 .opencode/harness/scripts/lint-frontmatter.py
+python3 .opencode/harness/scripts/lint-plan.py
 python3 scripts/lint-manifest.py
 python3 -m unittest discover -s tests -v
 ```
 
-All three must exit 0.
+All five must exit 0.
 
 ## 2. Installer self-test [automated]
 

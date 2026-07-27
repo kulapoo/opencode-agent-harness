@@ -6,7 +6,16 @@ All notable changes to this project are documented here. Format based on
 
 ## [Unreleased]
 
-_Nothing yet._
+### Added
+- **`lint-plan.py` validator** (`.opencode/harness/scripts/lint-plan.py`) — a
+  fifth validation gate that enforces `plan.md` thinness automatically. Catches
+  the "plan.md growing thick with per-task detail" red flag from
+  `planning-and-task-breakdown` via three near-zero-false-positive checks:
+  per-task detail headers (`**Acceptance criteria:**` etc.) inlined into the
+  plan, task lines missing their `→ tasks/00N-*.md` pointer, and indented
+  sub-content under a task line. Scans `docs/specs/**/plan.md`; exits 0
+  cleanly when the spec flow isn't in use, so it only fires where plans
+  actually live. Ships downstream via `MANIFEST`; runs in CI.
 
 ## [0.5.0] - 2026-07-26
 

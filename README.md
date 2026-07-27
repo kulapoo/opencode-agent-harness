@@ -172,7 +172,7 @@ full library one edit away.
 
 ## Validation
 
-Four gates (all stdlib Python, no dependencies):
+Five gates (all stdlib Python, no dependencies):
 
 ```bash
 # 1. Markdown reference integrity
@@ -181,14 +181,17 @@ python3 .opencode/harness/scripts/check-refs.py
 # 2. Frontmatter + tech-dir consistency
 python3 .opencode/harness/scripts/lint-frontmatter.py
 
-# 3. Manifest/deprecated consistency (ships vs. declared; no leaks)
+# 3. Plan.md thinness (per-task detail in tasks/, not the plan index)
+python3 .opencode/harness/scripts/lint-plan.py
+
+# 4. Manifest/deprecated consistency (ships vs. declared; no leaks)
 python3 scripts/lint-manifest.py
 
-# 4. Installer + manifest-validator tests
+# 5. Installer + manifest/plan-validator tests
 python3 -m unittest discover -s tests -v
 ```
 
-CI runs all four on every push and PR.
+CI runs all five on every push and PR.
 
 ## Contributing
 

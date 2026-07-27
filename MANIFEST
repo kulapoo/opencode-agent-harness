@@ -30,6 +30,7 @@
 .opencode/harness/rules/verification-commands.md
 .opencode/harness/scripts/check-refs.py
 .opencode/harness/scripts/lint-frontmatter.py
+.opencode/harness/scripts/lint-plan.py
 .opencode/harness/tech/README.md
 .opencode/harness/tech/angular/coding-style.md
 .opencode/harness/tech/angular/patterns.md
