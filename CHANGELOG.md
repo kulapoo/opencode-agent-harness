@@ -6,6 +6,10 @@ All notable changes to this project are documented here. Format based on
 
 ## [Unreleased]
 
+_Nothing yet._
+
+## [0.5.1] - 2026-07-27
+
 ### Added
 - **`lint-plan.py` validator** (`.opencode/harness/scripts/lint-plan.py`) — a
   fifth validation gate that enforces `plan.md` thinness automatically. Catches
