@@ -8,6 +8,17 @@ All notable changes to this project are documented here. Format based on
 
 _Nothing yet._
 
+## [0.5.2] - 2026-08-02
+
+### Added
+- **`/build` feature-branch prerequisite** (`.opencode/commands/build.md`) —
+  before either mode, `/build` now resolves `<effort-slug>` from the current git
+  branch and stops if you're on the default integration branch
+  (`main`/`master`/`develop`/`trunk`). It tells you to create a feature branch
+  (`git checkout -b <effort-slug>`) instead of silently creating a
+  `docs/specs/<default-branch-name>/` directory. If you're already on a feature
+  branch but the effort directory doesn't exist yet, it points you to `/spec`.
+
 ## [0.5.1] - 2026-07-27
 
 ### Added
